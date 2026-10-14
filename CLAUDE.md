@@ -41,14 +41,16 @@ data) and the team is filled back to 241.5 minutes — short-handed teams hand
 the missing minutes to players with room to grow, weighted toward the missing
 man's position; overfull ones trim from the end of the bench. Starters lose a
 little in projected blowouts. Production = per-minute rate (both seasons,
-recent weighted up, lightly shrunk to the position average) × minutes × a
-heavily shrunk DvP factor, then every team is scaled so its players add up to
+recent weighted up, lightly shrunk to the position average) × minutes, then
+every team is scaled so its players add up to
 what the team should produce tonight: points = the DK implied team total,
 rebounds/assists/threes = offense × opponent / league × the pace Vegas
 implies. A star sitting raises everyone else's share; a star returning lowers
-it. Outcomes are negative binomial with Var = a·mu^c fitted on backtest
-residuals (PRA: 9.09·mu^0.641). Pick6 voids DNPs, so the board projects the
-night he plays.
+it. The opponent only enters through those team totals — there is no
+defense-vs-position (DvP) factor. Outcomes are half negative binomial, half
+normal, with Var = a·mu^c fitted on backtest residuals (PRA: 10.84·mu^0.591)
+plus `BOOST_VAR_K`·boost². Pick6 voids DNPs, so the board projects the night
+he plays.
 
 ## Calibration (2025-26 regular season replay, Oct 2026)
 
@@ -60,13 +62,14 @@ the injury DNPs (coach's-decision DNPs stay in the pool — nobody knew those):
 | PRA error per player | **6.21** | 6.61 |
 | ...when a rotation teammate is out | **6.40** | 7.07 |
 | First month only (the launch window) | **6.36** | 6.74 |
-| Bias | -0.03 | |
+| Bias | -0.01 | |
 
-- Grades sort: A+ 45.7 / A 38.2 / B+ 33.3 / B 28.1 / C 22.9 / D 14.5 actual PRA, each within ~1 of projected
-- Boost +4 or more cleared the L10 line 73.6% (model said 73.5%); -4 or less stayed under 75.0%
+- Grades sort: A+ 45.8 / A 38.4 / B+ 33.5 / B 28.1 / C 22.9 / D 14.5 actual PRA, each within ~1 of projected
+- Boost +4 or more cleared the L10 line 73.9% (model said 73.5%); -4 or less stayed under 75.1%
 - P(over) is calibrated in every bucket (Brier 0.231 vs 0.25 coin flip) -- that needed the NB/normal
   mixture plus `BOOST_VAR_K`; the NB alone under-called Overs by ~3 points
-- DvP is noise (turning it off entirely was marginally better); it stays in, heavily shrunk
+- DvP was removed (Oct 13): it added nothing — every number above is with it gone, and the Brier
+  improved slightly (0.2311 -> 0.2310). Don't re-add a matchup factor without a calibration run that beats this
 - The L10 line is a lazy stand-in for a real DK line, which reacts to injury news within minutes. Expect the
   live More/Less rate to be well below the backtest; the scorecard is the real test
 
@@ -82,9 +85,16 @@ the injury DNPs (coach's-decision DNPs stay in the pool — nobody knew those):
 - `TOP_SHOWN` / `MIN_PROJ_MINUTES` — cards shown before "Show all"
 - `MAIN_SLATE_START_ET` — what counts as the DK main slate for the toggle
 - `INCLUDE_PRESEASON` — exhibition slates used only when no regular-season games (camp dry run)
-- Engine knobs (`RATE_K`, `RATE_DECAY`, `PRI_W`, `MIN_RECENT_*`, `FILL_*`, `TRIM_BETA`, `NORM_*`, `BLOWOUT_*`, `DVP_*`, `VAR_MODEL`) — tuned with `--calibrate`; move one only if the calibration report says so
+- Engine knobs (`RATE_K`, `RATE_DECAY`, `PRI_W`, `MIN_RECENT_*`, `FILL_*`, `TRIM_BETA`, `NORM_*`, `BLOWOUT_*`, `VAR_MODEL`, `BOOST_VAR_K`) — tuned with `--calibrate`; move one only if the calibration report says so
 - `BOOST_CALL` — boost size that counts as a More / Less call on the board and scorecard
 - `GITHUB_TOKEN` — env var (repo secret on Actions); `NTFY_TOPIC` — `basketball-guru`
+
+## Open items
+
+- **Revisit on Mon Oct 19, 2026 (day before opening night):** the card and edges table say "vs L10" /
+  "L10 line", but until a player has 5 games this season the boost and proxy line actually use his
+  last-40-game average (`ref_pra` in `finish_row`). The user chose to leave the label as is for now —
+  decide then whether to relabel it ("vs avg") for the first two weeks.
 
 ## Gotchas
 

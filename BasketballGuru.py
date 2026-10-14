@@ -14,7 +14,7 @@
     - What does he produce per minute, and how much of an injured
       teammate's usage does he soak up?
     - How fast and how high-scoring does Vegas expect the game to be?
-    - What does the opponent give up to his position?
+    - What does the opponent give up as a team?
 
   Output: a ranked board by projected PRA with the split (PTS / REB / AST /
   3PM), the chance of clearing a ladder of lines, and the BOOST -- how far
@@ -771,8 +771,6 @@ NORM_ZETA_UP, NORM_ZETA_DOWN = 0.3, -0.6
 BLOWOUT_FROM = 6.0
 BLOWOUT_K    = 0.0055
 B2B_MIN      = 0.985           # minutes factor for starters on the 2nd night of a back-to-back
-DVP_CLIP     = (0.90, 1.10)
-DVP_K        = 10000.0           # opponent minutes at which DvP and league split 50/50
 # Spread of outcomes around the projection: Var = a * mu^c, per stat, fitted
 # on backtest residuals (so it includes the minutes uncertainty, not just
 # shooting luck).
@@ -818,18 +816,15 @@ def league_baselines(db, d, season):
     for pg, x in grp.items():
         if x[0] > 5000:
             lg["pm"][pg] = {k: x[i] / x[0] for i, k in enumerate(STATS, 1)}
-    all_min = sum(x[0] for x in grp.values())
-    lg["pm_all"] = ({k: sum(x[i] for x in grp.values()) / all_min for i, k in enumerate(STATS, 1)}
-                    if all_min > 5000 else
-                    {k: _mean(lg["pm"][g][k] for g in "GFC") for k in STATS})
     return lg
 
 
 def team_profile(db, team, d, season, lg):
     """
     A team's per-48 production and what it allows, this season blended into
-    last as games accumulate, plus rest and what its opponents' positions do
-    against it (DvP).
+    last as games accumulate, plus rest. There is no defense-vs-position
+    factor: in the 2025-26 replay it added nothing (taking it out entirely
+    was marginally better) -- the opponent counts through the team totals.
     """
     tg = [g for g in db.team_games(team, d) if g["type"] in (2, 3) and g["s"] in (season, season - 1)]
     cur = [g for g in tg if g["s"] == season]
@@ -851,31 +846,6 @@ def team_profile(db, team, d, season, lg):
     for k in ("pts", "opp_pts", "reb", "opp_reb", "ast", "opp_ast", "fg3m", "opp_fg3m"):
         base = lg[k.replace("opp_", "")]
         prof[k] = regress(prof[k], n, base, 10)
-
-    # DvP: what each position group produces per minute against this defense,
-    # relative to the league, with the team-level effect divided out (that part
-    # already lives in the team totals).
-    acc = {}
-    for g, w in ws:
-        for pg, a in g["allowed"].items():
-            x = acc.setdefault(pg, [0.0] * 5)
-            for i in range(5):
-                x[i] += a[i] * w
-    tot_min = sum(x[0] for x in acc.values())
-    dvp = {}
-    for pg in "GFC":
-        x = acc.get(pg)
-        dvp[pg] = {}
-        for i, k in enumerate(STATS, 1):
-            if not x or x[0] <= 0 or tot_min <= 0:
-                dvp[pg][k] = 1.0
-                continue
-            allowed_all = sum(v[i] for v in acc.values()) / tot_min
-            rel_team = allowed_all / lg["pm_all"][k] if lg["pm_all"][k] else 1.0
-            raw = (x[i] / x[0]) / lg["pm"][pg][k] if lg["pm"][pg][k] else 1.0
-            raw = regress(raw, x[0], 1.0, DVP_K)
-            dvp[pg][k] = clip(raw / max(0.5, rel_team), *DVP_CLIP)
-    prof["dvp"] = dvp
 
     last = tg[0]["d"] if tg else None
     prof["rest_days"] = (date.fromisoformat(d) - date.fromisoformat(last)).days - 1 if last else None
@@ -1048,8 +1018,8 @@ def project_team(team, opp, avail, out, T, O, lg, line, is_home):
        more of a missing starter's time than the star at 36 does, and players
        at the missing man's position get extra weight.
     2. Blowout: a big spread trims the starters, the bench gets it back.
-    3. Production: per-minute rate x minutes x the opponent's DvP at his
-       position, then every stat is scaled so the team adds up to what it is
+    3. Production: per-minute rate x minutes, then every stat is scaled so
+       the team adds up to what it is
        expected to produce tonight -- points from the Vegas implied total,
        rebounds/assists/threes from both teams' tendencies and the pace
        Vegas implies. A star sitting raises everyone else's share; a star
@@ -1122,8 +1092,7 @@ def project_team(team, opp, avail, out, T, O, lg, line, is_home):
     # -- production
     raw = {}
     for p in plist:
-        dv = O["dvp"].get(p["grp"], {})
-        raw[p["pid"]] = {k: p["rates"][k] * mins[p["pid"]] * dv.get(k, 1.0) for k in STATS}
+        raw[p["pid"]] = {k: p["rates"][k] * mins[p["pid"]] for k in STATS}
     # Who absorbs the gap between the players' raw sum and the team target:
     # in proportion to raw x (his share / average share)^ZETA. ZETA > 0 hands
     # more of a vacated role to the go-to players; when there is too much
@@ -1161,7 +1130,7 @@ def project_team(team, opp, avail, out, T, O, lg, line, is_home):
             "mu": mu, "pra": mu["pts"] + mu["reb"] + mu["ast"],
             "scale": scale, "env": env, "pace": pace, "imp": imp_t, "imp_opp": imp_o,
             "spread_t": sp_t, "line_src": src, "targets": targets,
-            "dvp": O["dvp"].get(p["grp"], {}), "blowout_cut": cut_f,
+            "blowout_cut": cut_f,
             "vacated": vacated, "min_delta": m_cond - (p["l5_min"] or p["base_min"]),
         })
     return rows
@@ -1269,15 +1238,6 @@ def scout_note(r):
             bits.append(f"shootout: total {r['total']:.1f}")
         elif r["total"] <= 216:
             bits.append(f"slow game: total {r['total']:.1f}")
-    dv = r.get("dvp") or {}
-    best = max(STATS[:3], key=lambda k: dv.get(k, 1.0))
-    worst = min(STATS[:3], key=lambda k: dv.get(k, 1.0))
-    label = {"pts": "points", "reb": "boards", "ast": "assists"}
-    grp = {"G": "guards", "F": "forwards", "C": "centers"}[r["grp"]]
-    if dv.get(best, 1.0) >= 1.05:
-        bits.append(f"{r['opp']} gives {grp} {label[best]} (+{(dv[best] - 1) * 100:.0f}%)")
-    elif dv.get(worst, 1.0) <= 0.95:
-        bits.append(f"{r['opp']} stingy on {label[worst]} to {grp} ({(dv[worst] - 1) * 100:.0f}%)")
     if r.get("blowout_cut", 0) >= 0.03 and r["starter_tonight"]:
         bits.append(f"blowout risk ({abs(r['spread_t']):.1f}-pt spread) trims starters")
     if r.get("b2b"):
@@ -1805,8 +1765,6 @@ def _player_card(p):
     ls = p.get("l10_stats") or {}
     md = p["min_delta"]
     md_clr = "#3fb950" if md >= 2 else ("#ff7b72" if md <= -2 else "#8b949e")
-    dv = p.get("dvp") or {}
-    dv_txt = " &bull; ".join(f"{k.upper()} {(dv.get(k, 1) - 1) * 100:+.0f}%" for k in ("pts", "reb", "ast", "fg3m"))
     spread = p.get("spread_t")
     spread_txt = f"{'+' if spread > 0 else ''}{spread:.1f}" if spread is not None else "n/a"
     proxy = p.get("proxy_line")
@@ -1837,9 +1795,6 @@ def _player_card(p):
           <div><div class="stat-label">Rebounds / assists</div>
             <div class="stat-val">{mu['reb']:.1f} reb &bull; {mu['ast']:.1f} ast</div>
             <div class="stat-sub">L10 {ls.get('reb', 0):.1f} / {ls.get('ast', 0):.1f} &bull; 10+ reb {p['p_reb10'] * 100:.0f}% &bull; 8+ ast {p['p_ast8'] * 100:.0f}%</div></div>
-          <div><div class="stat-label">Matchup ({p['opp']} vs {p['grp']})</div>
-            <div class="stat-val">{dv_txt}</div>
-            <div class="stat-sub">what {p['opp']} allows to his position vs league</div></div>
           <div><div class="stat-label">Environment</div>
             <div class="stat-val">{p['team']} implied {p['imp']:.1f} &bull; spread {spread_txt}</div>
             <div class="stat-sub">total {p['total'] if p.get('total') else 'n/a'} &bull; {'home' if p['is_home'] else 'road'} &bull; {rest} &bull; team shares {(p['scale']['pts'] - 1) * 100:+.0f}%</div></div>
@@ -1980,7 +1935,7 @@ def render_html(slate_date, games, lines, rows, timestamp, history, total,
   <div class="about" id="about">
     <button class="about-bar" onclick="toggleAbout()"><span><b style="color:#ffa657">How this works</b> -- what the numbers mean and where they come from</span><span>&#9662;</span></button>
     <div class="about-body">
-      <p><b>The headline is projected Points + Rebounds + Assists</b> for the night he plays (Pick6 voids a DNP). It is built bottom-up: projected minutes &times; what he produces per minute (both seasons, recent games weighted up) &times; what tonight's opponent gives up to his position. Then every team is made to add up: minutes to 240 plus a little overtime, and points to what DraftKings' spread and total say the team will score. When a starter is ruled out, his minutes and his share of the shots go to the players left -- the backups at his position first.</p>
+      <p><b>The headline is projected Points + Rebounds + Assists</b> for the night he plays (Pick6 voids a DNP). It is built bottom-up: projected minutes &times; what he produces per minute (both seasons, recent games weighted up). Then every team is made to add up: minutes to 240 plus a little overtime, and points to what DraftKings' spread and total say the team will score. When a starter is ruled out, his minutes and his share of the shots go to the players left -- the backups at his position first. The opponent counts through those team totals (pace, points, rebounds and assists it allows); there is no defense-vs-position adjustment, because in the 2025-26 backtest it added nothing.</p>
       <p><b>BOOST</b> is the projection minus his last-10 PRA average. The last-10 average, to the half point, is roughly where a book with no news hangs the line, so a big boost means tonight is unusual: a teammate out, a pace-up spot, a soft matchup, more minutes. MORE and LESS tags mark boosts of 3+ either way. In the 2025-26 backtest, players with a +4 boost cleared their last-10 line about 73% of the time and players at -4 or lower stayed under it about 73% of the time. Real DK lines react to news, so check the line before you trust a boost.</p>
       <p><b>Line checker:</b> type the DK PRA line on any card for the More / Less percentage. The ladder and the range use the same distribution, fitted to how far real games land from the projection.</p>
       <p><b>The scorecard</b> at the bottom is the honesty check: every board is logged at tip-off and graded the next morning against the box scores -- PRA error, whether the grades sort players, and whether the MORE / LESS calls beat a coin flip.</p>
