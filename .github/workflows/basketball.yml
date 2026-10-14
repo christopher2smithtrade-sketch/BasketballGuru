@@ -1,0 +1,97 @@
+name: Basketball Guru
+
+# Times are UTC. The NBA runs on Eastern time (EDT = UTC-4 until Nov 1 2026,
+# then EST = UTC-5 -- bump every hour below by +1 when DST ends, same day as
+# Hockey Guru).
+#
+# GitHub's free cron runs 1-3 h late, so each window gets several crons spaced
+# 30 min apart and aimed ~1-2 h ahead. Whatever lands, lands. The script
+# handles the pile-up:
+#   - a scheduled run exits in seconds if the board is <20 min old
+#   - a quiet refresh (nobody newly OUT, board <2 h old) sends no phone push
+#   - a "fresh after X?" check is booked once per window, not once per cron
+# Minutes are :17 / :47 -- GitHub's queue jams at :00 and :30.
+#
+#   8:00 AM  score last night          crons 6:47 / 7:17 ET
+#   1:00 PM  midday injury report      crons 11:17 / 11:47 / 12:17 ET
+#   5:30 PM  pre-lock board            crons 3:47 / 4:17 / 4:47 ET
+#   6:40 PM  late scratches            crons 5:17 / 5:47 ET
+on:
+  schedule:
+    # 8:00 AM ET scoring
+    - cron: '47 10 * * *'
+    - cron: '17 11 * * *'
+    # 1:00 PM ET midday board
+    - cron: '17 15 * * *'
+    - cron: '47 15 * * *'
+    - cron: '17 16 * * *'
+    # 5:30 PM ET pre-lock board
+    - cron: '47 19 * * *'
+    - cron: '17 20 * * *'
+    - cron: '47 20 * * *'
+    # 6:40 PM ET last look
+    - cron: '17 21 * * *'
+    - cron: '47 21 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: basketball-report
+  cancel-in-progress: false
+
+jobs:
+  report:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Check out repo
+        uses: actions/checkout@v4
+
+      # Rosters, injuries and the current schedule go stale and stay out of
+      # git; carrying them between runs just saves a few calls. Finished box
+      # scores live in the committed cache/season/ tier instead -- they never
+      # change, so each one is committed exactly once.
+      - name: Restore the daily pulls
+        uses: actions/cache@v4
+        with:
+          path: cache/daily
+          key: basketball-daily-${{ github.run_id }}
+          restore-keys: basketball-daily-
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run Basketball Guru and deploy
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PYTHONIOENCODING: utf-8
+        run: python BasketballGuru.py
+
+      # The script pushes index.html and the prediction logs through the API.
+      # New box scores (one small file per finished game) and the run-check
+      # state are committed here.
+      - name: Commit season cache
+        run: |
+          git config user.name  "basketball-bot"
+          git config user.email "basketball-bot@users.noreply.github.com"
+          git add cache/season/ || true
+          if git diff --cached --quiet; then
+            echo "season cache unchanged"
+          else
+            git commit -m "Refresh season cache [skip ci]"
+            # The script already pushed this slate's prediction log through the
+            # Contents API, so origin holds it while the runner's copy is still
+            # untracked -- and the rebase below refuses to overwrite untracked
+            # files. Origin is the authoritative copy, so drop the local one.
+            git clean -fdq predictions/ || true
+            git pull --rebase --autostash origin main
+            git push
+          fi
