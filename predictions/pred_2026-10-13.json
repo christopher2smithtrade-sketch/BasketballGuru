@@ -3207,5 +3207,46 @@
    "grade": "OUT",
    "main": true
   }
- ]
+ ],
+ "scored": {
+  "date": "2026-10-13",
+  "n": 30,
+  "dnp": 12,
+  "mae": 5.37,
+  "bias": -2.45,
+  "min_mae": 5.47,
+  "brier": 0.2096,
+  "more": {
+   "n": 0,
+   "w": 0
+  },
+  "less": {
+   "n": 9,
+   "w": 7
+  },
+  "tiers": {
+   "D": {
+    "n": 18,
+    "proj": 12.81,
+    "act": 11.17,
+    "err": 4.04
+   },
+   "C": {
+    "n": 8,
+    "proj": 22.75,
+    "act": 17.5,
+    "err": 6.31
+   },
+   "B": {
+    "n": 4,
+    "proj": 29.25,
+    "act": 28.75,
+    "err": 9.52
+   }
+  },
+  "partial": false,
+  "games_left": 0,
+  "top_more": [],
+  "preseason": true
+ }
 }
