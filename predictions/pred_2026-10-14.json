@@ -4497,5 +4497,137 @@
    "p_over": 0.282,
    "var": 46.29
   }
- ]
+ ],
+ "scored": {
+  "date": "2026-10-14",
+  "n": 109,
+  "dnp": 43,
+  "mae": 6.71,
+  "bias": -3.35,
+  "min_mae": 6.9,
+  "brier": 0.2197,
+  "more": {
+   "n": 17,
+   "w": 9
+  },
+  "less": {
+   "n": 30,
+   "w": 23
+  },
+  "tiers": {
+   "A": {
+    "n": 2,
+    "proj": 38.53,
+    "act": 35.0,
+    "err": 9.26
+   },
+   "D": {
+    "n": 69,
+    "proj": 13.91,
+    "act": 13.48,
+    "err": 5.36
+   },
+   "C": {
+    "n": 23,
+    "proj": 22.77,
+    "act": 15.83,
+    "err": 7.57
+   },
+   "B+": {
+    "n": 7,
+    "proj": 32.89,
+    "act": 22.71,
+    "err": 10.17
+   },
+   "B": {
+    "n": 7,
+    "proj": 28.98,
+    "act": 19.0,
+    "err": 9.98
+   },
+   "A+": {
+    "n": 1,
+    "proj": 45.53,
+    "act": 18.0,
+    "err": 27.53
+   }
+  },
+  "partial": false,
+  "games_left": 0,
+  "top_more": [
+   {
+    "name": "Caleb Martin",
+    "team": "DAL",
+    "call": "More",
+    "line": 9.5,
+    "pra": 19.56,
+    "act": 8,
+    "won": false
+   },
+   {
+    "name": "Nikola Jovic",
+    "team": "MIA",
+    "call": "More",
+    "line": 12.5,
+    "pra": 21.86,
+    "act": 17,
+    "won": true
+   },
+   {
+    "name": "Moussa Cisse",
+    "team": "DAL",
+    "call": "More",
+    "line": 10.5,
+    "pra": 18.87,
+    "act": 15,
+    "won": true
+   },
+   {
+    "name": "Naji Marshall",
+    "team": "DAL",
+    "call": "More",
+    "line": 25.5,
+    "pra": 32.95,
+    "act": 10,
+    "won": false
+   },
+   {
+    "name": "Zaccharie Risacher",
+    "team": "DAL",
+    "call": "More",
+    "line": 13.5,
+    "pra": 20.87,
+    "act": 11,
+    "won": false
+   },
+   {
+    "name": "John Poulakidas",
+    "team": "DAL",
+    "call": "More",
+    "line": 12.5,
+    "pra": 19.84,
+    "act": 19,
+    "won": true
+   },
+   {
+    "name": "P.J. Washington",
+    "team": "DAL",
+    "call": "More",
+    "line": 22.5,
+    "pra": 29.13,
+    "act": 10,
+    "won": false
+   },
+   {
+    "name": "Khaman Maluach",
+    "team": "PHX",
+    "call": "More",
+    "line": 6.5,
+    "pra": 12.03,
+    "act": 8,
+    "won": true
+   }
+  ],
+  "preseason": true
+ }
 }
