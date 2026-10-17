@@ -90,6 +90,9 @@ MAIN_SLATE_START_ET = 18.9
 # Exhibition games are only used when there is NO regular-season slate that
 # day -- the week before opening night is a free end-to-end dry run.
 INCLUDE_PRESEASON   = True
+# On a day with no games the board previews the next game day instead of
+# sitting empty (off days, the All-Star break, the days before the opener).
+PREVIEW_LOOKAHEAD_DAYS = 7
 
 TOP_SHOWN = 30                  # cards shown before "Show all"
 MIN_PROJ_MINUTES = 12.0         # below this a player is listed only under "Show all"
@@ -2234,13 +2237,17 @@ def _scorecard_html(history, total):
 
 
 def render_html(slate_date, games, lines, rows, timestamp, history, total,
-                preseason=False, backtest=False, lock_str="", lg_total=230.0):
+                preseason=False, backtest=False, lock_str="", lg_total=230.0, preview=False):
     date_str = slate_date.strftime("%A, %B %d, %Y")
     banner = ""
     if backtest:
         banner = (f'<div class="banner">BACKTEST -- {date_str} rebuilt from what was known that morning '
                   f'(only earlier box scores, closing DraftKings lines, injury DNPs as the OUT list). '
                   f'Scored below against the real box scores.</div>')
+    elif preview:
+        banner = (f'<div class="banner">PREVIEW -- no NBA games today, so this is {slate_date.strftime("%A")}\'s board '
+                  f'as it stands right now. Lines, injuries and minutes will move before tip-off; the board '
+                  f'refreshes through the day.</div>')
     elif preseason:
         banner = ('<div class="banner">PRESEASON DRY RUN -- exhibition slate. Starters play 20 minutes and '
                   'coaches experiment, so treat the numbers as the pipeline warming up; the real board starts on '
@@ -2717,6 +2724,8 @@ def run(args):
     now = now_et()
     timestamp  = now.strftime("%Y-%m-%d %I:%M %p %Z")
     slate_date = date.fromisoformat(args.date) if args.date else now.date()
+    today      = slate_date
+    preview    = False
     backtest   = bool(args.backtest)
     do_deploy  = not (args.no_deploy or backtest)
     season     = season_of(slate_date)
@@ -2736,6 +2745,15 @@ def run(args):
                                      "out": True, "note": "", "return": "", "name": ""}
     else:
         games, preseason = get_slate(slate_date)
+        if not games and not args.date:
+            for i in range(1, PREVIEW_LOOKAHEAD_DAYS + 1):
+                nxt = slate_date + timedelta(days=i)
+                ahead, pre_ahead = get_slate(nxt)
+                if ahead:
+                    print(f"  No games today -- previewing {nxt.strftime('%A %b %d')}")
+                    slate_date, games, preseason, preview = nxt, ahead, pre_ahead, True
+                    season = season_of(slate_date)
+                    break
         lines = {g["game_id"]: g["odds_raw"] for g in games}
     print(f"  {len(games)} games{' (PRESEASON dry run)' if preseason else ''}")
     for g in games:
@@ -2780,7 +2798,7 @@ def run(args):
         sync_predictions_down(slate_date)
     prev_out  = logged_out(slate_date) if not backtest else None
     board_age = live_board_age_minutes() if do_deploy else None
-    pred_path = log_predictions(slate_date, rows, games, preseason, backtest) if games else None
+    pred_path = log_predictions(slate_date, rows, games, preseason, backtest) if games and not preview else None
     if pred_path and not backtest:
         sync_predictions_up(pred_path)
     rot_out = {r["name"] for r in rows if r.get("out") and r.get("base_min", 0) >= 15
@@ -2802,14 +2820,15 @@ def run(args):
                 if t:
                     print(f"    {g:<3} n={t['n']:<4} proj {t['proj']:5.1f}  actual {t['act']:5.1f}")
     else:
-        history, total = accuracy_history(slate_date)
+        history, total = accuracy_history(today)
         if history:
             print(f"  Scored {len(history)} prior slate(s) against box scores")
 
     print("  Rendering dashboard...")
     lock_str = games[0]["start_str"] if games else ""
     html = render_html(slate_date, games, lines, rows, timestamp, history, total,
-                       preseason=preseason, backtest=backtest, lock_str=lock_str, lg_total=lg["total"])
+                       preseason=preseason, backtest=backtest, lock_str=lock_str, lg_total=lg["total"],
+                       preview=preview)
     fname = f"nba_{slate_date.isoformat()}{'_backtest' if backtest else ''}.html"
     fpath = os.path.join(OUTPUT_FOLDER, fname)
     with open(fpath, "w", encoding="utf-8") as f:
@@ -2827,8 +2846,9 @@ def run(args):
 
     deployed = deploy(html)
     if deployed and verify_live(timestamp):
-        quiet = (board_age is not None and board_age < NOTIFY_QUIET_REFRESH_MIN
-                 and not newly_out and is_scheduled_run())
+        quiet = ((board_age is not None and board_age < NOTIFY_QUIET_REFRESH_MIN
+                  and not newly_out and is_scheduled_run())
+                 or (preview and is_scheduled_run()))     # off days stay off the phone
         if NTFY_NOTIFY_SUCCESS and not quiet:
             msg = []
             if ranked:
@@ -2841,7 +2861,7 @@ def run(args):
                 msg.append("Model vs DK: " + "; ".join(f"{r['name']} {r['pra']:.1f} vs {r['proxy_line']:g}" for r in gaps))
             if newly_out:
                 msg.append("Newly OUT: " + ", ".join(newly_out[:6]))
-            if history and history[0]["date"] == (slate_date - timedelta(days=1)).isoformat():
+            if history and history[0]["date"] == (today - timedelta(days=1)).isoformat():
                 y = history[0]
                 mo = y["more"]
                 vd = y.get("vs_dk") or {}
@@ -2849,7 +2869,8 @@ def run(args):
                            + (f" (DK line {vd['dk'] / vd['n']:.1f})" if vd.get("n") else "")
                            + (f", More {mo['w']}/{mo['n']}" if mo["n"] else "")
                            + (f", Less {y['less']['w']}/{y['less']['n']}" if y["less"]["n"] else ""))
-            title = (f"Basketball Guru: {len(games)} games{' (preseason)' if preseason else ''}"
+            title = (f"Basketball Guru: preview of {slate_date.strftime('%a %b %d')} ({len(games)} games)" if preview
+                     else f"Basketball Guru: {len(games)} games{' (preseason)' if preseason else ''}"
                      if games else "Basketball Guru: no games today")
             notify(title, "\n".join(msg) or "Board updated.", tags="basketball", click=PAGES_URL)
         elif quiet:
