@@ -4,8 +4,8 @@
 
 Nightly NBA PRA (Points + Rebounds + Assists) board for DraftKings Pick6. For
 every player on the slate it projects PRA and the split (PTS / REB / AST / 3PM),
-the chance of clearing a ladder of lines, and the BOOST — projection minus the
-player's last-10 average (roughly where a book with no news hangs the line).
+DraftKings' actual PRA line (free from ESPN), the model's disagreement with it,
+and More / Less odds that lean on that line.
 Same playbook as Hockey Guru (single file, Actions cron, Pages board, ntfy,
 prediction log + morning scorecard) — basketball-specific engine underneath.
 
@@ -18,6 +18,7 @@ prediction log + morning scorecard) — basketball-specific engine underneath.
 | `predictions/pred_*.json` | One per slate, logged at tip-off, graded next morning (synced to the repo) |
 | `cache/season/box_<season>/` | One compact box score per finished game (~4 KB) — committed once, never changes. ESPN season = the year it ends (2026 = 2025-26) |
 | `cache/season/schedule_<season>.json` / `preseason_<season>.json` | Finished seasons' game lists, regular season and preseason (committed). Preseason box scores share the `box_<season>/` folder; every query except the rookie fallback filters them out by game type |
+| `cache/season/props_<season>.json` | Archive of DraftKings' PRA line per game per player, the last one seen before tip-off (committed). ESPN drops props after a while, so this is the only history we keep |
 | `cache/daily/` | Rosters, current schedule, run-check state — git-ignored, carried by `actions/cache` |
 | `reports/` | Generated HTML boards (local only) |
 
@@ -77,14 +78,20 @@ the injury DNPs (coach's-decision DNPs stay in the pool — nobody knew those):
   players the model could not see, and their minutes inflated teammates. With it (`PRE_*` knobs tuned on
   the 2025-26 opening fortnight): teammates' first-game error 7.08 -> 7.00 and bias -0.75 -> -0.08,
   rookies themselves unbiased (+0.06, error ~8.9), full-season numbers unchanged
-- The L10 line is a lazy stand-in for a real DK line, which reacts to injury news within minutes. Expect the
-  live More/Less rate to be well below the backtest; the scorecard is the real test
+- **Against real DraftKings lines (Oct 17)** — 1,179 2025-26 lines ESPN still had (92% playoffs, 90 regular
+  season): DK missed by 6.20 a player, the model 6.45, the last-10 average 6.67. The model's 3+ point
+  disagreements with DK went 49%; its own More% had no relation to what happened; Less won 54% across the
+  board. So the 73% boost numbers above were wins against our own stand-in line, not against DK. The board
+  now uses DK's line wherever DK prices the player: the boost is model minus DK line, and the odds use
+  mean = DK + `DK_MODEL_W`·(model − DK) with `DK_MODEL_W` = 0.1 (fitted; 0.0 calibrates as well). MORE / LESS
+  tags are the model's opinion and are graded vs DK every night — they have not earned trust yet
 
 ## Data sources (all free, no keys)
 
 - **ESPN site API** `site.api.espn.com/apis/site/v2/sports/basketball/nba` — scoreboard (with DraftKings spread/total), summary (box score + `pickcenter` closing DK line), team schedules, rosters, injuries
 - stats.nba.com and cdn.nba.com refuse/hang from this PC and are known to block GitHub's runners — do not build on them
-- No prop-line feed: PrizePicks / Underdog / DK sportsbook all 403. The last-10 average stands in for the line; the card's line checker takes the real one
+- **ESPN core API** `sports.core.api.espn.com/v2/sports/basketball/leagues/nba/events/{id}/competitions/{id}/odds/100/propBets` — DraftKings player props, free. PRA main line = type id `90` ("Total Points, Rebounds, and Assists"), two items per player (over/under, unlabeled — only the line is used). Posted a few days before a game; dropped some time after it
+- PrizePicks / Underdog / DK sportsbook APIs all 403 — not needed now. The Odds API also sells props but its credits belong to Hockey Guru; do not spend them here
 
 ## Key config (top of BasketballGuru.py)
 
@@ -93,15 +100,19 @@ the injury DNPs (coach's-decision DNPs stay in the pool — nobody knew those):
 - `MAIN_SLATE_START_ET` — what counts as the DK main slate for the toggle
 - `INCLUDE_PRESEASON` — exhibition slates used only when no regular-season games (camp dry run)
 - Engine knobs (`RATE_K`, `RATE_DECAY`, `PRI_W`, `MIN_RECENT_*`, `FILL_*`, `TRIM_BETA`, `NORM_*`, `BLOWOUT_*`, `VAR_MODEL`, `BOOST_VAR_K`, `PRE_*`) — tuned with `--calibrate`; move one only if the calibration report says so
-- `BOOST_CALL` — boost size that counts as a More / Less call on the board and scorecard
+- `BOOST_CALL` — model-vs-line gap that counts as a More / Less call on the board and scorecard
+- `DK_MODEL_W` — the model's share of the say against a DK line in the odds
 - `GITHUB_TOKEN` — env var (repo secret on Actions); `NTFY_TOPIC` — `basketball-guru`
 
 ## Open items
 
-- **Revisit on Mon Oct 19, 2026 (day before opening night):** the card and edges table say "vs L10" /
-  "L10 line", but until a player has 5 games this season the boost and proxy line actually use his
+- **Revisit on Mon Oct 19, 2026 (day before opening night):** for players with NO DK line (mostly deep
+  bench), the card still says "vs L10", but until he has 5 games this season the fallback line is his
   last-40-game average (`ref_pra` in `finish_row`). The user chose to leave the label as is for now —
-  decide then whether to relabel it ("vs avg") for the first two weeks.
+  decide then whether to relabel it. Players with a DK line are labelled "DK line" correctly.
+- **Re-fit `DK_MODEL_W` after ~3 weeks of regular season:** `--calibrate 2026-10-20 <date>` prints an
+  "Against DraftKings' real line" section from the archived lines (miss, hit rate of 2+/3+/4+ gaps, and
+  the miss at each weight). The 0.1 came from a playoff-heavy sample.
 
 ## Gotchas
 
@@ -111,4 +122,6 @@ the injury DNPs (coach's-decision DNPs stay in the pool — nobody knew those):
 - Some scheduled 2025-26 ids 404 on ESPN (NBA Cup placeholders); finished seasons only fetch games marked completed.
 - ESPN abbreviations are the team keys everywhere: GS, NY, NO, SA, UTAH, WSH.
 - Predictions freeze per game once it tips; anything logged after is flagged `late` and not scored.
+- DK lines only refresh for games that have not tipped, so `props_<season>.json` holds the last pre-tip line.
+  An early-morning run may find no props posted yet; the board then falls back to the average line.
 - `.claude/launch.json` serves `reports/` on :8766 for previewing boards in the app.

@@ -637,6 +637,68 @@ def get_rosters(teams):
     return {t: cached.get(t, []) for t in teams}
 
 
+# ── DraftKings player props ──────────────────────────────────
+#
+# ESPN's core API carries DraftKings' player props for free -- the same
+# partnership that puts DK's spread and total on the scoreboard. Only the
+# main PRA line ("Total Points, Rebounds, and Assists") is used. ESPN drops
+# props some time after a game (of 2025-26 only 91 games kept theirs), so
+# every line seen is archived in the committed tier.
+
+CORE          = "https://sports.core.api.espn.com/v2/sports/basketball/leagues/nba"
+DK_PROVIDER   = "100"           # DraftKings in ESPN's odds feed
+PRA_PROP_TYPE = "90"            # "Total Points, Rebounds, and Assists"
+
+
+def fetch_pra_lines(gid):
+    """DraftKings' main PRA line for every player in one game: {pid: [line, opening line]}; None on failure."""
+    for attempt in range(3):
+        try:
+            r = requests.get(f"{CORE}/events/{gid}/competitions/{gid}/odds/{DK_PROVIDER}/propBets",
+                             params={"lang": "en", "region": "us", "limit": 1000}, headers=UA, timeout=25)
+            if r.status_code == 404:
+                return {}
+            r.raise_for_status()
+            out = {}
+            for it in r.json().get("items", []):
+                if (it.get("type") or {}).get("id") != PRA_PROP_TYPE:
+                    continue
+                m = re.search(r"/athletes/(\d+)", (it.get("athlete") or {}).get("$ref", ""))
+                cur = ((it.get("current") or {}).get("target") or {}).get("value")
+                opn = ((it.get("open") or {}).get("target") or {}).get("value")
+                if m and cur is not None:
+                    out[m.group(1)] = [float(cur), float(opn) if opn is not None else None]
+            return out
+        except Exception as e:
+            if attempt == 2:
+                print(f"  [!] DK props {gid}: {e}")
+            time.sleep(1.5 * (attempt + 1))
+    return None
+
+
+def get_dk_lines(games, season, live=True):
+    """
+    {game_id: {pid: [line, open]}} from the archive, refreshed from ESPN for
+    every game that has not tipped yet. Once a game starts its line stops
+    updating, so the archive keeps the last line before tip-off -- the one
+    the board was judged on.
+    """
+    arch = cache_load(f"props_{season}", permanent=True) or {}
+    lines = arch.get("lines", {})
+    todo = [g["game_id"] for g in games if live and not g.get("started")]
+    if todo:
+        with ThreadPoolExecutor(max_workers=BOX_WORKERS) as ex:
+            got = list(ex.map(fetch_pra_lines, todo))
+        changed = False
+        for gid, res in zip(todo, got):
+            if res:
+                lines[gid] = res
+                changed = True
+        if changed:
+            cache_save(f"props_{season}", {"lines": lines}, permanent=True)
+    return {g["game_id"]: lines.get(g["game_id"], {}) for g in games}
+
+
 # ============================================================
 #  PLAYER / TEAM DATABASE
 # ============================================================
@@ -784,6 +846,12 @@ B2B_MIN      = 0.985           # minutes factor for starters on the 2nd night of
 VAR_MODEL = {"pts": (6.13, 0.739), "reb": (1.84, 0.836), "ast": (1.40, 0.909), "fg3m": (1.31, 0.852),
              "pra": (10.84, 0.591)}
 BOOST_VAR_K = 0.5               # extra PRA variance per squared point of boost
+# Against a real DraftKings line the odds lean on the line, not the model:
+# on 1,179 real 2025-26 PRA lines (92% playoffs) DK missed by 6.20 a player
+# and the model by 6.45, and the model's 3+ point disagreements went 49%.
+# The model's share of the say, fitted there; re-fit once the regular season
+# has a few weeks of archived lines.
+DK_MODEL_W  = 0.1
 # Players with no NBA games are projected from this season's preseason.
 PRE_MIN_F  = 0.7                # preseason minutes -> regular-season minutes (rookies play more in October)
 PRE_RATE_K = 300.0              # preseason minutes at which his rate and the position average split 50/50
@@ -1189,25 +1257,35 @@ def finish_row(r):
     """Distributions, ladders, grade and boost for one projected player."""
     mu = r["pra"]
     # Until he has five games this season the last-10 is last April -- rest
-    # days and tank jobs -- so the season-long average stands in, as it does
-    # for the books' opening lines.
+    # days and tank jobs -- so the season-long average stands in.
     ref = r["l10_pra"] if r["gp_cur"] >= 5 else r["season_pra"]
     r["ref_pra"] = ref
-    r["boost"] = (mu - ref) if ref is not None else 0.0
-    # A projection far from his recent average is a bolder call and is wrong
-    # by more when it misses, so the spread widens with the boost.
-    var = stat_var("pra", mu) + BOOST_VAR_K * r["boost"] ** 2
-    r["sd"] = math.sqrt(var)
-    r["var"] = var
-    r["floor"] = dist_quantile(0.25, mu, var)
-    r["ceiling"] = dist_quantile(0.75, mu, var)
+    dk = r.get("dk_line")
+    if dk is not None:
+        # DraftKings' own line. The boost is the model's disagreement with it;
+        # the odds are built mostly from the line (see DK_MODEL_W).
+        r["line_src"], r["proxy_line"] = "DK", dk
+        r["boost"] = mu - dk
+        p_mean = dk + DK_MODEL_W * (mu - dk)
+        var = stat_var("pra", p_mean)
+    else:
+        # No DK line (deep bench, or props not posted yet): his recent average
+        # to the half point stands in, about where a book with no news would
+        # hang it. A projection far from it is a bolder call, so the spread
+        # widens with the boost.
+        r["line_src"] = "avg"
+        r["proxy_line"] = (math.floor(ref) + 0.5) if ref is not None else None
+        r["boost"] = (mu - ref) if ref is not None else 0.0
+        p_mean = mu
+        var = stat_var("pra", mu) + BOOST_VAR_K * r["boost"] ** 2
+    r["p_mean"], r["sd"], r["var"] = p_mean, math.sqrt(var), var
+    r["floor"] = dist_quantile(0.25, p_mean, var)
+    r["ceiling"] = dist_quantile(0.75, p_mean, var)
     r["var_s"] = {k: stat_var(k, r["mu"][k]) for k in STATS}
-    base = 5 * round(mu / 5)
-    r["ladder"] = [(x, p_at_least(x, mu, var)) for x in (base - 10, base - 5, base, base + 5, base + 10) if x > 0]
-    # The proxy line: that average to the nearest half point, which is about
-    # where a book with no news would hang the PRA prop.
-    r["proxy_line"] = (math.floor(ref) + 0.5) if ref is not None else None
-    r["p_over_proxy"] = p_at_least(math.ceil(r["proxy_line"]), mu, var) if r["proxy_line"] is not None else None
+    base = 5 * round(p_mean / 5)
+    r["ladder"] = [(x, p_at_least(x, p_mean, var)) for x in (base - 10, base - 5, base, base + 5, base + 10) if x > 0]
+    r["p_over_proxy"] = (p_at_least(math.ceil(r["proxy_line"]), p_mean, var)
+                         if r["proxy_line"] is not None else None)
     r["p_pts20"] = p_at_least(20, r["mu"]["pts"], r["var_s"]["pts"])
     r["p_3pm2"] = p_at_least(2, r["mu"]["fg3m"], r["var_s"]["fg3m"])
     r["p_reb10"] = p_at_least(10, r["mu"]["reb"], r["var_s"]["reb"])
@@ -1218,10 +1296,11 @@ def finish_row(r):
     return r
 
 
-def project_slate(db, games, d, season, rosters, out_ids, lines, injuries=None):
+def project_slate(db, games, d, season, rosters, out_ids, lines, injuries=None, dk=None):
     """
     Project every game. rosters: {team: [pid]}; out_ids: set of pids ruled out;
-    lines: {game_id: odds dict or None}. Returns (rows, team_profiles, lg).
+    lines: {game_id: odds dict or None}; dk: {game_id: {pid: [PRA line, open]}}.
+    Returns (rows, team_profiles, lg).
     """
     lg = league_baselines(db, d, season)
     tprof = {}
@@ -1246,6 +1325,8 @@ def project_slate(db, games, d, season, rosters, out_ids, lines, injuries=None):
                           "main_slate": g.get("main_slate", True), "b2b": tprof[team]["b2b"],
                           "opp_b2b": tprof[opp]["b2b"], "rest_days": tprof[team]["rest_days"],
                           "mates_out": names_out, "total": (lines.get(g["game_id"]) or {}).get("total")})
+                dkl = ((dk or {}).get(g["game_id"]) or {}).get(r["pid"])
+                r["dk_line"], r["dk_open"] = (dkl[0], dkl[1]) if dkl else (None, None)
                 inj = (injuries or {}).get(r["pid"])
                 r["inj_status"] = inj["status"] if inj else ""
                 r["inj_comment"] = inj["comment"] if inj else ""
@@ -1410,7 +1491,7 @@ def log_predictions(slate_date, rows, games, preseason=False, backtest=False):
             row.update({"pra": round(r["pra"], 2), "pts": round(r["mu"]["pts"], 2), "reb": round(r["mu"]["reb"], 2),
                         "ast": round(r["mu"]["ast"], 2), "fg3m": round(r["mu"]["fg3m"], 2),
                         "min": round(r["min"], 1), "ref": round(r["ref_pra"], 2) if r["ref_pra"] is not None else None,
-                        "boost": round(r["boost"], 2), "proxy": r["proxy_line"],
+                        "boost": round(r["boost"], 2), "proxy": r["proxy_line"], "line_src": r["line_src"],
                         "p_over": round(r["p_over_proxy"], 4) if r["p_over_proxy"] is not None else None,
                         "var": round(r["var"], 2)})
         if r["team"] in done_teams:
@@ -1433,20 +1514,22 @@ def log_predictions(slate_date, rows, games, preseason=False, backtest=False):
     return path
 
 
-BOOST_CALL = 3.0      # a projection this far from the L10 line counts as a More / Less call
+BOOST_CALL = 3.0      # a projection this far from the DK line counts as a More / Less call
 
 
 def score_date(slate_date, backtest=False, force=False):
     """
     Grade one logged slate against the box scores.
 
-    Three questions, each easy to fool yourself on alone:
+    Four questions, each easy to fool yourself on alone:
       * Is the projection close? (PRA error, and is it biased high or low)
       * Do the grades sort players? (A+ should out-produce B)
-      * Do the BOOST calls beat the lazy line? A More call (boost >= +3) wins
-        when he clears his last-10 line; a Less call (boost <= -3) when he
-        does not. A coin flip is 50%.
-    A player who never got in is skipped -- Pick6 voids those.
+      * Is the model closer than DraftKings' own line? (both errors, same players)
+      * Do the model's disagreements with DK win? A More call (3+ above the DK
+        line) wins when he clears it; a Less call (3+ below) when he does not.
+        A coin flip is 50%, and Pick6 needs well above that to pay.
+    Only real DK lines count for the last two. A player who never got in is
+    skipped -- Pick6 voids those.
     """
     path = _pred_path(slate_date, backtest)
     data = _read_json(path)
@@ -1468,6 +1551,7 @@ def score_date(slate_date, backtest=False, force=False):
         return None
 
     tiers, err, bias, min_err, brier = {}, [], [], [], []
+    vs_dk = {"n": 0, "model": 0.0, "dk": 0.0, "over": 0}
     more = {"n": 0, "w": 0}
     less = {"n": 0, "w": 0}
     dnp = 0
@@ -1489,8 +1573,12 @@ def score_date(slate_date, backtest=False, force=False):
         err.append(abs(a["pra"] - p["pra"]))
         bias.append(a["pra"] - p["pra"])
         min_err.append(abs(a["min"] - p["min"]))
-        if p.get("proxy") is not None and p.get("p_over") is not None:
+        if p.get("line_src") == "DK" and p.get("proxy") is not None and p.get("p_over") is not None:
             over = 1 if a["pra"] > p["proxy"] else 0
+            vs_dk["n"] += 1
+            vs_dk["model"] += abs(a["pra"] - p["pra"])
+            vs_dk["dk"] += abs(a["pra"] - p["proxy"])
+            vs_dk["over"] += over
             brier.append((p["p_over"] - over) ** 2)
             if p["boost"] >= BOOST_CALL:
                 more["n"] += 1
@@ -1512,7 +1600,7 @@ def score_date(slate_date, backtest=False, force=False):
         "date": slate_date.isoformat(), "n": n, "dnp": dnp,
         "mae": round(_mean(err), 2), "bias": round(_mean(bias), 2), "min_mae": round(_mean(min_err), 2),
         "brier": round(_mean(brier), 4) if brier else None,
-        "more": more, "less": less, "tiers": tiers,
+        "more": more, "less": less, "tiers": tiers, "vs_dk": vs_dk,
         "partial": games_left > 0, "games_left": games_left,
         "top_more": sorted(best, key=lambda x: -(x["pra"] - x["line"]))[:8],
         "preseason": data.get("preseason", False),
@@ -1537,7 +1625,7 @@ def accuracy_history(slate_date, days=14):
         if r:
             recent.append(r)
     total = {"n": 0, "err": 0.0, "bias": 0.0, "days": 0, "more": {"n": 0, "w": 0}, "less": {"n": 0, "w": 0},
-             "tiers": {}}
+             "tiers": {}, "vs_dk": {"n": 0, "model": 0.0, "dk": 0.0, "over": 0}}
     files = []
     if os.path.isdir(PREDICTIONS_FOLDER):
         files = sorted(f for f in os.listdir(PREDICTIONS_FOLDER) if f.startswith("pred_") and f.endswith(".json"))
@@ -1555,6 +1643,8 @@ def accuracy_history(slate_date, days=14):
         for k in ("more", "less"):
             total[k]["n"] += r[k]["n"]
             total[k]["w"] += r[k]["w"]
+        for k, v in (r.get("vs_dk") or {}).items():
+            total["vs_dk"][k] += v
         for g, t in r["tiers"].items():
             a = total["tiers"].setdefault(g, {"n": 0, "proj": 0.0, "act": 0.0})
             a["n"] += t["n"]
@@ -1754,7 +1844,7 @@ function checkLine(inp) {
   var line = parseFloat(inp.value);
   if (isNaN(line)) { out.textContent = ''; return; }
   var c = inp.closest('.player-card');
-  var mu = parseFloat(c.dataset.pra), v = parseFloat(c.dataset.var);
+  var mu = parseFloat(c.dataset.pm), v = parseFloat(c.dataset.var);
   var over = 0.5 * nbSf(Math.floor(line) + 1, mu, v) + 0.5 * (1 - normCdf((Math.floor(line) + 0.5 - mu) / Math.sqrt(v)));
   var more = over >= 0.5;
   out.textContent = (more ? 'More ' + Math.round(over * 100) : 'Less ' + Math.round((1 - over) * 100)) + '%';
@@ -1792,7 +1882,7 @@ def _player_card(p):
     style = f' style="border-left:4px solid {team_color}"'
     if p.get("out"):
         return f"""
-    <div class="player-card out" id="p-{p['pid']}"{style} data-team="{p['team']}" data-main="{1 if p.get('main_slate', True) else 0}" data-pos="{p['grp']}" data-pra="0" data-boost="0" data-var="1" data-out="1" data-rot="0">
+    <div class="player-card out" id="p-{p['pid']}"{style} data-team="{p['team']}" data-main="{1 if p.get('main_slate', True) else 0}" data-pos="{p['grp']}" data-pra="0" data-pm="0" data-boost="0" data-var="1" data-out="1" data-rot="0">
       <div class="card-rank" style="background:#ff444422;color:#ff4444;border:1px solid #ff444444"><span class="rk">#</span><strong style="font-size:1.1rem">OUT</strong></div>
       <div class="card-body">
         <div class="card-name"><span class="nm" style="color:{team_color}">{_esc(p['name'])}</span>
@@ -1802,10 +1892,11 @@ def _player_card(p):
       </div></div>"""
     mu = p["mu"]
     tags = f'<span class="tag {"st" if p["starter_tonight"] else "bn"}">{"Starter" if p["starter_tonight"] else "Bench"}</span>'
+    vs = "vs DK" if p["line_src"] == "DK" else "vs avg"
     if p["boost"] >= BOOST_CALL:
-        tags += f'<span class="tag up">MORE {p["boost"]:+.1f}</span>'
+        tags += f'<span class="tag up" title="model is {p["boost"]:.1f} above the line">MORE {p["boost"]:+.1f} {vs}</span>'
     elif p["boost"] <= -BOOST_CALL:
-        tags += f'<span class="tag down">LESS {p["boost"]:+.1f}</span>'
+        tags += f'<span class="tag down" title="model is {-p["boost"]:.1f} below the line">LESS {p["boost"]:+.1f} {vs}</span>'
     tags += _inj_tag(p)
     l10 = p.get("l10") or []
     l10_txt = " ".join(str(x) for x in l10[:10]) or "no games"
@@ -1820,10 +1911,21 @@ def _player_card(p):
     spread = p.get("spread_t")
     spread_txt = f"{'+' if spread > 0 else ''}{spread:.1f}" if spread is not None else "n/a"
     proxy = p.get("proxy_line")
-    over_txt = (f"vs L10 line {proxy}: More {p['p_over_proxy'] * 100:.0f}%" if proxy is not None else "")
+    if p["line_src"] == "DK":
+        moved = (f" (opened {p['dk_open']:g})" if p.get("dk_open") is not None and p["dk_open"] != proxy else "")
+        label_line = f"DK line {proxy:g} &bull; model {p['boost']:+.1f}"
+        check_txt = f"DK line {proxy:g}{moved} &bull; type Pick6's line if it differs"
+        check_val = f"{proxy:g}"
+        chance_sub = "leans on DK's line &mdash; the model gets a 10% say"
+    else:
+        label_line = f"boost {p['boost']:+.1f} vs L10"
+        check_txt = (f"no DK line &bull; vs L10 line {proxy}: More {p['p_over_proxy'] * 100:.0f}%" if proxy is not None
+                     else "no DK line")
+        check_val = ""
+        chance_sub = "no DK line &mdash; from the model alone"
     rot = 1 if p["min"] >= MIN_PROJ_MINUTES else 0
     return f"""
-    <div class="player-card" id="p-{p['pid']}"{style} data-team="{p['team']}" data-main="{1 if p.get('main_slate', True) else 0}" data-pos="{p['grp']}" data-pra="{p['pra']:.2f}" data-boost="{p['boost']:.2f}" data-var="{p['var']:.2f}" data-out="0" data-rot="{rot}">
+    <div class="player-card" id="p-{p['pid']}"{style} data-team="{p['team']}" data-main="{1 if p.get('main_slate', True) else 0}" data-pos="{p['grp']}" data-pra="{p['pra']:.2f}" data-pm="{p['p_mean']:.2f}" data-boost="{p['boost']:.2f}" data-var="{p['var']:.2f}" data-out="0" data-rot="{rot}">
       <div class="card-rank" style="background:{p['grade_color']}22;color:{p['grade_color']};border:1px solid {p['grade_color']}44">
         <span class="rk">#</span><strong style="font-size:1.2rem">{p['grade']}</strong>
       </div>
@@ -1833,11 +1935,12 @@ def _player_card(p):
           <span class="ctx">{_esc(p['pos'])} &bull; {p['team']} {home_away} {p['opp']} &bull; {p['start_str']} ET</span>
           {tags}
         </div>
-        <div class="card-label" style="color:{p['grade_color']}">{p['pra']:.1f} PRA projected &bull; {mu['pts']:.1f} / {mu['reb']:.1f} / {mu['ast']:.1f} &bull; boost {p['boost']:+.1f} vs L10</div>
+        <div class="card-label" style="color:{p['grade_color']}">{p['pra']:.1f} PRA projected &bull; {mu['pts']:.1f} / {mu['reb']:.1f} / {mu['ast']:.1f} &bull; {label_line}</div>
         <div class="card-stats">
-          <div><div class="stat-label">PRA range</div>
-            <div class="stat-val">{_bar(p['pra'], 55, '#f0883e')} {p['floor']}&ndash;{p['ceiling']} (middle 50%)</div>
-            <div class="stat-sub ladder">{ladder}</div></div>
+          <div><div class="stat-label">Chances</div>
+            <div class="stat-val">{_bar(p['p_mean'], 55, '#f0883e')} {p['floor']}&ndash;{p['ceiling']} PRA (middle 50%)</div>
+            <div class="stat-sub ladder">{ladder}</div>
+            <div class="stat-sub">{chance_sub}</div></div>
           <div><div class="stat-label">Minutes</div>
             <div class="stat-val">{_bar(p['min'], 42, '#58a6ff')} {p['min']:.1f} proj <span style="color:{md_clr}">({md:+.1f})</span></div>
             <div class="stat-sub">last 5 {p['l5_min'] or 0:.1f} &bull; season {p['season_min'] or 0:.1f} &bull; started {p['st_rate'] * 100:.0f}% of last 5</div></div>
@@ -1854,7 +1957,7 @@ def _player_card(p):
             <div class="stat-val">{p['l10_pra'] or 0:.1f} avg &bull; season {p['season_pra'] or 0:.1f}</div>
             <div class="stat-sub">{l10_txt}</div></div>
         </div>
-        <div class="checker">DK PRA line <input type="number" step="0.5" inputmode="decimal" placeholder="e.g. 29.5" oninput="checkLine(this)"> <span class="res"></span> <span class="muted">{over_txt}</span></div>
+        <div class="checker">PRA line <input type="number" step="0.5" inputmode="decimal" placeholder="e.g. 29.5" value="{check_val}" oninput="checkLine(this)"> <span class="res"></span> <span class="muted">{check_txt}</span></div>
         <div class="card-scout">{_esc(p['scout'])}</div>
       </div>
       <div class="card-score" style="color:{p['grade_color']}">{p['pra']:.0f}<small>PRA</small></div>
@@ -1862,29 +1965,39 @@ def _player_card(p):
 
 
 def _edges_html(rows):
-    """Two quick lists: biggest boosts (More candidates) and biggest drops (Less candidates)."""
-    pool = [r for r in rows if not r.get("out") and r["min"] >= MIN_PROJ_MINUTES and r.get("l10_pra") is not None
-            and len(r.get("l10") or []) >= 5]
+    """Where the model disagrees most with DraftKings' line, both ways."""
+    live = [r for r in rows if not r.get("out") and r["min"] >= MIN_PROJ_MINUTES]
+    pool = [r for r in live if r["line_src"] == "DK"]
+    vs = "the DK line"
+    if not pool:
+        # Props not posted yet (early-morning run) -- fall back to the average line.
+        pool = [r for r in live if r.get("proxy_line") is not None and len(r.get("l10") or []) >= 5]
+        vs = "his recent average (no DK lines posted yet)"
 
     def table(lst, title, color):
         if not lst:
             return ""
         body = "".join(
             f'<tr onclick="jumpTo(\'{r["pid"]}\')"><td><b>{_esc(r["name"])}</b> <span class="muted">{r["team"]}</span></td>'
-            f'<td class="r">{r["pra"]:.1f}</td><td class="r muted">{r["proxy_line"]}</td>'
+            f'<td class="r">{r["pra"]:.1f}</td><td class="r muted">{r["proxy_line"]:g}</td>'
             f'<td class="r" style="color:{color};font-weight:700">{r["boost"]:+.1f}</td>'
             f'<td class="r">{(r["p_over_proxy"] if r["boost"] > 0 else 1 - r["p_over_proxy"]) * 100:.0f}%</td></tr>'
             f'<tr onclick="jumpTo(\'{r["pid"]}\')"><td class="why" colspan="5">{_esc(r["scout"])}</td></tr>'
             for r in lst)
+        line_hdr = "DK line" if vs == "the DK line" else "avg line"
         return (f'<div class="edge-box"><h3 style="color:{color}">{title}</h3><table>'
-                f'<tr class="muted"><td style="font-size:11px">player</td><td class="r" style="font-size:11px">proj</td>'
-                f'<td class="r" style="font-size:11px">L10 line</td><td class="r" style="font-size:11px">boost</td>'
-                f'<td class="r" style="font-size:11px">hit</td></tr>{body}</table></div>')
+                f'<tr class="muted"><td style="font-size:11px">player</td><td class="r" style="font-size:11px">model</td>'
+                f'<td class="r" style="font-size:11px">{line_hdr}</td><td class="r" style="font-size:11px">gap</td>'
+                f'<td class="r" style="font-size:11px">chance</td></tr>{body}</table></div>')
     ups = sorted([r for r in pool if r["boost"] >= BOOST_CALL], key=lambda r: -r["boost"])[:8]
     downs = sorted([r for r in pool if r["boost"] <= -BOOST_CALL], key=lambda r: r["boost"])[:8]
+    note = ('<p class="muted" style="font-size:12px;margin:0 0 10px">The model\'s biggest disagreements with '
+            f'{vs}. Unproven: against last season\'s real DK lines (mostly playoffs) these went 49%, so the '
+            '"chance" column leans on the line. The scorecard grades every one.</p>')
     if not ups and not downs:
-        return '<div class="empty">No projection sits 3+ PRA away from its last-10 line tonight.</div>'
-    return f'<div class="edges">{table(ups, "More: projection above the L10 line", "#3fb950")}{table(downs, "Less: projection below the L10 line", "#ff7b72")}</div>'
+        return note + '<div class="empty">The model is within 3 PRA of the line for every rotation player tonight.</div>'
+    return (note + f'<div class="edges">{table(ups, "Model above the line", "#3fb950")}'
+            f'{table(downs, "Model below the line", "#ff7b72")}</div>')
 
 
 def _scorecard_html(history, total):
@@ -1907,10 +2020,14 @@ def _scorecard_html(history, total):
         mo, le = total["more"], total["less"]
         mo_txt = f"{mo['w'] / mo['n'] * 100:.0f}% of {mo['n']}" if mo["n"] else "none yet"
         le_txt = f"{le['w'] / le['n'] * 100:.0f}% of {le['n']}" if le["n"] else "none yet"
+        vd = total.get("vs_dk") or {}
+        dk_txt = (f"vs DraftKings' line ({vd['n']} players): model off by {vd['model'] / vd['n']:.1f}, DK off by "
+                  f"{vd['dk'] / vd['n']:.1f}, went over {vd['over'] / vd['n'] * 100:.0f}% &bull; "
+                  if vd.get("n") else "")
         html += f"""
         <p class="muted" style="font-size:13px;margin-bottom:8px">All-time: {total['days']} slates, {total['n']} rotation players &bull;
-          PRA error {total['mae']:.1f}/player (bias {total['bias']:+.1f}) &bull;
-          More calls won {mo_txt} &bull; Less calls won {le_txt} (50% = coin flip)</p>
+          PRA error {total['mae']:.1f}/player (bias {total['bias']:+.1f}) &bull; {dk_txt}
+          model's More calls won {mo_txt} &bull; Less calls won {le_txt} (50% = coin flip; Pick6 needs well above it)</p>
         <table class="score"><tr><th>Grade</th><th>Players</th><th>Projected PRA</th><th>Actual PRA</th><th>Gap</th></tr>{rows}</table>"""
     if history:
         rows = ""
@@ -1920,11 +2037,13 @@ def _scorecard_html(history, total):
             mo_txt = f"{mo['w']}/{mo['n']}" if mo["n"] else "-"
             le_txt = f"{le['w']}/{le['n']}" if le["n"] else "-"
             pre = ' <span class="muted">(pre)</span>' if r.get("preseason") else ""
+            vd = r.get("vs_dk") or {}
+            dk_txt = f"{vd['model'] / vd['n']:.1f} / {vd['dk'] / vd['n']:.1f}" if vd.get("n") else "-"
             rows += (f'<tr><td>{r["date"]}{flag}{pre}</td><td>{r["n"]}</td><td>{r["mae"]:.1f}</td><td>{r["bias"]:+.1f}</td>'
-                     f'<td>{r["min_mae"]:.1f}</td><td>{mo_txt}</td><td>{le_txt}</td>'
+                     f'<td>{r["min_mae"]:.1f}</td><td>{dk_txt}</td><td>{mo_txt}</td><td>{le_txt}</td>'
                      f'<td>{r["brier"] if r.get("brier") is not None else "-"}</td></tr>')
         html += f"""
-        <div class="scroll"><table class="score"><tr><th>Slate</th><th>Players</th><th>PRA err</th><th>Bias</th><th>Min err</th><th>More won</th><th>Less won</th><th>Brier</th></tr>{rows}</table></div>"""
+        <div class="scroll"><table class="score"><tr><th>Slate</th><th>Players</th><th>PRA err</th><th>Bias</th><th>Min err</th><th>Model / DK err</th><th>More won</th><th>Less won</th><th>Brier</th></tr>{rows}</table></div>"""
     return html
 
 
@@ -1965,6 +2084,7 @@ def render_html(slate_date, games, lines, rows, timestamp, history, total,
     scorecard = _scorecard_html(history, total)
     n_games = len(games)
     priced = sum(1 for g in games if (lines.get(g["game_id"]) or {}).get("total"))
+    n_dk = sum(1 for r in rows if not r.get("out") and r.get("line_src") == "DK")
     n_out = sum(1 for r in rows if r.get("out") and r.get("base_min", 0) >= 15 and r.get("recent_team_presence", 0) >= 3)
 
     return f"""<!DOCTYPE html>
@@ -1980,7 +2100,7 @@ def render_html(slate_date, games, lines, rows, timestamp, history, total,
   <h1>BASKETBALL GURU</h1>
   <p>NBA PRA board &bull; {date_str} &bull; {n_games} games</p>
   <p>Generated {timestamp}{(' &bull; <span class="lock">first tip ' + lock_str + ' ET</span>') if lock_str else ''}</p>
-  <p style="font-size:12px;color:#6e7681">DK lines {priced}/{n_games} &bull; {n_out} rotation players OUT &bull; grades: {' '.join(f'<span style="color:{GRADE_COLORS[g]}">{g} &ge;{c:.0f}</span>' for g, c in PRA_GRADES)}</p>
+  <p style="font-size:12px;color:#6e7681">DK game lines {priced}/{n_games} &bull; DK PRA lines for {n_dk} players &bull; {n_out} rotation players OUT &bull; grades: {' '.join(f'<span style="color:{GRADE_COLORS[g]}">{g} &ge;{c:.0f}</span>' for g, c in PRA_GRADES)}</p>
   {banner}
 </div>
 <div class="container">
@@ -1988,16 +2108,17 @@ def render_html(slate_date, games, lines, rows, timestamp, history, total,
     <button class="about-bar" onclick="toggleAbout()"><span><b style="color:#ffa657">How this works</b> -- what the numbers mean and where they come from</span><span>&#9662;</span></button>
     <div class="about-body">
       <p><b>The headline is projected Points + Rebounds + Assists</b> for the night he plays (Pick6 voids a DNP). It is built bottom-up: projected minutes &times; what he produces per minute (both seasons, recent games weighted up). Then every team is made to add up: minutes to 240 plus a little overtime, and points to what DraftKings' spread and total say the team will score. When a starter is ruled out, his minutes and his share of the shots go to the players left -- the backups at his position first. The opponent counts through those team totals (pace, points, rebounds and assists it allows); there is no defense-vs-position adjustment, because in the 2025-26 backtest it added nothing.</p>
-      <p><b>BOOST</b> is the projection minus his last-10 PRA average. The last-10 average, to the half point, is roughly where a book with no news hangs the line, so a big boost means tonight is unusual: a teammate out, a pace-up spot, a soft matchup, more minutes. MORE and LESS tags mark boosts of 3+ either way. In the 2025-26 backtest, players with a +4 boost cleared their last-10 line about 73% of the time and players at -4 or lower stayed under it about 73% of the time. Real DK lines react to news, so check the line before you trust a boost.</p>
-      <p><b>Line checker:</b> type the DK PRA line on any card for the More / Less percentage. The ladder and the range use the same distribution, fitted to how far real games land from the projection.</p>
-      <p><b>The scorecard</b> at the bottom is the honesty check: every board is logged at tip-off and graded the next morning against the box scores -- PRA error, whether the grades sort players, and whether the MORE / LESS calls beat a coin flip.</p>
-      <p style="color:#8b949e">Data: ESPN (schedule, box scores, rosters, injuries, DraftKings spreads and totals). No paid feeds.</p>
+      <p><b>DK line</b> is DraftKings' actual PRA line, pulled free from ESPN for every player DK prices. The number next to it is the model's disagreement: projection minus line. MORE and LESS tags mark disagreements of 3+.</p>
+      <p><b>Be careful with the tags.</b> Tested against 1,179 real DK lines from last season (mostly playoffs), DraftKings was more accurate than the model (off by 6.2 a player vs 6.5), and when the model disagreed by 3+ it was right only 49% of the time. So the percentages on this board lean on DK's line -- the model gets a 10% say -- and the tags are the model's opinion, graded every night on the scorecard. Trust them once the scorecard shows them winning well above 50%, not before. Players DK does not price fall back to their recent average as the line (marked "vs avg").</p>
+      <p><b>Line checker:</b> each card is filled in with DK's line and shows the More / Less percentage. If Pick6's line is different, type it in. The ladder and the range use the same numbers.</p>
+      <p><b>The scorecard</b> at the bottom is the honesty check: every board is logged at tip-off and graded the next morning against the box scores -- PRA error, whether the grades sort players, the model vs DK's own line on the same players, and whether the MORE / LESS calls beat a coin flip.</p>
+      <p style="color:#8b949e">Data: ESPN (schedule, box scores, rosters, injuries, DraftKings spreads, totals and PRA lines). No paid feeds.</p>
     </div>
   </div>
   <div class="toolbar">
     <button class="toggle sort-btn on" onclick="setSort(this,'pra')">Rank: PRA</button>
-    <button class="toggle sort-btn" onclick="setSort(this,'boost')">Biggest boost</button>
-    <button class="toggle sort-btn" onclick="setSort(this,'fade')">Biggest drop</button>
+    <button class="toggle sort-btn" onclick="setSort(this,'boost')">Model above line</button>
+    <button class="toggle sort-btn" onclick="setSort(this,'fade')">Model below line</button>
     <span class="sep"></span>
     <button class="toggle pos-btn on" onclick="setPos(this,'ALL')">All</button>
     <button class="toggle pos-btn" onclick="setPos(this,'G')">G</button>
@@ -2008,9 +2129,9 @@ def render_html(slate_date, games, lines, rows, timestamp, history, total,
   </div>
   <div class="games-row">{chips}</div>
   <div class="filter-banner" id="filter-banner"></div>
-  <h2 class="section-title">Tonight's edges <small>projection vs the last-10 line; tap a name for the card</small></h2>
+  <h2 class="section-title">Model vs DraftKings <small>biggest disagreements; tap a name for the card</small></h2>
   {_edges_html(rows)}
-  <h2 class="section-title">The board <small>projected PRA if he plays; type the DK line on a card for More / Less</small></h2>
+  <h2 class="section-title">The board <small>projected PRA if he plays; each card shows DK's line and the More / Less odds</small></h2>
   <div id="board">{board}</div>
   <button class="show-all" id="show-all" onclick="showAll(this)">Show all</button>
   <h2 class="section-title">Scorecard <small>logged at tip-off, graded the next morning</small></h2>
@@ -2018,7 +2139,8 @@ def render_html(slate_date, games, lines, rows, timestamp, history, total,
 </div>
 <div class="footer">Basketball Guru &bull; paper picks only &bull; projections are not betting advice</div>
 <script>var TOP_SHOWN = {TOP_SHOWN};{JS}
-applyFilters();</script>
+applyFilters();
+document.querySelectorAll('.checker input').forEach(function (i) {{ if (i.value) checkLine(i); }});</script>
 </body></html>"""
 
 
@@ -2179,7 +2301,8 @@ def calibrate(start, end):
         boxes = [b for b in boxes_on(d, season) if b["type"] in (2, 3)]
         if boxes:
             games, rosters, out_ids, lines, actual = slate_from_boxes(boxes)
-            rows, _, _ = project_slate(db, games, d.isoformat(), season, rosters, out_ids, lines)
+            dk = get_dk_lines(games, season, live=False)
+            rows, _, _ = project_slate(db, games, d.isoformat(), season, rosters, out_ids, lines, dk=dk)
             for r in rows:
                 if r.get("out") or r["pid"] not in actual:
                     continue
@@ -2190,6 +2313,7 @@ def calibrate(start, end):
                              "a": a, "l10": r["ref_pra"], "boost": r["boost"], "st": r["starter_tonight"],
                              "spread": abs(r["spread_t"] or 0), "b2b": r["b2b"], "grade": r["grade"],
                              "p_over": r["p_over_proxy"], "proxy": r["proxy_line"], "gp": r["gp_cur"],
+                             "src": r["line_src"],
                              "mates_out": len(r["mates_out"]), "base_min": r["base_min"]})
         d += timedelta(days=1)
     return recs
@@ -2220,6 +2344,23 @@ def calibration_report(recs, min_proj=15.0):
         mu = _mean(r["pra"] for r in b)
         print(f"    {lo:>2}-{hi:<2} n={len(b):<5} {mu:5.1f} / {_mean(r['a']['pra'] for r in b):5.1f}"
               f"   resid SD {stx.pstdev(res):5.2f}   model SD {math.sqrt(stat_var('pra', mu)):5.2f}")
+
+    # Against DraftKings' real line, where archived lines exist. DK_MODEL_W
+    # is re-fitted here: the model's share of the say that minimises the miss.
+    D = [r for r in recs if r.get("src") == "DK"]
+    if len(D) >= 100:
+        print(f"\n  Against DraftKings' real line ({len(D)} player-games):")
+        print(f"    miss vs actual: model {_mean(abs(r['a']['pra'] - r['pra']) for r in D):.2f}   "
+              f"DK line {_mean(abs(r['a']['pra'] - r['proxy']) for r in D):.2f}   "
+              f"went over {_mean(1.0 if r['a']['pra'] > r['proxy'] else 0.0 for r in D) * 100:.1f}%")
+        for t in (2, 3, 4):
+            c = [r for r in D if abs(r["pra"] - r["proxy"]) >= t]
+            w = sum(1 for r in c if (r["a"]["pra"] > r["proxy"]) == (r["pra"] > r["proxy"]))
+            print(f"    model {t}+ away from the line: right {w}/{len(c)} = {w / len(c) * 100 if c else 0:.1f}%")
+        print("    model's share of the say (DK_MODEL_W) -> miss:", "  ".join(
+            f"{w:.1f}:{_mean(abs(r['a']['pra'] - (r['proxy'] + w * (r['pra'] - r['proxy']))) for r in D):.3f}"
+            for w in (0.0, 0.1, 0.2, 0.3, 0.5)))
+    R = [r for r in R if r.get("src") != "DK"]
 
     print("\n  Boost (proj - L10) vs what happened relative to L10:")
     for lo, hi in ((-99, -4), (-4, -2), (-2, 0), (0, 2), (2, 4), (4, 99)):
@@ -2426,18 +2567,22 @@ def run(args):
     elif not backtest:
         injuries, rosters, out_ids = {}, {}, set()
 
+    print("  Fetching DraftKings PRA lines...")
+    dk = get_dk_lines(games, season, live=not backtest) if games else {}
+    print(f"  {sum(len(v) for v in dk.values())} player lines across {sum(1 for v in dk.values() if v)}/{len(games)} games\n")
+
     print("  Loading box scores...")
     db, _ = load_db(slate_date)
     print(f"  {sum(len(v) for v in db.tlog.values()) // 2} games in the database, {len(db.plog)} players\n")
 
     print("  Projecting...")
-    rows, tprof, lg = project_slate(db, games, slate_date.isoformat(), season, rosters, out_ids, lines, injuries)
+    rows, tprof, lg = project_slate(db, games, slate_date.isoformat(), season, rosters, out_ids, lines, injuries, dk)
     live = [r for r in rows if not r.get("out")]
     ranked = sorted(live, key=lambda r: -r["pra"])
     for r in ranked[:12]:
         print(f"    {r['grade']:<3} {r['name']:<26} {r['team']:<4} {'vs' if r['is_home'] else '@ '} {r['opp']:<4} "
               f"{r['min']:4.1f}m  {r['pra']:5.1f} PRA ({r['mu']['pts']:.1f}/{r['mu']['reb']:.1f}/{r['mu']['ast']:.1f})  "
-              f"boost {r['boost']:+.1f}")
+              f"{'DK ' + format(r['proxy_line'], 'g') if r['line_src'] == 'DK' else 'no DK line'} ({r['boost']:+.1f})")
     print()
 
     print("  Logging predictions for later scoring...")
@@ -2500,17 +2645,20 @@ def run(args):
                 t = ranked[0]
                 msg.append(f"Top PRA: {t['name']} ({t['team']} {'vs' if t['is_home'] else '@'} {t['opp']}) "
                            f"{t['pra']:.1f} {t['grade']}")
-            ups = sorted((r for r in live if r["min"] >= MIN_PROJ_MINUTES and r["boost"] >= BOOST_CALL
-                          and len(r.get("l10") or []) >= 5), key=lambda r: -r["boost"])[:3]
-            if ups:
-                msg.append("Boosts: " + "; ".join(f"{r['name']} {r['boost']:+.1f} (line ~{r['proxy_line']})" for r in ups))
+            gaps = sorted((r for r in live if r["min"] >= MIN_PROJ_MINUTES and r["line_src"] == "DK"
+                           and abs(r["boost"]) >= BOOST_CALL), key=lambda r: -abs(r["boost"]))[:3]
+            if gaps:
+                msg.append("Model vs DK: " + "; ".join(f"{r['name']} {r['pra']:.1f} vs {r['proxy_line']:g}" for r in gaps))
             if newly_out:
                 msg.append("Newly OUT: " + ", ".join(newly_out[:6]))
             if history and history[0]["date"] == (slate_date - timedelta(days=1)).isoformat():
                 y = history[0]
                 mo = y["more"]
+                vd = y.get("vs_dk") or {}
                 msg.append(f"Last night: PRA error {y['mae']:.1f}"
-                           + (f", More calls {mo['w']}/{mo['n']}" if mo["n"] else ""))
+                           + (f" (DK line {vd['dk'] / vd['n']:.1f})" if vd.get("n") else "")
+                           + (f", More {mo['w']}/{mo['n']}" if mo["n"] else "")
+                           + (f", Less {y['less']['w']}/{y['less']['n']}" if y["less"]["n"] else ""))
             title = (f"Basketball Guru: {len(games)} games{' (preseason)' if preseason else ''}"
                      if games else "Basketball Guru: no games today")
             notify(title, "\n".join(msg) or "Board updated.", tags="basketball", click=PAGES_URL)
