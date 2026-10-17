@@ -1718,7 +1718,38 @@ h2.section-title small { color:#8b949e; font-size:12px; font-weight:400; }
 .edge-box td.r { text-align:right; } .edge-box td.why { white-space:normal; color:#8b949e; font-size:11px; }
 .edge-box tr { cursor:pointer; } .edge-box tr:hover td { background:#1c2128; }
 
-.player-card { display:flex; gap:12px; background:#161b22; border:1px solid #30363d; border-radius:12px; padding:14px; margin-bottom:12px; align-items:stretch; }
+.player-card { display:block; background:#161b22; border:1px solid #30363d; border-radius:12px; padding:14px; margin-bottom:12px; }
+.v-both { display:flex; gap:12px; align-items:stretch; }
+.v-detail { display:none; gap:12px; align-items:stretch; }
+.v-simple { display:block; padding:2px 4px; }
+body.detail .v-detail { display:flex; }
+body.detail .v-simple { display:none; }
+
+.nov-top { display:flex; justify-content:space-between; align-items:flex-start; gap:12px; }
+.nov-name { font-size:1.25rem; font-weight:800; }
+.nov-rank { font-size:12px; color:#8b949e; font-weight:700; margin-right:6px; }
+.nov-ctx { color:#8b949e; font-size:13px; }
+.nov-verdict { border:2px solid; border-radius:10px; padding:6px 10px; font-weight:800; font-size:14px; text-align:center; white-space:nowrap; }
+.nov-verdict small { display:block; font-size:12px; font-weight:600; color:#c9d1d9; }
+.nov-nums { display:flex; align-items:center; gap:18px; margin:14px 0 4px; }
+.nov-k { font-size:11px; text-transform:uppercase; letter-spacing:1px; color:#8b949e; }
+.nov-v { font-size:2rem; font-weight:800; color:#e6edf3; line-height:1.1; }
+.nov-vs { color:#6e7681; font-weight:700; padding-top:14px; }
+.nov-pra { font-size:12px; color:#8b949e; margin-bottom:8px; }
+.nov-sum { font-size:14px; color:#e6edf3; margin:8px 0 12px; }
+.meter { height:9px; background:#21262d; border-radius:5px; overflow:hidden; margin-top:6px; }
+.meter i { display:block; height:100%; border-radius:5px; min-width:6px; }
+.meter-lab { display:flex; justify-content:space-between; font-size:10px; color:#6e7681; margin-top:3px; }
+.nov-small { font-size:12px; color:#8b949e; margin-top:4px; }
+.nov-why { margin:6px 0 0 18px; font-size:13px; color:#c9d1d9; }
+.nov-why li { margin:4px 0; }
+.nov-stats { width:100%; border-collapse:collapse; font-size:13px; margin-top:6px; }
+.nov-stats th { font-size:10px; text-transform:uppercase; letter-spacing:1px; color:#6e7681; font-weight:600; padding:3px 4px; text-align:left; }
+.nov-stats td { padding:5px 4px; border-top:1px solid #21262d; color:#c9d1d9; }
+.nov-stats .n { text-align:right; white-space:nowrap; } .nov-stats .c { text-align:right; color:#8b949e; font-size:12px; }
+.nov-more summary { cursor:pointer; color:#8b949e; font-size:12px; margin-top:10px; }
+.nov-cols { display:grid; grid-template-columns:1fr; gap:0 28px; }
+@media (min-width:860px) { .nov-cols { grid-template-columns:1fr 1fr; } .nov-cols > div:last-child .nov-k:first-child { margin-top:0 !important; } }
 .player-card.out { opacity:.55; }
 .card-rank { min-width:64px; display:flex; flex-direction:column; align-items:center; justify-content:center; border-radius:10px; font-size:13px; font-weight:700; padding:6px; }
 .card-body { flex:1; min-width:0; }
@@ -1769,6 +1800,12 @@ window.addEventListener('load', function () {
   } catch (e) {}
 });
 function toggleAbout() { document.getElementById('about').classList.toggle('open'); }
+// Simple (the default) or Detailed cards; each phone remembers its own choice.
+function setMode(m) {
+  document.body.classList.toggle('detail', m === 'detail');
+  document.querySelectorAll('.mode-btn').forEach(function (b) { b.classList.toggle('on', b.dataset.mode === m); });
+  try { localStorage.setItem('bg_mode', m); } catch (e) {}
+}
 var activeGame = null, mainOnly = false, posFilter = 'ALL', showAllCards = false, sortKey = 'pra';
 function applyFilters() {
   var board = document.getElementById('board');
@@ -1790,7 +1827,7 @@ function applyFilters() {
     var limit = showAllCards || activeGame ? 1e9 : TOP_SHOWN;
     if (ok) { n += 1; if (n > limit) { ok = false; more += 1; } }
     c.style.display = ok ? '' : 'none';
-    if (ok) { shown += 1; c.querySelector('.rk').textContent = '#' + shown; }
+    if (ok) { shown += 1; c.querySelectorAll('.rk').forEach(function (e) { e.textContent = '#' + shown; }); }
   });
   var btn = document.getElementById('show-all');
   btn.style.display = more > 0 && !showAllCards ? '' : 'none';
@@ -1876,20 +1913,213 @@ def _inj_tag(p):
     return f'<span class="tag dtd" title="{title}">{_esc(s)}{(" - " + _esc(p["inj_note"])) if p.get("inj_note") else ""}</span>'
 
 
-def _player_card(p):
+def _verdict(p_more):
+    """(label, colour, side, probability of that side, note) for a More probability."""
+    side, ps = ("MORE", p_more) if p_more >= 0.5 else ("LESS", 1 - p_more)
+    col = "#3fb950" if side == "MORE" else "#ff7b72"
+    if ps < 0.55:
+        return "TOSS-UP", "#d29922", side, ps, "Close to a coin flip. Fine to skip."
+    if ps < 0.60:
+        return f"SLIGHT LEAN {side}", col, side, ps, "A small edge at best."
+    if ps < 0.65:
+        return f"LEAN {side}", col, side, ps, "One of the better spots tonight."
+    return f"STRONG LEAN {side}", col, side, ps, "As strong as this board gets."
+
+
+def _simple_card(p, lg_total):
+    """
+    The card for someone new to props: the answer first, two numbers to
+    compare, one sentence, then the reasons in plain words. Every number on
+    the detailed card is still here, translated, or behind "More details".
+    """
+    team_name = TEAMS[p["team"]][1].split()[-1]
+    opp_name = TEAMS[p["opp"]][1].split()[-1]
+    team_color = display_color(TEAMS[p["team"]][2])
+    last_name = p["name"].split()[-1]
+    mu, proj = p["mu"], p["pra"]
+    line = p.get("proxy_line")
+    has_dk = p.get("line_src") == "DK"
+    p_more = p.get("p_over_proxy")
+
+    if has_dk and p_more is not None:
+        verdict, vcolor, side, p_side, vnote = _verdict(p_more)
+        badge = (f'<div class="nov-verdict" style="color:{vcolor};border-color:{vcolor}">{verdict}'
+                 f'<small>{side.title()} {p_side * 100:.0f}%</small></div>')
+        nums = (f'<div><div class="nov-k">DraftKings line</div><div class="nov-v">{line:g}</div></div>'
+                f'<div class="nov-vs">vs</div>'
+                f'<div><div class="nov-k">Our projection</div><div class="nov-v">{proj:.1f}</div></div>')
+        summary = (f"We think {_esc(last_name)} lands around <b>{proj:.0f}</b>, {'under' if proj < line else 'over'} "
+                   f"DraftKings' <b>{line:g}</b>. But so far DraftKings' lines have been more accurate than our model, "
+                   f"so we only lean a little.")
+        meter_w = int(clip((p_side - 0.5) / 0.2, 0.0, 1.0) * 100)
+        meter = (f'<div class="nov-k">How confident?</div>'
+                 f'<div class="meter"><i style="width:{meter_w}%;background:{vcolor}"></i></div>'
+                 f'<div class="meter-lab"><span>coin flip</span><span>slight</span><span>lean</span><span>strong</span></div>'
+                 f'<div class="nov-small">{vnote}</div>')
+    else:
+        badge = '<div class="nov-verdict" style="color:#8b949e;border-color:#30363d">NO DK LINE<small>projection only</small></div>'
+        nums = f'<div><div class="nov-k">Our projection</div><div class="nov-v">{proj:.1f}</div></div>'
+        summary = (f"We think {_esc(last_name)} lands around <b>{proj:.0f}</b>. DraftKings has not posted a line on him, "
+                   f"so there is nothing to compare against.")
+        meter = ""
+
+    # Plain-English reasons, most important first
+    why = []
+    l5 = p.get("l5_min") or p["min"]
+    recent = "preseason games (rookies play more in October)" if p.get("pre_only") else "games"
+    if p["min"] - l5 <= -2:
+        why.append(f"Expected to play about <b>{p['min']:.0f} minutes</b>, fewer than the {l5:.0f} he averaged in his "
+                   f"last 5 {recent}. Fewer minutes means fewer chances to score.")
+    elif p["min"] - l5 >= 2:
+        why.append(f"Expected to play about <b>{p['min']:.0f} minutes</b>, more than the {l5:.0f} he averaged in his last 5 {recent}.")
+    if p.get("mates_out"):
+        who = ", ".join(_esc(n) for n in p["mates_out"][:2])
+        why.append(f"{who} {'is' if len(p['mates_out']) == 1 else 'are'} out tonight, so more shots go his way.")
+    l10 = p.get("l10") or []
+    when = " (last season)" if p["gp_cur"] == 0 and not p.get("pre_only") else ""
+    if l10 and line is not None:
+        cleared = sum(1 for x in l10 if x > line)
+        tail = ", which is why DraftKings set the line there" if has_dk else ""
+        why.append(f"He went over {line:g} in <b>{cleared} of his last {len(l10)}</b> games{when}{tail}.")
+    if p.get("b2b"):
+        why.append("Second game in two nights, so he may tire or sit late.")
+    if p.get("blowout_cut", 0) >= 0.03 and p["starter_tonight"]:
+        why.append("Could be a blowout, and starters often sit in the 4th quarter of those.")
+    if p.get("pre_only"):
+        why.append(f"No NBA games yet, so this is built from his {p['pre_gp']} preseason games. Treat it as a rough guess.")
+    elif p["gp_cur"] == 0:
+        why.append("No games yet this season, so this is built from last season.")
+
+    # His last 10 games against the line (oldest on the left)
+    chart = ""
+    if l10:
+        games = list(reversed(l10))
+        W, H, pad = 300, 92, 4
+        top = max(games + ([line] if line else [])) * 1.12
+        bw = (W - pad * 2) / len(games)
+        bars = ""
+        for i, v in enumerate(games):
+            h = (v / top) * (H - 16) if top else 0
+            x = pad + i * bw + 2
+            col = "#3fb950" if line is not None and v > line else "#6e7681"
+            bars += (f'<rect x="{x:.1f}" y="{H - 14 - h:.1f}" width="{bw - 4:.1f}" height="{h:.1f}" rx="2" fill="{col}"/>'
+                     f'<text x="{x + (bw - 4) / 2:.1f}" y="{H - 14 - h - 3:.1f}" font-size="9" fill="#8b949e" text-anchor="middle">{v}</text>')
+        dash = ""
+        if line is not None:
+            ly = H - 14 - (line / top) * (H - 16)
+            dash = f'<line x1="0" x2="{W}" y1="{ly:.1f}" y2="{ly:.1f}" stroke="#f0883e" stroke-width="1.5" stroke-dasharray="5 4"/>'
+        what = (f"DraftKings' line ({line:g})" if has_dk else f"his recent average ({line:g})") if line is not None else ""
+        chart = (f'<div class="nov-k" style="margin-top:10px">His last {len(l10)} games (PRA){when}</div>'
+                 f'<svg viewBox="0 0 {W} {H}" width="100%" height="{H}" style="max-width:380px;display:block" role="img" aria-label="last games vs the line">{bars}{dash}'
+                 f'<text x="2" y="{H - 2}" font-size="9" fill="#6e7681">older</text>'
+                 f'<text x="{W - 2}" y="{H - 2}" font-size="9" fill="#6e7681" text-anchor="end">most recent</text></svg>'
+                 + (f'<div class="nov-small">Orange dashed line = {what}. Green bars went over it. ' if what else '<div class="nov-small">')
+                 + f'Most nights he should land between <b>{p["floor"]}</b> and <b>{p["ceiling"]}</b>.</div>')
+    else:
+        chart = (f'<div class="nov-small" style="margin-top:10px">Most nights he should land between '
+                 f'<b>{p["floor"]}</b> and <b>{p["ceiling"]}</b>.</div>')
+
+    # Tonight's stat line
+    ls = p.get("l10_stats") or {}
+    stat_rows = ""
+    for label, k, chance in (("Points", "pts", f"{p['p_pts20'] * 100:.0f}% to score 20+"),
+                             ("Rebounds", "reb", f"{p['p_reb10'] * 100:.0f}% to grab 10+"),
+                             ("Assists", "ast", f"{p['p_ast8'] * 100:.0f}% to dish 8+"),
+                             ("Threes", "fg3m", f"{p['p_3pm2'] * 100:.0f}% to hit 2+")):
+        tonight, last = mu[k], ls.get(k)
+        arrow = ""
+        if last:
+            if tonight >= last * 1.1:
+                arrow = '<span style="color:#3fb950"> &#9650;</span>'
+            elif tonight <= last * 0.9:
+                arrow = '<span style="color:#ff7b72"> &#9660;</span>'
+        last_txt = f"{last:.1f}" if last is not None else "-"
+        stat_rows += (f'<tr><td>{label}</td><td class="n"><b>{tonight:.1f}</b>{arrow}</td>'
+                      f'<td class="n muted">{last_txt}</td><td class="c">{chance}</td></tr>')
+
+    # The game, in plain English
+    game = [f"Expected score: <b>{team_name} {p['imp']:.0f}, {opp_name} {p['imp_opp']:.0f}</b>"
+            f"{' (from DraftKings&#39; spread and total)' if p.get('total') else ''}."]
+    sp = p.get("spread_t")
+    if sp is not None and abs(sp) >= 0.5:
+        fav = f"The {team_name} are {abs(sp):g}-point {'favorites' if sp < 0 else 'underdogs'}"
+        if abs(sp) <= 6:
+            game.append(f"{fav}, so it should be close. Starters play their normal minutes in close games.")
+        elif abs(sp) >= 10:
+            game.append(f"{fav}. If it turns into a blowout, starters often sit the 4th quarter.")
+        else:
+            game.append(f"{fav}.")
+    else:
+        game.append("Even matchup, so it should be close. Starters play their normal minutes in close games.")
+    if p.get("total"):
+        if p["total"] <= lg_total - 5:
+            game.append(f"Total of {p['total']:g} is <b>lower-scoring</b> than an average game ({lg_total:.0f}): "
+                        f"fewer possessions, fewer stats for everyone.")
+        elif p["total"] >= lg_total + 5:
+            game.append(f"Total of {p['total']:g} is <b>higher-scoring</b> than an average game ({lg_total:.0f}): "
+                        f"more possessions, more stats to go around.")
+        else:
+            game.append(f"Total of {p['total']:g} is about an average-scoring game.")
+    rest = p.get("rest_days")
+    where = "at home" if p["is_home"] else "on the road"
+    if p.get("b2b"):
+        game.append(f"Playing {where}, on the second night in a row. Tired legs can cost a few minutes.")
+    elif rest is not None and rest > 7:
+        game.append(f"Playing {where}, fully rested.")
+    elif rest is not None:
+        game.append(f"Playing {where} with {rest} day{'s' if rest != 1 else ''} of rest.")
+    else:
+        game.append(f"Playing {where}.")
+    sh = p["scale"]["pts"]
+    if sh <= 0.93:
+        game.append("Deep roster: lots of teammates to share the ball with, so his scoring share is trimmed a little.")
+    elif sh >= 1.07:
+        game.append("Thin roster tonight: more of the team's scoring falls to him.")
+
+    opened = (f" &bull; DK line opened at {p['dk_open']:g}" if has_dk and p.get("dk_open") is not None else "")
+    spread_txt = f"spread {sp:+.1f}" if sp is not None else "no spread"
+    inj = _inj_tag(p)
+    return f"""
+      <div class="nov-top">
+        <div><div class="nov-name" style="color:{team_color}"><span class="rk nov-rank">#</span>{_esc(p['name'])}</div>
+          <div class="nov-ctx">{team_name} {'vs' if p['is_home'] else '@'} {opp_name} &bull; {p['start_str']} ET {inj}</div></div>
+        {badge}
+      </div>
+      <div class="nov-nums">{nums}</div>
+      <div class="nov-pra">PRA = Points + Rebounds + Assists &nbsp;&bull;&nbsp; <b>{mu['pts']:.0f}</b> pts + <b>{mu['reb']:.0f}</b> reb + <b>{mu['ast']:.0f}</b> ast</div>
+      <p class="nov-sum">{summary}</p>
+      <div class="nov-cols"><div>
+      {meter}
+      {'<div class="nov-k" style="margin-top:12px">Why</div><ul class="nov-why">' + ''.join(f'<li>{w}</li>' for w in why) + '</ul>' if why else ''}
+      {chart}
+      </div><div>
+      <div class="nov-k" style="margin-top:14px">Tonight's stat line</div>
+      <table class="nov-stats"><tr><th></th><th class="n">Tonight</th><th class="n">Last 10{when}</th><th class="c">Chance</th></tr>{stat_rows}</table>
+      <div class="nov-small">&#9650; / &#9660; = 10%+ above or below his recent average. Chances in this table come from our model alone.</div>
+      <div class="nov-k" style="margin-top:14px">The game</div>
+      <ul class="nov-why">{''.join(f'<li>{g}</li>' for g in game)}</ul>
+      <details class="nov-more"><summary>More details</summary>
+        <div class="nov-small" style="margin-top:6px">Minutes: {p['min']:.1f} projected (last 5 games {l5:.1f}, started {p['st_rate'] * 100:.0f}% of them)
+        &bull; board grade {p['grade']} (on projected PRA){opened} &bull; {spread_txt}, total {p['total'] if p.get('total') else 'n/a'}
+        &bull; switch to Detailed for every number</div></details>
+      </div></div>"""
+
+
+def _player_card(p, lg_total=230.0):
     team_color = display_color(TEAMS.get(p["team"], ("", "", "#8b949e"))[2])
     home_away = "vs" if p["is_home"] else "@"
     style = f' style="border-left:4px solid {team_color}"'
     if p.get("out"):
         return f"""
     <div class="player-card out" id="p-{p['pid']}"{style} data-team="{p['team']}" data-main="{1 if p.get('main_slate', True) else 0}" data-pos="{p['grp']}" data-pra="0" data-pm="0" data-boost="0" data-var="1" data-out="1" data-rot="0">
+      <div class="v-both">
       <div class="card-rank" style="background:#ff444422;color:#ff4444;border:1px solid #ff444444"><span class="rk">#</span><strong style="font-size:1.1rem">OUT</strong></div>
       <div class="card-body">
         <div class="card-name"><span class="nm" style="color:{team_color}">{_esc(p['name'])}</span>
           <span class="ctx">{p['grp']} &bull; {p['team']} {home_away} {p['opp']}</span>{_inj_tag(p)}</div>
-        <div class="card-label" style="color:#ff7b72">Not playing &bull; {p['base_min']:.0f} min/gm redistributed to teammates</div>
+        <div class="card-label" style="color:#ff7b72">Not playing &bull; his {p['base_min']:.0f} minutes a game go to teammates</div>
         <div class="card-scout">{_esc(p.get('inj_comment') or p.get('inj_status') or 'Out')}</div>
-      </div></div>"""
+      </div></div></div>"""
     mu = p["mu"]
     tags = f'<span class="tag {"st" if p["starter_tonight"] else "bn"}">{"Starter" if p["starter_tonight"] else "Bench"}</span>'
     vs = "vs DK" if p["line_src"] == "DK" else "vs avg"
@@ -1926,6 +2156,8 @@ def _player_card(p):
     rot = 1 if p["min"] >= MIN_PROJ_MINUTES else 0
     return f"""
     <div class="player-card" id="p-{p['pid']}"{style} data-team="{p['team']}" data-main="{1 if p.get('main_slate', True) else 0}" data-pos="{p['grp']}" data-pra="{p['pra']:.2f}" data-pm="{p['p_mean']:.2f}" data-boost="{p['boost']:.2f}" data-var="{p['var']:.2f}" data-out="0" data-rot="{rot}">
+      <div class="v-simple">{_simple_card(p, lg_total)}</div>
+      <div class="v-detail">
       <div class="card-rank" style="background:{p['grade_color']}22;color:{p['grade_color']};border:1px solid {p['grade_color']}44">
         <span class="rk">#</span><strong style="font-size:1.2rem">{p['grade']}</strong>
       </div>
@@ -1961,6 +2193,7 @@ def _player_card(p):
         <div class="card-scout">{_esc(p['scout'])}</div>
       </div>
       <div class="card-score" style="color:{p['grade_color']}">{p['pra']:.0f}<small>PRA</small></div>
+      </div>
     </div>"""
 
 
@@ -2048,7 +2281,7 @@ def _scorecard_html(history, total):
 
 
 def render_html(slate_date, games, lines, rows, timestamp, history, total,
-                preseason=False, backtest=False, lock_str=""):
+                preseason=False, backtest=False, lock_str="", lg_total=230.0):
     date_str = slate_date.strftime("%A, %B %d, %Y")
     banner = ""
     if backtest:
@@ -2079,7 +2312,7 @@ def render_html(slate_date, games, lines, rows, timestamp, history, total,
           <div class="meta">{('OUT: ' + _esc(', '.join(outs[:4]))) if outs else 'no rotation players out'}</div></div>"""
 
     ranked = sorted(rows, key=lambda r: (bool(r.get("out")), -r["pra"]))
-    cards = "".join(_player_card(p) for p in ranked)
+    cards = "".join(_player_card(p, lg_total) for p in ranked)
     board = cards if rows else '<div class="empty">No players on the slate.</div>'
     scorecard = _scorecard_html(history, total)
     n_games = len(games)
@@ -2095,6 +2328,7 @@ def render_html(slate_date, games, lines, rows, timestamp, history, total,
 <meta name="theme-color" content="#0d1117">
 <style>{CSS}</style>
 </head><body>
+<script>try {{ if (localStorage.getItem('bg_mode') === 'detail') document.body.classList.add('detail'); }} catch (e) {{}}</script>
 <div id="splash"><div class="ball"></div><div class="splash-title">BASKETBALL GURU</div><div class="splash-sub">who fills the sheet tonight</div></div>
 <div class="header">
   <h1>BASKETBALL GURU</h1>
@@ -2107,6 +2341,7 @@ def render_html(slate_date, games, lines, rows, timestamp, history, total,
   <div class="about" id="about">
     <button class="about-bar" onclick="toggleAbout()"><span><b style="color:#ffa657">How this works</b> -- what the numbers mean and where they come from</span><span>&#9662;</span></button>
     <div class="about-body">
+      <p><b>Simple or Detailed:</b> Simple cards (the default) put the answer first -- a verdict, DraftKings' line vs our projection, and the reasons in plain words. Detailed cards show every number. The switch is at the top of the board, and your phone remembers your choice.</p>
       <p><b>The headline is projected Points + Rebounds + Assists</b> for the night he plays (a prop on a player who sits is voided). It is built bottom-up: projected minutes &times; what he produces per minute (both seasons, recent games weighted up). Then every team is made to add up: minutes to 240 plus a little overtime, and points to what DraftKings' spread and total say the team will score. When a starter is ruled out, his minutes and his share of the shots go to the players left -- the backups at his position first. The opponent counts through those team totals (pace, points, rebounds and assists it allows); there is no defense-vs-position adjustment, because in the 2025-26 backtest it added nothing.</p>
       <p><b>DK line</b> is DraftKings' actual PRA line, pulled free from ESPN for every player DK prices. The number next to it is the model's disagreement: projection minus line. MORE and LESS tags mark disagreements of 3+.</p>
       <p><b>Be careful with the tags.</b> Tested against 1,179 real DK lines from last season (mostly playoffs), DraftKings was more accurate than the model (off by 6.2 a player vs 6.5), and when the model disagreed by 3+ it was right only 49% of the time. So the percentages on this board lean on DK's line -- the model gets a 10% say -- and the tags are the model's opinion, graded every night on the scorecard. Trust them once the scorecard shows them winning well above 50%, not before. Players DK does not price fall back to their recent average as the line (marked "vs avg").</p>
@@ -2116,6 +2351,9 @@ def render_html(slate_date, games, lines, rows, timestamp, history, total,
     </div>
   </div>
   <div class="toolbar">
+    <button class="toggle mode-btn" data-mode="simple" onclick="setMode('simple')">Simple</button>
+    <button class="toggle mode-btn" data-mode="detail" onclick="setMode('detail')">Detailed</button>
+    <span class="sep"></span>
     <button class="toggle sort-btn on" onclick="setSort(this,'pra')">Rank: PRA</button>
     <button class="toggle sort-btn" onclick="setSort(this,'boost')">Model above line</button>
     <button class="toggle sort-btn" onclick="setSort(this,'fade')">Model below line</button>
@@ -2140,6 +2378,7 @@ def render_html(slate_date, games, lines, rows, timestamp, history, total,
 <div class="footer">Basketball Guru &bull; paper picks only &bull; projections are not betting advice</div>
 <script>var TOP_SHOWN = {TOP_SHOWN};{JS}
 applyFilters();
+setMode(document.body.classList.contains('detail') ? 'detail' : 'simple');
 document.querySelectorAll('.checker input').forEach(function (i) {{ if (i.value) checkLine(i); }});</script>
 </body></html>"""
 
@@ -2619,7 +2858,7 @@ def run(args):
     print("  Rendering dashboard...")
     lock_str = games[0]["start_str"] if games else ""
     html = render_html(slate_date, games, lines, rows, timestamp, history, total,
-                       preseason=preseason, backtest=backtest, lock_str=lock_str)
+                       preseason=preseason, backtest=backtest, lock_str=lock_str, lg_total=lg["total"])
     fname = f"nba_{slate_date.isoformat()}{'_backtest' if backtest else ''}.html"
     fpath = os.path.join(OUTPUT_FOLDER, fname)
     with open(fpath, "w", encoding="utf-8") as f:

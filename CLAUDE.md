@@ -101,6 +101,10 @@ the injury DNPs (coach's-decision DNPs stay in the pool — nobody knew those):
 - `INCLUDE_PRESEASON` — exhibition slates used only when no regular-season games (camp dry run)
 - Engine knobs (`RATE_K`, `RATE_DECAY`, `PRI_W`, `MIN_RECENT_*`, `FILL_*`, `TRIM_BETA`, `NORM_*`, `BLOWOUT_*`, `VAR_MODEL`, `BOOST_VAR_K`, `PRE_*`) — tuned with `--calibrate`; move one only if the calibration report says so
 - `BOOST_CALL` — model-vs-line gap that counts as a More / Less call on the board and scorecard
+- Cards come in two versions in one element: `.v-simple` (`_simple_card`, the default — verdict badge
+  Toss-up / Slight lean / Lean / Strong lean at <55 / 55-60 / 60-65 / 65%+, plain-English reasons, last-10
+  chart, stat line, "The game") and `.v-detail` (`_player_card`, every number). The Simple / Detailed switch
+  sets `body.detail`; each phone remembers its choice in localStorage (`bg_mode`)
 - `DK_MODEL_W` — the model's share of the say against a DK line in the odds
 - `GITHUB_TOKEN` — env var (repo secret on Actions); `NTFY_TOPIC` — `basketball-guru`
 
