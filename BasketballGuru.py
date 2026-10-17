@@ -1710,13 +1710,6 @@ h2.section-title small { color:#8b949e; font-size:12px; font-weight:400; }
 .about.open .about-body { display:block; } .about.open .about-bar { border-radius:12px 12px 0 0; }
 .about-body p { margin:6px 0; } .about-body b { color:#ffa657; }
 
-.edges { display:grid; grid-template-columns:repeat(auto-fit,minmax(300px,1fr)); gap:12px; margin-bottom:8px; }
-.edge-box { background:#161b22; border:1px solid #30363d; border-radius:12px; padding:12px 14px; }
-.edge-box h3 { font-size:13px; letter-spacing:1px; text-transform:uppercase; margin-bottom:6px; }
-.edge-box table { width:100%; border-collapse:collapse; font-size:13px; }
-.edge-box td { padding:4px 4px; border-bottom:1px solid #21262d; white-space:nowrap; }
-.edge-box td.r { text-align:right; } .edge-box td.why { white-space:normal; color:#8b949e; font-size:11px; }
-.edge-box tr { cursor:pointer; } .edge-box tr:hover td { background:#1c2128; }
 
 .player-card { display:block; background:#161b22; border:1px solid #30363d; border-radius:12px; padding:14px; margin-bottom:12px; }
 .v-both { display:flex; gap:12px; align-items:stretch; }
@@ -1813,6 +1806,7 @@ function applyFilters() {
   cards.sort(function (a, b) {
     var oa = a.dataset.out === '1', ob = b.dataset.out === '1';
     if (oa !== ob) return oa ? 1 : -1;
+    if (sortKey !== 'pra' && a.dataset.dk !== b.dataset.dk) return a.dataset.dk === '1' ? -1 : 1;
     if (sortKey === 'boost') return parseFloat(b.dataset.boost) - parseFloat(a.dataset.boost);
     if (sortKey === 'fade') return parseFloat(a.dataset.boost) - parseFloat(b.dataset.boost);
     return parseFloat(b.dataset.pra) - parseFloat(a.dataset.pra);
@@ -1857,11 +1851,6 @@ function setSort(el, k) {
   el.classList.add('on'); applyFilters();
 }
 function showAll(btn) { showAllCards = true; applyFilters(); }
-function jumpTo(pid) {
-  var c = document.getElementById('p-' + pid); if (!c) return;
-  c.style.display = ''; c.scrollIntoView({behavior: 'smooth', block: 'center'});
-  c.style.boxShadow = '0 0 0 2px #f0883e'; setTimeout(function () { c.style.boxShadow = ''; }, 1600);
-}
 // Half negative binomial, half normal -- the same distribution the board's ladders use.
 function nbSf(k, mu, v) {
   k = Math.ceil(k); if (k <= 0) return 1; if (mu <= 0) return 0;
@@ -2111,7 +2100,7 @@ def _player_card(p, lg_total=230.0):
     style = f' style="border-left:4px solid {team_color}"'
     if p.get("out"):
         return f"""
-    <div class="player-card out" id="p-{p['pid']}"{style} data-team="{p['team']}" data-main="{1 if p.get('main_slate', True) else 0}" data-pos="{p['grp']}" data-pra="0" data-pm="0" data-boost="0" data-var="1" data-out="1" data-rot="0">
+    <div class="player-card out" id="p-{p['pid']}"{style} data-team="{p['team']}" data-main="{1 if p.get('main_slate', True) else 0}" data-pos="{p['grp']}" data-pra="0" data-pm="0" data-boost="0" data-var="1" data-out="1" data-rot="0" data-dk="0">
       <div class="v-both">
       <div class="card-rank" style="background:#ff444422;color:#ff4444;border:1px solid #ff444444"><span class="rk">#</span><strong style="font-size:1.1rem">OUT</strong></div>
       <div class="card-body">
@@ -2155,7 +2144,7 @@ def _player_card(p, lg_total=230.0):
         chance_sub = "no DK line &mdash; from the model alone"
     rot = 1 if p["min"] >= MIN_PROJ_MINUTES else 0
     return f"""
-    <div class="player-card" id="p-{p['pid']}"{style} data-team="{p['team']}" data-main="{1 if p.get('main_slate', True) else 0}" data-pos="{p['grp']}" data-pra="{p['pra']:.2f}" data-pm="{p['p_mean']:.2f}" data-boost="{p['boost']:.2f}" data-var="{p['var']:.2f}" data-out="0" data-rot="{rot}">
+    <div class="player-card" id="p-{p['pid']}"{style} data-team="{p['team']}" data-main="{1 if p.get('main_slate', True) else 0}" data-pos="{p['grp']}" data-pra="{p['pra']:.2f}" data-pm="{p['p_mean']:.2f}" data-boost="{p['boost']:.2f}" data-var="{p['var']:.2f}" data-out="0" data-rot="{rot}" data-dk="{1 if p['line_src'] == 'DK' else 0}">
       <div class="v-simple">{_simple_card(p, lg_total)}</div>
       <div class="v-detail">
       <div class="card-rank" style="background:{p['grade_color']}22;color:{p['grade_color']};border:1px solid {p['grade_color']}44">
@@ -2195,42 +2184,6 @@ def _player_card(p, lg_total=230.0):
       <div class="card-score" style="color:{p['grade_color']}">{p['pra']:.0f}<small>PRA</small></div>
       </div>
     </div>"""
-
-
-def _edges_html(rows):
-    """Where the model disagrees most with DraftKings' line, both ways."""
-    live = [r for r in rows if not r.get("out") and r["min"] >= MIN_PROJ_MINUTES]
-    pool = [r for r in live if r["line_src"] == "DK"]
-    vs = "the DK line"
-    if not pool:
-        # Props not posted yet (early-morning run) -- fall back to the average line.
-        pool = [r for r in live if r.get("proxy_line") is not None and len(r.get("l10") or []) >= 5]
-        vs = "his recent average (no DK lines posted yet)"
-
-    def table(lst, title, color):
-        if not lst:
-            return ""
-        body = "".join(
-            f'<tr onclick="jumpTo(\'{r["pid"]}\')"><td><b>{_esc(r["name"])}</b> <span class="muted">{r["team"]}</span></td>'
-            f'<td class="r">{r["pra"]:.1f}</td><td class="r muted">{r["proxy_line"]:g}</td>'
-            f'<td class="r" style="color:{color};font-weight:700">{r["boost"]:+.1f}</td>'
-            f'<td class="r">{(r["p_over_proxy"] if r["boost"] > 0 else 1 - r["p_over_proxy"]) * 100:.0f}%</td></tr>'
-            f'<tr onclick="jumpTo(\'{r["pid"]}\')"><td class="why" colspan="5">{_esc(r["scout"])}</td></tr>'
-            for r in lst)
-        line_hdr = "DK line" if vs == "the DK line" else "avg line"
-        return (f'<div class="edge-box"><h3 style="color:{color}">{title}</h3><table>'
-                f'<tr class="muted"><td style="font-size:11px">player</td><td class="r" style="font-size:11px">model</td>'
-                f'<td class="r" style="font-size:11px">{line_hdr}</td><td class="r" style="font-size:11px">gap</td>'
-                f'<td class="r" style="font-size:11px">chance</td></tr>{body}</table></div>')
-    ups = sorted([r for r in pool if r["boost"] >= BOOST_CALL], key=lambda r: -r["boost"])[:8]
-    downs = sorted([r for r in pool if r["boost"] <= -BOOST_CALL], key=lambda r: r["boost"])[:8]
-    note = ('<p class="muted" style="font-size:12px;margin:0 0 10px">The model\'s biggest disagreements with '
-            f'{vs}. Unproven: against last season\'s real DK lines (mostly playoffs) these went 49%, so the '
-            '"chance" column leans on the line. The scorecard grades every one.</p>')
-    if not ups and not downs:
-        return note + '<div class="empty">The model is within 3 PRA of the line for every rotation player tonight.</div>'
-    return (note + f'<div class="edges">{table(ups, "Model above the line", "#3fb950")}'
-            f'{table(downs, "Model below the line", "#ff7b72")}</div>')
 
 
 def _scorecard_html(history, total):
@@ -2355,8 +2308,8 @@ def render_html(slate_date, games, lines, rows, timestamp, history, total,
     <button class="toggle mode-btn" data-mode="detail" onclick="setMode('detail')">Detailed</button>
     <span class="sep"></span>
     <button class="toggle sort-btn on" onclick="setSort(this,'pra')">Rank: PRA</button>
-    <button class="toggle sort-btn" onclick="setSort(this,'boost')">Model above line</button>
-    <button class="toggle sort-btn" onclick="setSort(this,'fade')">Model below line</button>
+    <button class="toggle sort-btn" onclick="setSort(this,'boost')" title="Biggest gaps above DraftKings' line first">Model above line</button>
+    <button class="toggle sort-btn" onclick="setSort(this,'fade')" title="Biggest gaps below DraftKings' line first">Model below line</button>
     <span class="sep"></span>
     <button class="toggle pos-btn on" onclick="setPos(this,'ALL')">All</button>
     <button class="toggle pos-btn" onclick="setPos(this,'G')">G</button>
@@ -2367,8 +2320,6 @@ def render_html(slate_date, games, lines, rows, timestamp, history, total,
   </div>
   <div class="games-row">{chips}</div>
   <div class="filter-banner" id="filter-banner"></div>
-  <h2 class="section-title">Model vs DraftKings <small>biggest disagreements; tap a name for the card</small></h2>
-  {_edges_html(rows)}
   <h2 class="section-title">The board <small>projected PRA if he plays; each card shows DK's line and the More / Less odds</small></h2>
   <div id="board">{board}</div>
   <button class="show-all" id="show-all" onclick="showAll(this)">Show all</button>
