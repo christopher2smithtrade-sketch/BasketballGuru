@@ -105,8 +105,8 @@ table.score th { color:#8b949e; font-weight:600; font-size:11px; text-transform:
 <div class="header">
   <h1>BASKETBALL GURU</h1>
   <p>NBA PRA board &bull; Saturday, October 17, 2026 &bull; 0 games</p>
-  <p>Generated 2026-10-17 06:22 PM EDT</p>
-  <p style="font-size:12px;color:#6e7681">DK lines 0/0 &bull; 0 rotation players OUT &bull; grades: <span style="color:#00e676">A+ &ge;42</span> <span style="color:#69f0ae">A &ge;36</span> <span style="color:#b9f6ca">B+ &ge;31</span> <span style="color:#fff176">B &ge;26</span> <span style="color:#ffb74d">C &ge;20</span></p>
+  <p>Generated 2026-10-17 07:08 PM EDT</p>
+  <p style="font-size:12px;color:#6e7681">DK game lines 0/0 &bull; DK PRA lines for 0 players &bull; 0 rotation players OUT &bull; grades: <span style="color:#00e676">A+ &ge;42</span> <span style="color:#69f0ae">A &ge;36</span> <span style="color:#b9f6ca">B+ &ge;31</span> <span style="color:#fff176">B &ge;26</span> <span style="color:#ffb74d">C &ge;20</span></p>
   <div class="banner">No NBA games today. The scorecard is below.</div>
 </div>
 <div class="container">
@@ -114,16 +114,17 @@ table.score th { color:#8b949e; font-weight:600; font-size:11px; text-transform:
     <button class="about-bar" onclick="toggleAbout()"><span><b style="color:#ffa657">How this works</b> -- what the numbers mean and where they come from</span><span>&#9662;</span></button>
     <div class="about-body">
       <p><b>The headline is projected Points + Rebounds + Assists</b> for the night he plays (Pick6 voids a DNP). It is built bottom-up: projected minutes &times; what he produces per minute (both seasons, recent games weighted up). Then every team is made to add up: minutes to 240 plus a little overtime, and points to what DraftKings' spread and total say the team will score. When a starter is ruled out, his minutes and his share of the shots go to the players left -- the backups at his position first. The opponent counts through those team totals (pace, points, rebounds and assists it allows); there is no defense-vs-position adjustment, because in the 2025-26 backtest it added nothing.</p>
-      <p><b>BOOST</b> is the projection minus his last-10 PRA average. The last-10 average, to the half point, is roughly where a book with no news hangs the line, so a big boost means tonight is unusual: a teammate out, a pace-up spot, a soft matchup, more minutes. MORE and LESS tags mark boosts of 3+ either way. In the 2025-26 backtest, players with a +4 boost cleared their last-10 line about 73% of the time and players at -4 or lower stayed under it about 73% of the time. Real DK lines react to news, so check the line before you trust a boost.</p>
-      <p><b>Line checker:</b> type the DK PRA line on any card for the More / Less percentage. The ladder and the range use the same distribution, fitted to how far real games land from the projection.</p>
-      <p><b>The scorecard</b> at the bottom is the honesty check: every board is logged at tip-off and graded the next morning against the box scores -- PRA error, whether the grades sort players, and whether the MORE / LESS calls beat a coin flip.</p>
-      <p style="color:#8b949e">Data: ESPN (schedule, box scores, rosters, injuries, DraftKings spreads and totals). No paid feeds.</p>
+      <p><b>DK line</b> is DraftKings' actual PRA line, pulled free from ESPN for every player DK prices. The number next to it is the model's disagreement: projection minus line. MORE and LESS tags mark disagreements of 3+.</p>
+      <p><b>Be careful with the tags.</b> Tested against 1,179 real DK lines from last season (mostly playoffs), DraftKings was more accurate than the model (off by 6.2 a player vs 6.5), and when the model disagreed by 3+ it was right only 49% of the time. So the percentages on this board lean on DK's line -- the model gets a 10% say -- and the tags are the model's opinion, graded every night on the scorecard. Trust them once the scorecard shows them winning well above 50%, not before. Players DK does not price fall back to their recent average as the line (marked "vs avg").</p>
+      <p><b>Line checker:</b> each card is filled in with DK's line and shows the More / Less percentage. If Pick6's line is different, type it in. The ladder and the range use the same numbers.</p>
+      <p><b>The scorecard</b> at the bottom is the honesty check: every board is logged at tip-off and graded the next morning against the box scores -- PRA error, whether the grades sort players, the model vs DK's own line on the same players, and whether the MORE / LESS calls beat a coin flip.</p>
+      <p style="color:#8b949e">Data: ESPN (schedule, box scores, rosters, injuries, DraftKings spreads, totals and PRA lines). No paid feeds.</p>
     </div>
   </div>
   <div class="toolbar">
     <button class="toggle sort-btn on" onclick="setSort(this,'pra')">Rank: PRA</button>
-    <button class="toggle sort-btn" onclick="setSort(this,'boost')">Biggest boost</button>
-    <button class="toggle sort-btn" onclick="setSort(this,'fade')">Biggest drop</button>
+    <button class="toggle sort-btn" onclick="setSort(this,'boost')">Model above line</button>
+    <button class="toggle sort-btn" onclick="setSort(this,'fade')">Model below line</button>
     <span class="sep"></span>
     <button class="toggle pos-btn on" onclick="setPos(this,'ALL')">All</button>
     <button class="toggle pos-btn" onclick="setPos(this,'G')">G</button>
@@ -134,14 +135,14 @@ table.score th { color:#8b949e; font-weight:600; font-size:11px; text-transform:
   </div>
   <div class="games-row"><div class="game-chip active all-chip" id="all-chip" onclick="pickGame(this)"><div class="teams">All games</div><div class="time">tap a game to filter</div></div></div>
   <div class="filter-banner" id="filter-banner"></div>
-  <h2 class="section-title">Tonight's edges <small>projection vs the last-10 line; tap a name for the card</small></h2>
-  <div class="empty">No projection sits 3+ PRA away from its last-10 line tonight.</div>
-  <h2 class="section-title">The board <small>projected PRA if he plays; type the DK line on a card for More / Less</small></h2>
+  <h2 class="section-title">Model vs DraftKings <small>biggest disagreements; tap a name for the card</small></h2>
+  <p class="muted" style="font-size:12px;margin:0 0 10px">The model's biggest disagreements with his recent average (no DK lines posted yet). Unproven: against last season's real DK lines (mostly playoffs) these went 49%, so the "chance" column leans on the line. The scorecard grades every one.</p><div class="empty">The model is within 3 PRA of the line for every rotation player tonight.</div>
+  <h2 class="section-title">The board <small>projected PRA if he plays; each card shows DK's line and the More / Less odds</small></h2>
   <div id="board"><div class="empty">No players on the slate.</div></div>
   <button class="show-all" id="show-all" onclick="showAll(this)">Show all</button>
   <h2 class="section-title">Scorecard <small>logged at tip-off, graded the next morning</small></h2>
   
-        <div class="scroll"><table class="score"><tr><th>Slate</th><th>Players</th><th>PRA err</th><th>Bias</th><th>Min err</th><th>More won</th><th>Less won</th><th>Brier</th></tr><tr><td>2026-10-16 <span class="muted">(pre)</span></td><td>190</td><td>6.4</td><td>-3.3</td><td>7.0</td><td>12/18</td><td>55/66</td><td>0.1992</td></tr><tr><td>2026-10-15 <span class="muted">(pre)</span></td><td>30</td><td>7.0</td><td>-2.9</td><td>5.9</td><td>-</td><td>9/10</td><td>0.1922</td></tr><tr><td>2026-10-14 <span class="muted">(pre)</span></td><td>109</td><td>6.7</td><td>-3.4</td><td>6.9</td><td>9/17</td><td>23/30</td><td>0.2197</td></tr><tr><td>2026-10-13 <span class="muted">(pre)</span></td><td>30</td><td>5.4</td><td>-2.5</td><td>5.5</td><td>-</td><td>7/9</td><td>0.2096</td></tr></table></div>
+        <div class="scroll"><table class="score"><tr><th>Slate</th><th>Players</th><th>PRA err</th><th>Bias</th><th>Min err</th><th>Model / DK err</th><th>More won</th><th>Less won</th><th>Brier</th></tr><tr><td>2026-10-16 <span class="muted">(pre)</span></td><td>190</td><td>6.4</td><td>-3.3</td><td>7.0</td><td>-</td><td>12/18</td><td>55/66</td><td>0.1992</td></tr><tr><td>2026-10-15 <span class="muted">(pre)</span></td><td>30</td><td>7.0</td><td>-2.9</td><td>5.9</td><td>-</td><td>-</td><td>9/10</td><td>0.1922</td></tr><tr><td>2026-10-14 <span class="muted">(pre)</span></td><td>109</td><td>6.7</td><td>-3.4</td><td>6.9</td><td>-</td><td>9/17</td><td>23/30</td><td>0.2197</td></tr><tr><td>2026-10-13 <span class="muted">(pre)</span></td><td>30</td><td>5.4</td><td>-2.5</td><td>5.5</td><td>-</td><td>-</td><td>7/9</td><td>0.2096</td></tr></table></div>
 </div>
 <div class="footer">Basketball Guru &bull; paper picks only &bull; projections are not betting advice</div>
 <script>var TOP_SHOWN = 30;
@@ -228,12 +229,13 @@ function checkLine(inp) {
   var line = parseFloat(inp.value);
   if (isNaN(line)) { out.textContent = ''; return; }
   var c = inp.closest('.player-card');
-  var mu = parseFloat(c.dataset.pra), v = parseFloat(c.dataset.var);
+  var mu = parseFloat(c.dataset.pm), v = parseFloat(c.dataset.var);
   var over = 0.5 * nbSf(Math.floor(line) + 1, mu, v) + 0.5 * (1 - normCdf((Math.floor(line) + 0.5 - mu) / Math.sqrt(v)));
   var more = over >= 0.5;
   out.textContent = (more ? 'More ' + Math.round(over * 100) : 'Less ' + Math.round((1 - over) * 100)) + '%';
   out.style.color = Math.abs(over - 0.5) >= 0.08 ? (more ? '#3fb950' : '#ff7b72') : '#c9d1d9';
 }
 
-applyFilters();</script>
+applyFilters();
+document.querySelectorAll('.checker input').forEach(function (i) { if (i.value) checkLine(i); });</script>
 </body></html>
