@@ -8,7 +8,7 @@
   Answers one question: who stuffs the stat sheet TONIGHT?
 
   For every player on the slate it projects Points + Rebounds + Assists
-  (the DraftKings Pick6 PRA prop) from the bottom up:
+  (the DraftKings PRA prop) from the bottom up:
     - How many minutes will he play? (recent role, who is OUT tonight,
       back-to-back, blowout risk from the spread)
     - What does he produce per minute, and how much of an injured
@@ -1232,8 +1232,8 @@ def project_team(team, opp, avail, out, T, O, lg, line, is_home):
     for p in plist:
         pid = p["pid"]
         m_exp = mins[pid]
-        # Pick6 voids a player who does not get in, so the board projects the
-        # night he plays: expected minutes / the chance he plays at all. Minutes
+        # A prop on a player who does not get in is voided, so the board projects
+        # the night he plays: expected minutes / the chance he plays at all. Minutes
         # handed to him because the team is short also make it likelier he
         # plays -- a fringe guy filling a starter's hole is not a coin flip.
         added = max(0.0, m_exp - base_exp.get(pid, m_exp))
@@ -1527,9 +1527,9 @@ def score_date(slate_date, backtest=False, force=False):
       * Is the model closer than DraftKings' own line? (both errors, same players)
       * Do the model's disagreements with DK win? A More call (3+ above the DK
         line) wins when he clears it; a Less call (3+ below) when he does not.
-        A coin flip is 50%, and Pick6 needs well above that to pay.
+        A coin flip is 50%, and a pick needs well above that to pay.
     Only real DK lines count for the last two. A player who never got in is
-    skipped -- Pick6 voids those.
+    skipped -- a prop on a DNP is voided.
     """
     path = _pred_path(slate_date, backtest)
     data = _read_json(path)
@@ -1914,7 +1914,7 @@ def _player_card(p):
     if p["line_src"] == "DK":
         moved = (f" (opened {p['dk_open']:g})" if p.get("dk_open") is not None and p["dk_open"] != proxy else "")
         label_line = f"DK line {proxy:g} &bull; model {p['boost']:+.1f}"
-        check_txt = f"DK line {proxy:g}{moved} &bull; type Pick6's line if it differs"
+        check_txt = f"DK line {proxy:g}{moved} &bull; type another line to check it"
         check_val = f"{proxy:g}"
         chance_sub = "leans on DK's line &mdash; the model gets a 10% say"
     else:
@@ -2027,7 +2027,7 @@ def _scorecard_html(history, total):
         html += f"""
         <p class="muted" style="font-size:13px;margin-bottom:8px">All-time: {total['days']} slates, {total['n']} rotation players &bull;
           PRA error {total['mae']:.1f}/player (bias {total['bias']:+.1f}) &bull; {dk_txt}
-          model's More calls won {mo_txt} &bull; Less calls won {le_txt} (50% = coin flip; Pick6 needs well above it)</p>
+          model's More calls won {mo_txt} &bull; Less calls won {le_txt} (50% = coin flip; you need well above it)</p>
         <table class="score"><tr><th>Grade</th><th>Players</th><th>Projected PRA</th><th>Actual PRA</th><th>Gap</th></tr>{rows}</table>"""
     if history:
         rows = ""
@@ -2107,10 +2107,10 @@ def render_html(slate_date, games, lines, rows, timestamp, history, total,
   <div class="about" id="about">
     <button class="about-bar" onclick="toggleAbout()"><span><b style="color:#ffa657">How this works</b> -- what the numbers mean and where they come from</span><span>&#9662;</span></button>
     <div class="about-body">
-      <p><b>The headline is projected Points + Rebounds + Assists</b> for the night he plays (Pick6 voids a DNP). It is built bottom-up: projected minutes &times; what he produces per minute (both seasons, recent games weighted up). Then every team is made to add up: minutes to 240 plus a little overtime, and points to what DraftKings' spread and total say the team will score. When a starter is ruled out, his minutes and his share of the shots go to the players left -- the backups at his position first. The opponent counts through those team totals (pace, points, rebounds and assists it allows); there is no defense-vs-position adjustment, because in the 2025-26 backtest it added nothing.</p>
+      <p><b>The headline is projected Points + Rebounds + Assists</b> for the night he plays (a prop on a player who sits is voided). It is built bottom-up: projected minutes &times; what he produces per minute (both seasons, recent games weighted up). Then every team is made to add up: minutes to 240 plus a little overtime, and points to what DraftKings' spread and total say the team will score. When a starter is ruled out, his minutes and his share of the shots go to the players left -- the backups at his position first. The opponent counts through those team totals (pace, points, rebounds and assists it allows); there is no defense-vs-position adjustment, because in the 2025-26 backtest it added nothing.</p>
       <p><b>DK line</b> is DraftKings' actual PRA line, pulled free from ESPN for every player DK prices. The number next to it is the model's disagreement: projection minus line. MORE and LESS tags mark disagreements of 3+.</p>
       <p><b>Be careful with the tags.</b> Tested against 1,179 real DK lines from last season (mostly playoffs), DraftKings was more accurate than the model (off by 6.2 a player vs 6.5), and when the model disagreed by 3+ it was right only 49% of the time. So the percentages on this board lean on DK's line -- the model gets a 10% say -- and the tags are the model's opinion, graded every night on the scorecard. Trust them once the scorecard shows them winning well above 50%, not before. Players DK does not price fall back to their recent average as the line (marked "vs avg").</p>
-      <p><b>Line checker:</b> each card is filled in with DK's line and shows the More / Less percentage. If Pick6's line is different, type it in. The ladder and the range use the same numbers.</p>
+      <p><b>Line checker:</b> each card is filled in with DK's line and shows the More / Less percentage. To check a different line, type it in. The ladder and the range use the same numbers.</p>
       <p><b>The scorecard</b> at the bottom is the honesty check: every board is logged at tip-off and graded the next morning against the box scores -- PRA error, whether the grades sort players, the model vs DK's own line on the same players, and whether the MORE / LESS calls beat a coin flip.</p>
       <p style="color:#8b949e">Data: ESPN (schedule, box scores, rosters, injuries, DraftKings spreads, totals and PRA lines). No paid feeds.</p>
     </div>

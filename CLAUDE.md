@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Nightly NBA PRA (Points + Rebounds + Assists) board for DraftKings Pick6. For
+Nightly NBA PRA (Points + Rebounds + Assists) board for DraftKings PRA props. For
 every player on the slate it projects PRA and the split (PTS / REB / AST / 3PM),
 DraftKings' actual PRA line (free from ESPN), the model's disagreement with it,
 and More / Less odds that lean on that line.
@@ -50,7 +50,7 @@ implies. A star sitting raises everyone else's share; a star returning lowers
 it. The opponent only enters through those team totals — there is no
 defense-vs-position (DvP) factor. Outcomes are half negative binomial, half
 normal, with Var = a·mu^c fitted on backtest residuals (PRA: 10.84·mu^0.591)
-plus `BOOST_VAR_K`·boost². Pick6 voids DNPs, so the board projects the night
+plus `BOOST_VAR_K`·boost². A prop on a DNP is voided, so the board projects the night
 he plays. Players with no NBA games at all (rookies, players back from overseas)
 are projected from this season's preseason: 70% of their preseason minutes,
 rates shrunk hard toward 80% of the position average — and no boost, since
@@ -113,6 +113,10 @@ the injury DNPs (coach's-decision DNPs stay in the pool — nobody knew those):
 - **Re-fit `DK_MODEL_W` after ~3 weeks of regular season:** `--calibrate 2026-10-20 <date>` prints an
   "Against DraftKings' real line" section from the archived lines (miss, hit rate of 2+/3+/4+ gaps, and
   the miss at each weight). The 0.1 came from a playoff-heavy sample.
+
+- **Pick6 (Oct 17):** all Pick6 references were removed from the board at the user's request — revisit
+  after going live with the group. The beginner-card mockup had an "If Pick6 shows…" strip (DK's line
+  ±2 with a verdict each); it was dropped too.
 
 ## Gotchas
 
