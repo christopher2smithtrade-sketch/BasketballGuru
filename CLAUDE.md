@@ -17,7 +17,7 @@ prediction log + morning scorecard) — basketball-specific engine underneath.
 | `.github/workflows/basketball.yml` | Cron schedule (10 runs/day across four ET windows) |
 | `predictions/pred_*.json` | One per slate, logged at tip-off, graded next morning (synced to the repo) |
 | `cache/season/box_<season>/` | One compact box score per finished game (~4 KB) — committed once, never changes. ESPN season = the year it ends (2026 = 2025-26) |
-| `cache/season/schedule_<season>.json` | Finished seasons' game lists (committed) |
+| `cache/season/schedule_<season>.json` / `preseason_<season>.json` | Finished seasons' game lists, regular season and preseason (committed). Preseason box scores share the `box_<season>/` folder; every query except the rookie fallback filters them out by game type |
 | `cache/daily/` | Rosters, current schedule, run-check state — git-ignored, carried by `actions/cache` |
 | `reports/` | Generated HTML boards (local only) |
 
@@ -50,7 +50,10 @@ it. The opponent only enters through those team totals — there is no
 defense-vs-position (DvP) factor. Outcomes are half negative binomial, half
 normal, with Var = a·mu^c fitted on backtest residuals (PRA: 10.84·mu^0.591)
 plus `BOOST_VAR_K`·boost². Pick6 voids DNPs, so the board projects the night
-he plays.
+he plays. Players with no NBA games at all (rookies, players back from overseas)
+are projected from this season's preseason: 70% of their preseason minutes,
+rates shrunk hard toward 80% of the position average — and no boost, since
+there is no NBA average to compare against.
 
 ## Calibration (2025-26 regular season replay, Oct 2026)
 
@@ -70,6 +73,10 @@ the injury DNPs (coach's-decision DNPs stay in the pool — nobody knew those):
   mixture plus `BOOST_VAR_K`; the NB alone under-called Overs by ~3 points
 - DvP was removed (Oct 13): it added nothing — every number above is with it gone, and the Brier
   improved slightly (0.2311 -> 0.2310). Don't re-add a matchup factor without a calibration run that beats this
+- Rookie fallback (Oct 17): without it, 2025-26 opening week had 43 appearances (12 at 20+ min) by
+  players the model could not see, and their minutes inflated teammates. With it (`PRE_*` knobs tuned on
+  the 2025-26 opening fortnight): teammates' first-game error 7.08 -> 7.00 and bias -0.75 -> -0.08,
+  rookies themselves unbiased (+0.06, error ~8.9), full-season numbers unchanged
 - The L10 line is a lazy stand-in for a real DK line, which reacts to injury news within minutes. Expect the
   live More/Less rate to be well below the backtest; the scorecard is the real test
 
@@ -85,7 +92,7 @@ the injury DNPs (coach's-decision DNPs stay in the pool — nobody knew those):
 - `TOP_SHOWN` / `MIN_PROJ_MINUTES` — cards shown before "Show all"
 - `MAIN_SLATE_START_ET` — what counts as the DK main slate for the toggle
 - `INCLUDE_PRESEASON` — exhibition slates used only when no regular-season games (camp dry run)
-- Engine knobs (`RATE_K`, `RATE_DECAY`, `PRI_W`, `MIN_RECENT_*`, `FILL_*`, `TRIM_BETA`, `NORM_*`, `BLOWOUT_*`, `VAR_MODEL`, `BOOST_VAR_K`) — tuned with `--calibrate`; move one only if the calibration report says so
+- Engine knobs (`RATE_K`, `RATE_DECAY`, `PRI_W`, `MIN_RECENT_*`, `FILL_*`, `TRIM_BETA`, `NORM_*`, `BLOWOUT_*`, `VAR_MODEL`, `BOOST_VAR_K`, `PRE_*`) — tuned with `--calibrate`; move one only if the calibration report says so
 - `BOOST_CALL` — boost size that counts as a More / Less call on the board and scorecard
 - `GITHUB_TOKEN` — env var (repo secret on Actions); `NTFY_TOPIC` — `basketball-guru`
 

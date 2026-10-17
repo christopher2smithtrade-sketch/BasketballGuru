@@ -484,14 +484,21 @@ def get_box(gid, season):
     return box
 
 
-def season_schedule(season, done_through=None):
+def _schedule_finished(season, preseason=False):
+    """A past season never changes; nor does this season's preseason once October is well under way."""
+    today = now_et().date()
+    return season < season_of(today) or (preseason and today >= date(season - 1, 10, 25))
+
+
+def season_schedule(season, preseason=False):
     """
-    Every regular-season + postseason game of a season: [(gid, et_date, completed)].
-    Built from the 30 team schedules. A finished season is cached for good; the
-    current one is re-pulled at most every 6 hours.
+    Every regular-season + postseason game of a season (or, with preseason,
+    every exhibition): [(gid, et_date, completed)]. Built from the 30 team
+    schedules. A finished schedule is cached for good; a live one is re-pulled
+    at most every 6 hours.
     """
-    key = f"schedule_{season}"
-    finished = season < season_of(now_et().date())
+    key = f"{'preseason' if preseason else 'schedule'}_{season}"
+    finished = _schedule_finished(season, preseason)
     cached = cache_load(key, permanent=finished) if finished else cache_load(key, 6)
     if cached:
         return cached["games"]
@@ -499,7 +506,7 @@ def season_schedule(season, done_through=None):
 
     def pull(team):
         out = []
-        for st in (2, 3):
+        for st in ((1,) if preseason else (2, 3)):
             d = fetch(f"{ESPN}/teams/{TEAMS[team][0]}/schedule", params={"season": season, "seasontype": st},
                       label=f"schedule {team}")
             for e in d.get("events", []):
@@ -517,12 +524,12 @@ def season_schedule(season, done_through=None):
     return out
 
 
-def load_boxes(season, before, verbose=True):
-    """All final box scores of `season` dated before `before` (a date), oldest first."""
-    sched = season_schedule(season)
+def load_boxes(season, before, verbose=True, preseason=False):
+    """All final box scores of `season` (or its preseason) dated before `before` (a date), oldest first."""
+    sched = season_schedule(season, preseason)
     # A finished season only has the games that were actually played; the
     # current one trusts the date (the cached schedule can lag a few hours).
-    finished = season < season_of(now_et().date())
+    finished = _schedule_finished(season, preseason)
     want = [(gid, d) for gid, d, done in sched if d and d < before.isoformat() and (done or not finished)]
     # A finished season's ids that ESPN has no summary for (NBA Cup
     # placeholders) are remembered, or every run would ask for them again.
@@ -536,7 +543,7 @@ def load_boxes(season, before, verbose=True):
         elif gid not in dead:
             missing.append(gid)
     if missing and verbose:
-        print(f"  Pulling {len(missing)} box scores for {season - 1}-{str(season)[2:]} "
+        print(f"  Pulling {len(missing)} {'preseason ' if preseason else ''}box scores for {season - 1}-{str(season)[2:]} "
               f"({len(have)} cached)...")
     boxes = []
     if missing:
@@ -777,6 +784,10 @@ B2B_MIN      = 0.985           # minutes factor for starters on the 2nd night of
 VAR_MODEL = {"pts": (6.13, 0.739), "reb": (1.84, 0.836), "ast": (1.40, 0.909), "fg3m": (1.31, 0.852),
              "pra": (10.84, 0.591)}
 BOOST_VAR_K = 0.5               # extra PRA variance per squared point of boost
+# Players with no NBA games are projected from this season's preseason.
+PRE_MIN_F  = 0.7                # preseason minutes -> regular-season minutes (rookies play more in October)
+PRE_RATE_K = 300.0              # preseason minutes at which his rate and the position average split 50/50
+PRE_PRIOR_F = 0.8               # the position average he is shrunk toward, scaled (newcomers start below it)
 
 
 def grade_for(score, table):
@@ -866,7 +877,7 @@ def player_profile(db, pid, team, d, season, lg):
     cur_p = [g for g in cur if g["played"]]
     pri_p = [g for g in pri if g["played"]]
     if not cur_p and not pri_p:
-        return None
+        return preseason_profile(db, pid, team, d, season, lg)
     grp = pos_group(db.pos(pid))
     prior = lg["pm"][grp]
 
@@ -927,7 +938,45 @@ def player_profile(db, pid, team, d, season, lg):
         "l10_stats": {k: _mean(g[k] for g in l10) for k in STATS} if l10 else {},
         "last_game": cur_p[0]["d"] if cur_p else (pri_p[0]["d"] if pri_p else None),
         "prev_team": (cur_p + pri_p)[0]["team"],
-        "recent_team_presence": sum(1 for g in db.team_games(team, d)[:5] if pid in g["played"]),
+        "recent_team_presence": _presence(db, pid, team, d),
+    }
+
+
+def _presence(db, pid, team, d):
+    """How many of the team's last five real games he played in."""
+    real = [g for g in db.team_games(team, d) if g["type"] in (2, 3)][:5]
+    return sum(1 for g in real if pid in g["played"])
+
+
+def preseason_profile(db, pid, team, d, season, lg):
+    """
+    A rookie (or anyone back from overseas or a lost season) has no NBA games
+    to go on. Left out, he is not just missing from the board -- his minutes
+    get handed to his teammates and inflate them (2025-26 opening week had 43
+    such appearances, 12 of them 20+ minutes). His preseason gives the role;
+    the per-minute rate leans hard on the position average. No NBA average
+    means no line proxy, so he never gets a boost or a MORE / LESS tag.
+    """
+    pre = [g for g in db.games(pid, d) if g["type"] == 1 and g["s"] == season]
+    pre_p = [g for g in pre if g["played"]]
+    if not pre_p:
+        return None
+    grp = pos_group(db.pos(pid))
+    prior = {k: v * PRE_PRIOR_F for k, v in lg["pm"][grp].items()}
+    mins = sum(g["min"] for g in pre_p)
+    rates = {k: regress(sum(g[k] for g in pre_p) / mins if mins else prior[k], mins, prior[k], PRE_RATE_K)
+             for k in STATS}
+    m_play = PRE_MIN_F * _mean(g["min"] for g in pre_p)
+    pra = lambda g: g["pts"] + g["reb"] + g["ast"]
+    return {
+        "pid": pid, "name": db.name(pid), "pos": db.pos(pid) or grp, "grp": grp, "team": team,
+        "rates": rates, "usage": 0.0, "base_min": m_play * len(pre_p) / len(pre),
+        "p_play": max(0.25, len(pre_p) / len(pre)), "min_when_playing": m_play,
+        "st_rate": _mean(g["st"] for g in pre_p[:5]),
+        "gp_cur": 0, "gp_pri": 0, "pre_only": True, "pre_gp": len(pre_p), "pre_pra": _mean(pra(g) for g in pre_p),
+        "l10": [], "l10_detail": [], "l10_pra": None, "l5_min": _mean(g["min"] for g in pre_p[:5]),
+        "season_pra": None, "season_min": None, "l10_stats": {}, "last_game": pre_p[0]["d"], "prev_team": team,
+        "recent_team_presence": 0,
     }
 
 
@@ -1248,7 +1297,10 @@ def scout_note(r):
             bits.append(f"hot: {l5:.1f} PRA last 5 vs {r['season_pra']:.1f}")
         elif l5 <= r["season_pra"] * 0.85:
             bits.append(f"cold: {l5:.1f} PRA last 5 vs {r['season_pra']:.1f}")
-    if r["gp_cur"] == 0 and r.get("prev_team") and r["prev_team"] != r["team"]:
+    if r.get("pre_only"):
+        bits.append(f"no NBA games yet: role from {r['pre_gp']} preseason games ({r['pre_pra']:.1f} PRA, "
+                    f"{r['l5_min']:.0f} min) -- no line to compare against")
+    elif r["gp_cur"] == 0 and r.get("prev_team") and r["prev_team"] != r["team"]:
         bits.append(f"new team: role assumed from {r['prev_team']}")
     if r.get("inj_status") and not r.get("out"):
         bits.append(f"{r['inj_status']}{(': ' + r['inj_note']) if r.get('inj_note') else ''}")
@@ -2065,9 +2117,14 @@ def deploy(html):
 # ============================================================
 
 def load_db(d, verbose=True):
-    """Box scores of the season d belongs to (before d) and the one before it."""
+    """
+    Box scores of the season d belongs to (before d), the one before it, and
+    this season's preseason -- the last only ever feeds players with no NBA
+    games at all (every other query filters to regular season + playoffs).
+    """
     season = season_of(d)
-    boxes = load_boxes(season - 1, date(season - 1, 7, 31), verbose) + load_boxes(season, d, verbose)
+    boxes = (load_boxes(season - 1, date(season - 1, 7, 31), verbose) + load_boxes(season, d, verbose)
+             + load_boxes(season, d, verbose, preseason=True))
     return DB(boxes), season
 
 
