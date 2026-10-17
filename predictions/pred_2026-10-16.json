@@ -7752,5 +7752,137 @@
    "p_over": 0.2649,
    "var": 46.69
   }
- ]
+ ],
+ "scored": {
+  "date": "2026-10-16",
+  "n": 190,
+  "dnp": 71,
+  "mae": 6.4,
+  "bias": -3.28,
+  "min_mae": 7.03,
+  "brier": 0.1992,
+  "more": {
+   "n": 18,
+   "w": 12
+  },
+  "less": {
+   "n": 66,
+   "w": 55
+  },
+  "tiers": {
+   "B+": {
+    "n": 8,
+    "proj": 33.21,
+    "act": 31.12,
+    "err": 3.56
+   },
+   "C": {
+    "n": 37,
+    "proj": 22.94,
+    "act": 17.38,
+    "err": 6.6
+   },
+   "D": {
+    "n": 119,
+    "proj": 14.28,
+    "act": 12.45,
+    "err": 6.17
+   },
+   "B": {
+    "n": 21,
+    "proj": 28.09,
+    "act": 21.48,
+    "err": 7.24
+   },
+   "A": {
+    "n": 3,
+    "proj": 36.84,
+    "act": 34.33,
+    "err": 6.43
+   },
+   "A+": {
+    "n": 2,
+    "proj": 44.23,
+    "act": 26.0,
+    "err": 18.23
+   }
+  },
+  "partial": false,
+  "games_left": 0,
+  "top_more": [
+   {
+    "name": "Terrence Shannon Jr.",
+    "team": "MIN",
+    "call": "More",
+    "line": 8.5,
+    "pra": 23.38,
+    "act": 10,
+    "won": true
+   },
+   {
+    "name": "Joan Beringer",
+    "team": "MIN",
+    "call": "More",
+    "line": 6.5,
+    "pra": 20.43,
+    "act": 17,
+    "won": true
+   },
+   {
+    "name": "Zyon Pullin",
+    "team": "MIN",
+    "call": "More",
+    "line": 7.5,
+    "pra": 21.0,
+    "act": 27,
+    "won": true
+   },
+   {
+    "name": "Antonio Reeves",
+    "team": "MIN",
+    "call": "More",
+    "line": 3.5,
+    "pra": 16.56,
+    "act": 7,
+    "won": true
+   },
+   {
+    "name": "Norchad Omier",
+    "team": "MIN",
+    "call": "More",
+    "line": 4.5,
+    "pra": 15.68,
+    "act": 6,
+    "won": true
+   },
+   {
+    "name": "Drew Timme",
+    "team": "MIN",
+    "call": "More",
+    "line": 5.5,
+    "pra": 16.11,
+    "act": 28,
+    "won": true
+   },
+   {
+    "name": "Jaylen Clark",
+    "team": "MIN",
+    "call": "More",
+    "line": 5.5,
+    "pra": 15.17,
+    "act": 25,
+    "won": true
+   },
+   {
+    "name": "Nikola Jovic",
+    "team": "MIA",
+    "call": "More",
+    "line": 12.5,
+    "pra": 19.37,
+    "act": 19,
+    "won": true
+   }
+  ],
+  "preseason": true
+ }
 }
