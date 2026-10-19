@@ -2140,8 +2140,8 @@ def _player_card(p, lg_total=230.0):
         check_val = f"{proxy:g}"
         chance_sub = "leans on DK's line &mdash; the model gets a 10% say"
     else:
-        label_line = f"boost {p['boost']:+.1f} vs L10"
-        check_txt = (f"no DK line &bull; vs L10 line {proxy}: More {p['p_over_proxy'] * 100:.0f}%" if proxy is not None
+        label_line = f"boost {p['boost']:+.1f} vs Last 10"
+        check_txt = (f"no DK line &bull; vs Last 10 line {proxy}: More {p['p_over_proxy'] * 100:.0f}%" if proxy is not None
                      else "no DK line")
         check_val = ""
         chance_sub = "no DK line &mdash; from the model alone"
@@ -2170,10 +2170,10 @@ def _player_card(p, lg_total=230.0):
             <div class="stat-sub">last 5 {p['l5_min'] or 0:.1f} &bull; season {p['season_min'] or 0:.1f} &bull; started {p['st_rate'] * 100:.0f}% of last 5</div></div>
           <div><div class="stat-label">Points / threes</div>
             <div class="stat-val">{mu['pts']:.1f} pts &bull; {mu['fg3m']:.1f} 3PM</div>
-            <div class="stat-sub">L10 {ls.get('pts', 0):.1f} / {ls.get('fg3m', 0):.1f} &bull; 20+ pts {p['p_pts20'] * 100:.0f}% &bull; 2+ 3PM {p['p_3pm2'] * 100:.0f}%</div></div>
+            <div class="stat-sub">Last 10 {ls.get('pts', 0):.1f} / {ls.get('fg3m', 0):.1f} &bull; 20+ pts {p['p_pts20'] * 100:.0f}% &bull; 2+ 3PM {p['p_3pm2'] * 100:.0f}%</div></div>
           <div><div class="stat-label">Rebounds / assists</div>
             <div class="stat-val">{mu['reb']:.1f} reb &bull; {mu['ast']:.1f} ast</div>
-            <div class="stat-sub">L10 {ls.get('reb', 0):.1f} / {ls.get('ast', 0):.1f} &bull; 10+ reb {p['p_reb10'] * 100:.0f}% &bull; 8+ ast {p['p_ast8'] * 100:.0f}%</div></div>
+            <div class="stat-sub">Last 10 {ls.get('reb', 0):.1f} / {ls.get('ast', 0):.1f} &bull; 10+ reb {p['p_reb10'] * 100:.0f}% &bull; 8+ ast {p['p_ast8'] * 100:.0f}%</div></div>
           <div><div class="stat-label">Environment</div>
             <div class="stat-val">{p['team']} implied {p['imp']:.1f} &bull; spread {spread_txt}</div>
             <div class="stat-sub">total {p['total'] if p.get('total') else 'n/a'} &bull; {'home' if p['is_home'] else 'road'} &bull; {rest} &bull; team shares {(p['scale']['pts'] - 1) * 100:+.0f}%</div></div>

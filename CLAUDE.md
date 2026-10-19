@@ -110,10 +110,9 @@ the injury DNPs (coach's-decision DNPs stay in the pool — nobody knew those):
 
 ## Open items
 
-- **Revisit on Mon Oct 19, 2026 (day before opening night):** for players with NO DK line (mostly deep
-  bench), the card still says "vs L10", but until he has 5 games this season the fallback line is his
-  last-40-game average (`ref_pra` in `finish_row`). The user chose to leave the label as is for now —
-  decide then whether to relabel it. Players with a DK line are labelled "DK line" correctly.
+- **Label decided Oct 19:** the user had "L10" renamed to "Last 10" everywhere on the board. Known
+  caveat, accepted: for a player with no DK line and fewer than 5 games this season, the "Last 10" fallback
+  line is really his last-40-game average (`ref_pra` in `finish_row`). Players with a DK line say "DK line".
 - **Re-fit `DK_MODEL_W` after ~3 weeks of regular season:** `--calibrate 2026-10-20 <date>` prints an
   "Against DraftKings' real line" section from the archived lines (miss, hit rate of 2+/3+/4+ gaps, and
   the miss at each weight). The 0.1 came from a playoff-heavy sample.
