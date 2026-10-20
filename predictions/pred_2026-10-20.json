@@ -2,7 +2,7 @@
  "date": "2026-10-20",
  "preseason": false,
  "backtest": false,
- "logged_at": "2026-10-20T23:12:32",
+ "logged_at": "2026-10-20T23:53:00",
  "games": [
   {
    "game_id": "401909088",
@@ -1838,11 +1838,11 @@
    "fg3m": 1.43,
    "min": 17.4,
    "ref": 12.62,
-   "boost": -2.29,
-   "proxy": 12.5,
-   "line_src": "avg",
-   "p_over": 0.3427,
-   "var": 45.72
+   "boost": -1.16,
+   "proxy": 11.5,
+   "line_src": "DK",
+   "p_over": 0.4586,
+   "var": 45.64
   },
   {
    "pid": "5105800",
