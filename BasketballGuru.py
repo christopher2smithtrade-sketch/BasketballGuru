@@ -657,13 +657,22 @@ def fetch_pra_lines(gid):
     """DraftKings' main PRA line for every player in one game: {pid: [line, opening line]}; None on failure."""
     for attempt in range(3):
         try:
-            r = requests.get(f"{CORE}/events/{gid}/competitions/{gid}/odds/{DK_PROVIDER}/propBets",
-                             params={"lang": "en", "region": "us", "limit": 1000}, headers=UA, timeout=25)
-            if r.status_code == 404:
-                return {}
-            r.raise_for_status()
+            # A big game carries 1,100+ props and the feed pages at 1,000.
+            # PRA happens to sit on page 1 today; read every page anyway.
+            items, page, pages = [], 1, 1
+            while page <= pages:
+                r = requests.get(f"{CORE}/events/{gid}/competitions/{gid}/odds/{DK_PROVIDER}/propBets",
+                                 params={"lang": "en", "region": "us", "limit": 1000, "page": page},
+                                 headers=UA, timeout=25)
+                if r.status_code == 404:
+                    return {}
+                r.raise_for_status()
+                j = r.json()
+                items += j.get("items", [])
+                pages = min(int(j.get("pageCount") or 1), 5)
+                page += 1
             out = {}
-            for it in r.json().get("items", []):
+            for it in items:
                 if (it.get("type") or {}).get("id") != PRA_PROP_TYPE:
                     continue
                 m = re.search(r"/athletes/(\d+)", (it.get("athlete") or {}).get("$ref", ""))
