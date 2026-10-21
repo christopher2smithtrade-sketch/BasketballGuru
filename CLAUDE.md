@@ -106,6 +106,10 @@ the injury DNPs (coach's-decision DNPs stay in the pool — nobody knew those):
   chart, stat line, "The game") and `.v-detail` (`_player_card`, every number). The Simple / Detailed switch
   sets `body.detail`; each phone remembers its choice in localStorage (`bg_mode`)
 - `DK_MODEL_W` — the model's share of the say against a DK line in the odds
+- `NEWS_GAP` / `NEWS_GAP_STALE` / `NEWS_STALE_DAYS` — the yellow "Check the news" flag (added Oct 21): model
+  6+ off DK's line, or 4+ when his data is stale (projected from preseason only, a new team, or a mid-season
+  absence of 10+ days; opening week alone does not count). On flagged cards the odds use DK's line alone
+  (no model say). Replaces the MORE / LESS tag on the detailed card. Logged as `news` in the prediction file
 - `GITHUB_TOKEN` — env var (repo secret on Actions); `NTFY_TOPIC` — `basketball-guru`
 
 ## Open items
@@ -113,6 +117,12 @@ the injury DNPs (coach's-decision DNPs stay in the pool — nobody knew those):
 - **Label decided Oct 19:** the user had "L10" renamed to "Last 10" everywhere on the board. Known
   caveat, accepted: for a player with no DK line and fewer than 5 games this season, the "Last 10" fallback
   line is really his last-40-game average (`ref_pra` in `finish_row`). Players with a DK line say "DK line".
+- **Model hole found Oct 21 (fix next):** stars who missed ALL of last season (Haliburton, Lillard, VanVleet,
+  Kyrie) fall to the preseason-only fallback and project at 5-16 minutes; top rookies too. Players whose
+  2025-26 ended injured (Giannis 24 min, Trae Young 20, Ty Jerome 14) are dragged down by their last games.
+  Plan: load season-2 box scores (2024-25 is committed) for long-absence returners, and stop injury-shortened
+  final games from setting next season's minutes; validate on 2025-26's opening week (needs the 2023-24
+  backfill for returners). Until then the news flag + DK-only odds keep these cards honest
 - **Re-fit `DK_MODEL_W` after ~3 weeks of regular season:** `--calibrate 2026-10-20 <date>` prints an
   "Against DraftKings' real line" section from the archived lines (miss, hit rate of 2+/3+/4+ gaps, and
   the miss at each weight). The 0.1 came from a playoff-heavy sample.

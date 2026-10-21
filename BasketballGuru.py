@@ -864,6 +864,12 @@ BOOST_VAR_K = 0.5               # extra PRA variance per squared point of boost
 # The model's share of the say, fitted there; re-fit once the regular season
 # has a few weeks of archived lines.
 DK_MODEL_W  = 0.1
+# "Check the news": a gap this big between the model and DK's line usually
+# means DK knows something the injury feed does not (bench role, minutes
+# limit). Against last season's real lines, gaps of 4+ went 45%.
+NEWS_GAP        = 6.0           # always flag at this gap
+NEWS_GAP_STALE  = 4.0           # flag at this gap when his data is stale...
+NEWS_STALE_DAYS = 10            # ...no game in this many days, none this season, or a new team
 # Players with no NBA games are projected from this season's preseason.
 PRE_MIN_F  = 0.7                # preseason minutes -> regular-season minutes (rookies play more in October)
 PRE_RATE_K = 300.0              # preseason minutes at which his rate and the position average split 50/50
@@ -1278,7 +1284,17 @@ def finish_row(r):
         # the odds are built mostly from the line (see DK_MODEL_W).
         r["line_src"], r["proxy_line"] = "DK", dk
         r["boost"] = mu - dk
-        p_mean = dk + DK_MODEL_W * (mu - dk)
+        # Stale = the model's picture of him is old: no NBA games in two
+        # seasons (projected from preseason), a new team, or a mid-season
+        # absence. Everyone is "new" in opening week, so that alone is not it.
+        ds = r.get("days_since")
+        stale = (r.get("pre_only") or (r.get("prev_team") and r["prev_team"] != r["team"])
+                 or (r["gp_cur"] > 0 and ds is not None and ds >= NEWS_STALE_DAYS))
+        r["check_news"] = abs(r["boost"]) >= NEWS_GAP or (bool(stale) and abs(r["boost"]) >= NEWS_GAP_STALE)
+        # When the gap is that big the model gets no say at all: gaps of 4+
+        # went 45% against real lines, and a garbage projection (a star back
+        # from a lost season, projected off his preseason) must not tilt the odds.
+        p_mean = dk if r["check_news"] else dk + DK_MODEL_W * (mu - dk)
         var = stat_var("pra", p_mean)
     else:
         # No DK line (deep bench, or props not posted yet): his recent average
@@ -1286,6 +1302,7 @@ def finish_row(r):
         # hang it. A projection far from it is a bolder call, so the spread
         # widens with the boost.
         r["line_src"] = "avg"
+        r["check_news"] = False
         r["proxy_line"] = (math.floor(ref) + 0.5) if ref is not None else None
         r["boost"] = (mu - ref) if ref is not None else 0.0
         p_mean = mu
@@ -1339,6 +1356,8 @@ def project_slate(db, games, d, season, rosters, out_ids, lines, injuries=None, 
                           "mates_out": names_out, "total": (lines.get(g["game_id"]) or {}).get("total")})
                 dkl = ((dk or {}).get(g["game_id"]) or {}).get(r["pid"])
                 r["dk_line"], r["dk_open"] = (dkl[0], dkl[1]) if dkl else (None, None)
+                r["days_since"] = ((date.fromisoformat(d) - date.fromisoformat(r["last_game"])).days
+                                   if r.get("last_game") else None)
                 inj = (injuries or {}).get(r["pid"])
                 r["inj_status"] = inj["status"] if inj else ""
                 r["inj_comment"] = inj["comment"] if inj else ""
@@ -1504,6 +1523,7 @@ def log_predictions(slate_date, rows, games, preseason=False, backtest=False):
                         "ast": round(r["mu"]["ast"], 2), "fg3m": round(r["mu"]["fg3m"], 2),
                         "min": round(r["min"], 1), "ref": round(r["ref_pra"], 2) if r["ref_pra"] is not None else None,
                         "boost": round(r["boost"], 2), "proxy": r["proxy_line"], "line_src": r["line_src"],
+                        "news": bool(r.get("check_news")),
                         "p_over": round(r["p_over_proxy"], 4) if r["p_over_proxy"] is not None else None,
                         "var": round(r["var"], 2)})
         if r["team"] in done_teams:
@@ -1766,6 +1786,9 @@ body.detail .v-simple { display:none; }
 .tag.bn { color:#c9d1d9; border-color:#30363d; }
 .tag.dtd { color:#f2cc60; border-color:#f2cc60; } .tag.out { color:#ff7b72; border-color:#ff7b72; }
 .tag.up { color:#3fb950; border-color:#3fb95088; } .tag.down { color:#ff7b72; border-color:#ff7b7288; }
+.tag.news { color:#f2cc60; border-color:#f2cc60; background:#f2cc6014; }
+.news-box { background:#3d2e00; border:1px solid #9e6a03; color:#f2cc60; border-radius:8px; padding:8px 12px; font-size:13px; margin:4px 0 12px; }
+.news-box b { color:#ffd866; }
 .card-label { font-size:14px; font-weight:600; margin:4px 0 8px; }
 .card-stats { display:grid; grid-template-columns:repeat(auto-fill,minmax(230px,1fr)); gap:8px 14px; }
 .stat-label { font-size:10px; text-transform:uppercase; letter-spacing:1px; color:#6e7681; }
@@ -1925,6 +1948,29 @@ def _verdict(p_more):
     if ps < 0.65:
         return f"LEAN {side}", col, side, ps, "One of the better spots tonight."
     return f"STRONG LEAN {side}", col, side, ps, "As strong as this board gets."
+
+
+def _news_box(p):
+    """The yellow "check the news" warning, or nothing."""
+    if not p.get("check_news"):
+        return ""
+    gap = p["boost"]
+    if p.get("pre_only"):
+        side = "above" if gap > 0 else "below"
+        return ('<div class="news-box">&#9888; <b>No recent NBA games.</b> Our ' + f'{p["pra"]:.0f}'
+                + ' comes from his preseason only (a rookie, or back from a lost season), so it is a rough guess, '
+                + f'{abs(gap):.0f} {side} DraftKings&#39; {p["proxy_line"]:g}. '
+                + 'Trust DraftKings&#39; line here; the odds on this card use it alone.</div>')
+    when = ""
+    ds = p.get("days_since")
+    if ds is not None and ds >= 30 and p.get("last_game"):
+        when = f" He hasn't played since {date.fromisoformat(p['last_game']).strftime('%B %d').replace(' 0', ' ')}."
+    elif p.get("prev_team") and p["prev_team"] != p["team"]:
+        when = " He's on a new team, so his role may have changed."
+    return (f'<div class="news-box">&#9888; <b>Check the news.</b> Our model is {abs(gap):.1f} '
+            f'{"above" if gap > 0 else "below"} DraftKings\' line.{when} A gap this big usually means DraftKings '
+            f'knows something we don\'t, like a bench role, a minutes limit or an injury. Look up the latest news '
+            f'before trusting our number. The odds on this card use DraftKings&#39; line alone.</div>')
 
 
 def _simple_card(p, lg_total):
@@ -2089,6 +2135,7 @@ def _simple_card(p, lg_total):
       <div class="nov-nums">{nums}</div>
       <div class="nov-pra">PRA = Points + Rebounds + Assists &nbsp;&bull;&nbsp; <b>{mu['pts']:.0f}</b> pts + <b>{mu['reb']:.0f}</b> reb + <b>{mu['ast']:.0f}</b> ast</div>
       <p class="nov-sum">{summary}</p>
+      {_news_box(p)}
       <div class="nov-cols"><div>
       {meter}
       {'<div class="nov-k" style="margin-top:12px">Why</div><ul class="nov-why">' + ''.join(f'<li>{w}</li>' for w in why) + '</ul>' if why else ''}
@@ -2124,7 +2171,10 @@ def _player_card(p, lg_total=230.0):
     mu = p["mu"]
     tags = f'<span class="tag {"st" if p["starter_tonight"] else "bn"}">{"Starter" if p["starter_tonight"] else "Bench"}</span>'
     vs = "vs DK" if p["line_src"] == "DK" else "vs avg"
-    if p["boost"] >= BOOST_CALL:
+    if p.get("check_news"):
+        tags += (f'<span class="tag news" title="model is {abs(p["boost"]):.1f} {"above" if p["boost"] > 0 else "below"} '
+                 f'DraftKings -- check the news">CHECK NEWS {p["boost"]:+.1f} vs DK</span>')
+    elif p["boost"] >= BOOST_CALL:
         tags += f'<span class="tag up" title="model is {p["boost"]:.1f} above the line">MORE {p["boost"]:+.1f} {vs}</span>'
     elif p["boost"] <= -BOOST_CALL:
         tags += f'<span class="tag down" title="model is {-p["boost"]:.1f} below the line">LESS {p["boost"]:+.1f} {vs}</span>'
@@ -2191,6 +2241,7 @@ def _player_card(p, lg_total=230.0):
             <div class="stat-sub">{l10_txt}</div></div>
         </div>
         <div class="checker">PRA line <input type="number" step="0.5" inputmode="decimal" placeholder="e.g. 29.5" value="{check_val}" oninput="checkLine(this)"> <span class="res"></span> <span class="muted">{check_txt}</span></div>
+        {_news_box(p)}
         <div class="card-scout">{_esc(p['scout'])}</div>
       </div>
       <div class="card-score" style="color:{p['grade_color']}">{p['pra']:.0f}<small>PRA</small></div>
@@ -2314,6 +2365,7 @@ def render_html(slate_date, games, lines, rows, timestamp, history, total,
       <p><b>The headline is projected Points + Rebounds + Assists</b> for the night he plays (a prop on a player who sits is voided). It is built bottom-up: projected minutes &times; what he produces per minute (both seasons, recent games weighted up). Then every team is made to add up: minutes to 240 plus a little overtime, and points to what DraftKings' spread and total say the team will score. When a starter is ruled out, his minutes and his share of the shots go to the players left -- the backups at his position first. The opponent counts through those team totals (pace, points, rebounds and assists it allows); there is no defense-vs-position adjustment, because in the 2025-26 backtest it added nothing.</p>
       <p><b>DK line</b> is DraftKings' actual PRA line, pulled free from ESPN for every player DK prices. The number next to it is the model's disagreement: projection minus line. MORE and LESS tags mark disagreements of 3+.</p>
       <p><b>Be careful with the tags.</b> Tested against 1,179 real DK lines from last season (mostly playoffs), DraftKings was more accurate than the model (off by 6.2 a player vs 6.5), and when the model disagreed by 3+ it was right only 49% of the time. So the percentages on this board lean on DK's line -- the model gets a 10% say -- and the tags are the model's opinion, graded every night on the scorecard. Trust them once the scorecard shows them winning well above 50%, not before. Players DK does not price fall back to their recent average as the line (marked "vs avg").</p>
+      <p><b>&#9888; Check the news</b> appears when the model and DraftKings are 6+ points apart (4+ if he changed teams, missed time mid-season, or has no recent NBA games). Gaps that big usually mean DraftKings knows something the injury report doesn't -- a bench role, a minutes limit -- so look it up before trusting the model. On those cards the odds use DraftKings' line alone.</p>
       <p><b>Line checker:</b> each card is filled in with DK's line and shows the More / Less percentage. To check a different line, type it in. The ladder and the range use the same numbers.</p>
       <p><b>The scorecard</b> at the bottom is the honesty check: every board is logged at tip-off and graded the next morning against the box scores -- PRA error, whether the grades sort players, the model vs DK's own line on the same players, and whether the MORE / LESS calls beat a coin flip.</p>
       <p style="color:#8b949e">Data: ESPN (schedule, box scores, rosters, injuries, DraftKings spreads, totals and PRA lines). No paid feeds.</p>
@@ -2867,7 +2919,9 @@ def run(args):
             gaps = sorted((r for r in live if r["min"] >= MIN_PROJ_MINUTES and r["line_src"] == "DK"
                            and abs(r["boost"]) >= BOOST_CALL), key=lambda r: -abs(r["boost"]))[:3]
             if gaps:
-                msg.append("Model vs DK: " + "; ".join(f"{r['name']} {r['pra']:.1f} vs {r['proxy_line']:g}" for r in gaps))
+                msg.append("Model vs DK: " + "; ".join(
+                    f"{r['name']} {r['pra']:.1f} vs {r['proxy_line']:g}{' (check news)' if r.get('check_news') else ''}"
+                    for r in gaps))
             if newly_out:
                 msg.append("Newly OUT: " + ", ".join(newly_out[:6]))
             if history and history[0]["date"] == (today - timedelta(days=1)).isoformat():
