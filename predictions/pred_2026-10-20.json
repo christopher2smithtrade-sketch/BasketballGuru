@@ -2128,5 +2128,74 @@
    "grade": "OUT",
    "main": true
   }
- ]
+ ],
+ "scored": {
+  "date": "2026-10-20",
+  "n": 50,
+  "dnp": 24,
+  "mae": 5.84,
+  "bias": 0.63,
+  "min_mae": 4.03,
+  "brier": 0.2491,
+  "more": {
+   "n": 1,
+   "w": 0
+  },
+  "less": {
+   "n": 9,
+   "w": 6
+  },
+  "tiers": {
+   "D": {
+    "n": 28,
+    "proj": 12.57,
+    "act": 13.93,
+    "err": 6.7
+   },
+   "B+": {
+    "n": 6,
+    "proj": 33.76,
+    "act": 31.0,
+    "err": 2.9
+   },
+   "B": {
+    "n": 4,
+    "proj": 28.75,
+    "act": 32.75,
+    "err": 4.0
+   },
+   "C": {
+    "n": 10,
+    "proj": 23.08,
+    "act": 23.0,
+    "err": 5.61
+   },
+   "A": {
+    "n": 2,
+    "proj": 37.64,
+    "act": 35.0,
+    "err": 7.45
+   }
+  },
+  "vs_dk": {
+   "n": 33,
+   "model": 190.25,
+   "dk": 204.5,
+   "over": 16
+  },
+  "partial": false,
+  "games_left": 0,
+  "top_more": [
+   {
+    "name": "Daniss Jenkins",
+    "team": "DET",
+    "call": "More",
+    "line": 13.5,
+    "pra": 17.04,
+    "act": 8,
+    "won": false
+   }
+  ],
+  "preseason": false
+ }
 }
