@@ -108,6 +108,12 @@ the injury DNPs (coach's-decision DNPs stay in the pool — nobody knew those):
   Toss-up / Slight lean / Lean / Strong lean at <55 / 55-60 / 60-65 / 65%+, plain-English reasons, last-10
   chart, stat line, "The game") and `.v-detail` (`_player_card`, every number). The Simple / Detailed switch
   sets `body.detail`; each phone remembers its choice in localStorage (`bg_mode`)
+- **Model report card** (added Oct 22, for the group): `score_date` counts a head-to-head per DK-lined player
+  (`vs_dk.model_closer` / `dk_closer` / `ties`: whose number was closer to his real PRA) and the record of
+  Slight-lean-or-stronger badges (`verdict`). The share of head-to-heads the model won gives the grade
+  (`REPORT_GRADES`: A 55%+, B 50-55, C 45-50, D 40-45, F). Strip under the toolbar (`_report_strip`), full
+  card at the bottom (`_report_card_html`); the technical scorecard is in the Detailed view only. Preseason
+  nights are left out. Older scored files lack the head-to-head; re-score with `score_date(d, force=True)`
 - `DK_MODEL_W` — the model's share of the say against a DK line in the odds
 - `PRE_MIN_F_ST` / `PRE_STARTER` — preseason starters' minutes scale; `RET_ENABLE` / `RET_W` / `RET_FADE_GAMES` /
   `RET_RATE_CUT` / `RET_OLD_MIN_F` / `RET_FLAG_GAMES` — the missed-season returner path; `THIN_GAMES` and
