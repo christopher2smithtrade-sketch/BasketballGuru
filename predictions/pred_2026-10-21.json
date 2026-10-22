@@ -8106,12 +8106,12 @@
   "min_mae": 5.73,
   "brier": 0.2467,
   "more": {
-   "n": 16,
-   "w": 10
+   "n": 9,
+   "w": 5
   },
   "less": {
-   "n": 42,
-   "w": 22
+   "n": 21,
+   "w": 12
   },
   "tiers": {
    "B+": {
@@ -8151,63 +8151,13 @@
    "dk": 733.5,
    "over": 55
   },
+  "news": {
+   "n": 28,
+   "dk_closer": 21
+  },
   "partial": false,
   "games_left": 0,
   "top_more": [
-   {
-    "name": "Isaiah Collier",
-    "team": "UTAH",
-    "call": "More",
-    "line": 12.5,
-    "pra": 23.98,
-    "act": 13,
-    "won": true
-   },
-   {
-    "name": "Saddiq Bey",
-    "team": "NO",
-    "call": "More",
-    "line": 15.5,
-    "pra": 25.06,
-    "act": 18,
-    "won": true
-   },
-   {
-    "name": "Reed Sheppard",
-    "team": "HOU",
-    "call": "More",
-    "line": 12.5,
-    "pra": 19.96,
-    "act": 9,
-    "won": false
-   },
-   {
-    "name": "Grayson Allen",
-    "team": "CHA",
-    "call": "More",
-    "line": 18.5,
-    "pra": 25.86,
-    "act": 28,
-    "won": true
-   },
-   {
-    "name": "Jarace Walker",
-    "team": "IND",
-    "call": "More",
-    "line": 15.5,
-    "pra": 22.78,
-    "act": 11,
-    "won": false
-   },
-   {
-    "name": "Tre Jones",
-    "team": "CHI",
-    "call": "More",
-    "line": 14.5,
-    "pra": 20.63,
-    "act": 16,
-    "won": true
-   },
    {
     "name": "Jrue Holiday",
     "team": "POR",
@@ -8218,11 +8168,65 @@
     "won": false
    },
    {
-    "name": "Marcus Smart",
+    "name": "Jabari Smith Jr.",
     "team": "HOU",
     "call": "More",
-    "line": 11.5,
-    "pra": 16.17,
+    "line": 20.5,
+    "pra": 24.87,
+    "act": 36,
+    "won": true
+   },
+   {
+    "name": "Ayo Dosunmu",
+    "team": "MIN",
+    "call": "More",
+    "line": 18.5,
+    "pra": 22.5,
+    "act": 24,
+    "won": true
+   },
+   {
+    "name": "Naji Marshall",
+    "team": "DAL",
+    "call": "More",
+    "line": 19.5,
+    "pra": 23.45,
+    "act": 24,
+    "won": true
+   },
+   {
+    "name": "Bam Adebayo",
+    "team": "MIA",
+    "call": "More",
+    "line": 29.5,
+    "pra": 33.06,
+    "act": 26,
+    "won": false
+   },
+   {
+    "name": "Nikola Vucevic",
+    "team": "ORL",
+    "call": "More",
+    "line": 15.5,
+    "pra": 18.95,
+    "act": 2,
+    "won": false
+   },
+   {
+    "name": "Deandre Ayton",
+    "team": "WSH",
+    "call": "More",
+    "line": 13.5,
+    "pra": 16.94,
+    "act": 15,
+    "won": true
+   },
+   {
+    "name": "Oso Ighodaro",
+    "team": "PHX",
+    "call": "More",
+    "line": 12.5,
+    "pra": 15.65,
     "act": 14,
     "won": true
    }
