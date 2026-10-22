@@ -16,7 +16,7 @@ prediction log + morning scorecard) — basketball-specific engine underneath.
 | `BasketballGuru.py` | The whole thing: data pull, projection engine, HTML board, prediction log + scorecard, calibration, GitHub Pages deploy, ntfy |
 | `.github/workflows/basketball.yml` | Cron schedule (10 runs/day across four ET windows) |
 | `predictions/pred_*.json` | One per slate, logged at tip-off, graded next morning (synced to the repo) |
-| `cache/season/box_<season>/` | One compact box score per finished game (~4 KB) — committed once, never changes. ESPN season = the year it ends (2026 = 2025-26) |
+| `cache/season/box_<season>/` | One compact box score per finished game (~4 KB) — committed once, never changes. ESPN season = the year it ends (2026 = 2025-26). Three seasons are loaded: this one, last, and the one before (read from disk only, for missed-season returners). 2024 (2023-24) is there for backtesting 2025-26 returners |
 | `cache/season/schedule_<season>.json` / `preseason_<season>.json` | Finished seasons' game lists, regular season and preseason (committed). Preseason box scores share the `box_<season>/` folder; every query except the rookie fallback filters them out by game type |
 | `cache/season/props_<season>.json` | Archive of DraftKings' PRA line per game per player, the last one seen before tip-off (committed). ESPN drops props after a while, so this is the only history we keep |
 | `cache/daily/` | Rosters, current schedule, run-check state — git-ignored, carried by `actions/cache` |
@@ -52,9 +52,12 @@ defense-vs-position (DvP) factor. Outcomes are half negative binomial, half
 normal, with Var = a·mu^c fitted on backtest residuals (PRA: 10.84·mu^0.591)
 plus `BOOST_VAR_K`·boost². A prop on a DNP is voided, so the board projects the night
 he plays. Players with no NBA games at all (rookies, players back from overseas)
-are projected from this season's preseason: 70% of their preseason minutes,
-rates shrunk hard toward 80% of the position average — and no boost, since
-there is no NBA average to compare against.
+are projected from this season's preseason: 70% of their preseason minutes
+(130% if they started in preseason — starters play less in October, bench
+rookies more), rates shrunk hard toward 80% of the position average. Players
+who missed ALL of last season use the season before for per-minute production
+only (minutes come from this preseason), fading to nothing over their first 10
+games back; they carry the news flag (DK-only odds) for their first 5.
 
 ## Calibration (2025-26 regular season replay, Oct 2026)
 
@@ -106,6 +109,9 @@ the injury DNPs (coach's-decision DNPs stay in the pool — nobody knew those):
   chart, stat line, "The game") and `.v-detail` (`_player_card`, every number). The Simple / Detailed switch
   sets `body.detail`; each phone remembers its choice in localStorage (`bg_mode`)
 - `DK_MODEL_W` — the model's share of the say against a DK line in the odds
+- `PRE_MIN_F_ST` / `PRE_STARTER` — preseason starters' minutes scale; `RET_ENABLE` / `RET_W` / `RET_FADE_GAMES` /
+  `RET_RATE_CUT` / `RET_OLD_MIN_F` / `RET_FLAG_GAMES` — the missed-season returner path; `THIN_GAMES` and
+  `PRI_MIN_MEDIAN_ST` — tested and left off
 - `NEWS_GAP` / `NEWS_GAP_STALE` / `NEWS_STALE_DAYS` — the yellow "Check the news" flag (added Oct 21): model
   6+ off DK's line, or 4+ when his data is stale (projected from preseason only, a new team, or a mid-season
   absence of 10+ days; opening week alone does not count). On flagged cards the odds use DK's line alone
@@ -117,12 +123,17 @@ the injury DNPs (coach's-decision DNPs stay in the pool — nobody knew those):
 - **Label decided Oct 19:** the user had "L10" renamed to "Last 10" everywhere on the board. Known
   caveat, accepted: for a player with no DK line and fewer than 5 games this season, the "Last 10" fallback
   line is really his last-40-game average (`ref_pra` in `finish_row`). Players with a DK line say "DK line".
-- **Model hole found Oct 21 (fix next):** stars who missed ALL of last season (Haliburton, Lillard, VanVleet,
-  Kyrie) fall to the preseason-only fallback and project at 5-16 minutes; top rookies too. Players whose
-  2025-26 ended injured (Giannis 24 min, Trae Young 20, Ty Jerome 14) are dragged down by their last games.
-  Plan: load season-2 box scores (2024-25 is committed) for long-absence returners, and stop injury-shortened
-  final games from setting next season's minutes; validate on 2025-26's opening week (needs the 2023-24
-  backfill for returners). Until then the news flag + DK-only odds keep these cards honest
+- **Returner / rookie fix (Oct 22):** stars who missed all of last season (Haliburton, Lillard, VanVleet,
+  Kyrie) and preseason-starting rookies projected at 5-16 minutes. Fixed with `PRE_MIN_F_ST` (preseason
+  starters' minutes scaled up) and the `RET_*` returner path (season-2 rates, fading over `RET_FADE_GAMES`).
+  This season's first two nights, DK-lined players: miss 6.91 -> 6.47 (DK 5.85); rookie preseason starters
+  in 2025-26's first month: bias +7.9 -> -1.6. 2025-26 only had 3 role-player returners (inconclusive);
+  full season unchanged (6.21). Tried and rejected: `THIN_GAMES` (thin last season shares the vote with
+  preseason — 4.78 -> 5.06, worse) and `PRI_MIN_MEDIAN_ST` (no gain). Still open: players whose last season
+  ended hurt (Trae Young, Ty Jerome, Giannis) project short on minutes until ~6 games of current data —
+  the news flag covers them; their current minutes take over by game 6
+- **Scorecard (Oct 22):** flagged cards showed "Check the news", so they are no longer graded as MORE / LESS
+  calls; they get their own `news` tally (how often DK was closer)
 - **Re-fit `DK_MODEL_W` after ~3 weeks of regular season:** `--calibrate 2026-10-20 <date>` prints an
   "Against DraftKings' real line" section from the archived lines (miss, hit rate of 2+/3+/4+ gaps, and
   the miss at each weight). The 0.1 came from a playoff-heavy sample.

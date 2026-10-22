@@ -874,6 +874,26 @@ NEWS_STALE_DAYS = 10            # ...no game in this many days, none this season
 PRE_MIN_F  = 0.7                # preseason minutes -> regular-season minutes (rookies play more in October)
 PRE_RATE_K = 300.0              # preseason minutes at which his rate and the position average split 50/50
 PRE_PRIOR_F = 0.8               # the position average he is shrunk toward, scaled (newcomers start below it)
+# Starters play LESS in preseason than in the season (bench rookies play more),
+# so a preseason starter's minutes are scaled up, everyone else's down.
+PRE_MIN_F_ST = 1.3
+PRE_STARTER  = 0.5              # share of preseason starts that makes him a preseason starter
+# A thin last season (injury, minutes limit) sharing the vote with this
+# preseason's role, under THIN_GAMES played. Off (0): in the 2025-26 opening
+# month it made those players worse (4.78 -> 5.06 PRA miss); last season's
+# thin minutes were the better guide.
+THIN_GAMES   = 0
+# Missed ALL of last season: the season before stands in for his per-minute
+# production only (skills carry over a year off; roles do not), at RET_W per
+# game relative to this season, fading to nothing over RET_FADE_GAMES games back.
+RET_ENABLE = True
+RET_W, RET_FADE_GAMES = 0.2, 10
+RET_RATE_CUT  = 0.0             # haircut on those two-year-old rates (age, the injury)
+RET_OLD_MIN_F = 0.8             # minutes off his old role when there is no preseason to go on
+RET_FLAG_GAMES = 5              # returners carry the news flag (DK-only odds) for this many games
+# A starter's minutes from last season: the median of his games played, so a
+# handful of injury-shortened nights does not set this season's role.
+PRI_MIN_MEDIAN_ST = False
 
 
 def grade_for(score, table):
@@ -957,23 +977,31 @@ def player_profile(db, pid, team, d, season, lg):
     fast when his role changes, how often he actually gets in, and his recent
     PRA for the boost comparison.
     """
-    games = [g for g in db.games(pid, d) if g["type"] in (2, 3) and g["s"] in (season, season - 1)]
+    all_games = db.games(pid, d)
+    games = [g for g in all_games if g["type"] in (2, 3) and g["s"] in (season, season - 1)]
     cur = [g for g in games if g["s"] == season]
     pri = [g for g in games if g["s"] == season - 1]
     cur_p = [g for g in cur if g["played"]]
     pri_p = [g for g in pri if g["played"]]
-    if not cur_p and not pri_p:
+    old_p = ([g for g in all_games if g["type"] in (2, 3) and g["s"] == season - 2 and g["played"]][:40]
+             if (not pri_p and RET_ENABLE) else [])
+    if not cur_p and not pri_p and not old_p:
         return preseason_profile(db, pid, team, d, season, lg)
+    returner = bool(old_p)
+    pre_p = [g for g in all_games if g["type"] == 1 and g["s"] == season and g["played"]]
     grp = pos_group(db.pos(pid))
     prior = lg["pm"][grp]
 
     wp = PRI_W * max(0.15, 1 - len(cur_p) / PRI_FADE_GAMES)
-    ws = [(g, RATE_DECAY ** i) for i, g in enumerate(cur_p)] + [(g, wp * 0.985 ** i) for i, g in enumerate(pri_p)]
+    wo = RET_W * max(0.0, 1 - len(cur_p) / RET_FADE_GAMES)
+    ws = ([(g, RATE_DECAY ** i) for i, g in enumerate(cur_p)] + [(g, wp * 0.985 ** i) for i, g in enumerate(pri_p)]
+          + ([(g, wo * 0.985 ** i) for i, g in enumerate(old_p)] if wo > 0 else []))
     wmin = sum(g["min"] * w for g, w in ws)
+    old_share = (sum(g["min"] * w for g, w in ws if g["s"] == season - 2) / wmin) if wmin > 0 else 0.0
     rates = {}
     for k in STATS:
         raw = sum(g[k] * w for g, w in ws) / wmin if wmin > 0 else prior[k]
-        rates[k] = regress(raw, wmin, prior[k], RATE_K[k])
+        rates[k] = regress(raw, wmin, prior[k], RATE_K[k]) * (1 - RET_RATE_CUT * old_share)
     use = sum((g["fga"] + 0.44 * g["fta"] + g["tov"]) * w for g, w in ws) / wmin if wmin > 0 else 0.0
 
     # -- minutes: games with THIS team this season move fastest; a trade or a
@@ -988,6 +1016,23 @@ def player_profile(db, pid, team, d, season, lg):
         m_team = MIN_RECENT_W * wavg(team_cur[:8], MIN_RECENT_DECAY) + (1 - MIN_RECENT_W) * wavg(team_cur, 0.93)
     m_other = wavg(cur[:10], 0.85) if cur else None
     m_pri = _mean(g["min"] for g in pri[:25]) if pri else None
+    pri_st = _mean(g["st"] for g in pri_p[:25]) if pri_p else 0.0
+    if PRI_MIN_MEDIAN_ST and m_pri is not None and pri_st >= 0.6:
+        mins_played = sorted(g["min"] for g in pri_p[:25])
+        m_pri = mins_played[len(mins_played) // 2]
+    # This preseason's role: a starter's preseason minutes undersell his
+    # season (he sits the second half), a bench player's oversell it.
+    pre_st = _mean(g["st"] for g in pre_p) >= PRE_STARTER if pre_p else False
+    m_pre = (PRE_MIN_F_ST if pre_st else PRE_MIN_F) * _mean(g["min"] for g in pre_p) if pre_p else None
+    if returner:
+        # Back from a missed season: his role comes from this preseason, or
+        # failing that a discounted version of the one he had.
+        m_pri = m_pre if m_pre is not None else RET_OLD_MIN_F * _mean(g["min"] for g in old_p[:25])
+    elif m_pri is not None and len(pri_p) < THIN_GAMES and m_pre is not None:
+        # A thin last season (hurt, on a minutes limit) shares the vote with
+        # this preseason's role, by how much of a season it was.
+        f = len(pri_p) / THIN_GAMES
+        m_pri = f * m_pri + (1 - f) * m_pre
     fallback = m_other if (m_other is not None and not team_cur) else m_pri
     n = len(team_cur)
     if n >= 6 or (m_team is not None and fallback is None):
@@ -996,17 +1041,18 @@ def player_profile(db, pid, team, d, season, lg):
         base = (n / 6) * m_team + (1 - n / 6) * fallback
     else:
         base = fallback if fallback is not None else 0.0
-    # Last season's minutes are a guess about this season's role; pull them
-    # a little toward a bench role until he shows it again.
-    if not cur:
+    st_lst = [g for g in (team_cur if team_cur else cur_p + pri_p) if g["played"]][:5]
+    st_rate = _mean(g["st"] for g in st_lst) if st_lst else (1.0 if pre_st else 0.0)
+    # Last season's minutes are a guess about this season's role; pull a
+    # bench player's a little toward a bench role until he shows it again.
+    # A starter's role is the sturdy part -- leave it.
+    if not cur and st_rate < 0.6:
         base = 0.92 * base + 0.08 * 16.0 if base > 16 else base
 
     recent = team_cur[:10] if len(team_cur) >= 3 else (cur + pri)[:10]
     played_recent = [g for g in recent if g["played"]]
     p_play = len(played_recent) / len(recent) if recent else 1.0
     p_play = max(p_play, 0.25)
-    st_lst = [g for g in (team_cur if team_cur else cur_p + pri_p) if g["played"]][:5]
-    st_rate = _mean(g["st"] for g in st_lst) if st_lst else 0.0
 
     pra = lambda g: g["pts"] + g["reb"] + g["ast"]
     l10 = (cur_p + (pri_p if len(cur_p) < 5 else []))[:10]
@@ -1023,7 +1069,8 @@ def player_profile(db, pid, team, d, season, lg):
         "season_min": _mean(g["min"] for g in seas) if seas else None,
         "l10_stats": {k: _mean(g[k] for g in l10) for k in STATS} if l10 else {},
         "last_game": cur_p[0]["d"] if cur_p else (pri_p[0]["d"] if pri_p else None),
-        "prev_team": (cur_p + pri_p)[0]["team"],
+        "prev_team": (cur_p + pri_p + old_p)[0]["team"],
+        "returner": returner, "old_share": old_share,
         "recent_team_presence": _presence(db, pid, team, d),
     }
 
@@ -1052,7 +1099,8 @@ def preseason_profile(db, pid, team, d, season, lg):
     mins = sum(g["min"] for g in pre_p)
     rates = {k: regress(sum(g[k] for g in pre_p) / mins if mins else prior[k], mins, prior[k], PRE_RATE_K)
              for k in STATS}
-    m_play = PRE_MIN_F * _mean(g["min"] for g in pre_p)
+    pre_st = _mean(g["st"] for g in pre_p) >= PRE_STARTER
+    m_play = (PRE_MIN_F_ST if pre_st else PRE_MIN_F) * _mean(g["min"] for g in pre_p)
     pra = lambda g: g["pts"] + g["reb"] + g["ast"]
     return {
         "pid": pid, "name": db.name(pid), "pos": db.pos(pid) or grp, "grp": grp, "team": team,
@@ -1290,7 +1338,8 @@ def finish_row(r):
         ds = r.get("days_since")
         stale = (r.get("pre_only") or (r.get("prev_team") and r["prev_team"] != r["team"])
                  or (r["gp_cur"] > 0 and ds is not None and ds >= NEWS_STALE_DAYS))
-        r["check_news"] = abs(r["boost"]) >= NEWS_GAP or (bool(stale) and abs(r["boost"]) >= NEWS_GAP_STALE)
+        r["check_news"] = (abs(r["boost"]) >= NEWS_GAP or (bool(stale) and abs(r["boost"]) >= NEWS_GAP_STALE)
+                           or (r.get("returner") and r["gp_cur"] < RET_FLAG_GAMES))
         # When the gap is that big the model gets no say at all: gaps of 4+
         # went 45% against real lines, and a garbage projection (a star back
         # from a lost season, projected off his preseason) must not tilt the odds.
@@ -1523,7 +1572,8 @@ def log_predictions(slate_date, rows, games, preseason=False, backtest=False):
                         "ast": round(r["mu"]["ast"], 2), "fg3m": round(r["mu"]["fg3m"], 2),
                         "min": round(r["min"], 1), "ref": round(r["ref_pra"], 2) if r["ref_pra"] is not None else None,
                         "boost": round(r["boost"], 2), "proxy": r["proxy_line"], "line_src": r["line_src"],
-                        "news": bool(r.get("check_news")),
+                        "news": bool(r.get("check_news")), "rookie": bool(r.get("pre_only")),
+                        "returner": bool(r.get("returner")),
                         "p_over": round(r["p_over_proxy"], 4) if r["p_over_proxy"] is not None else None,
                         "var": round(r["var"], 2)})
         if r["team"] in done_teams:
@@ -1584,6 +1634,7 @@ def score_date(slate_date, backtest=False, force=False):
 
     tiers, err, bias, min_err, brier = {}, [], [], [], []
     vs_dk = {"n": 0, "model": 0.0, "dk": 0.0, "over": 0}
+    news = {"n": 0, "dk_closer": 0}
     more = {"n": 0, "w": 0}
     less = {"n": 0, "w": 0}
     dnp = 0
@@ -1612,7 +1663,11 @@ def score_date(slate_date, backtest=False, force=False):
             vs_dk["dk"] += abs(a["pra"] - p["proxy"])
             vs_dk["over"] += over
             brier.append((p["p_over"] - over) ** 2)
-            if p["boost"] >= BOOST_CALL:
+            if p.get("news"):
+                # The card showed "Check the news", not a MORE / LESS tag.
+                news["n"] += 1
+                news["dk_closer"] += 1 if abs(a["pra"] - p["proxy"]) < abs(a["pra"] - p["pra"]) else 0
+            elif p["boost"] >= BOOST_CALL:
                 more["n"] += 1
                 more["w"] += over
                 best.append({"name": p["name"], "team": p["team"], "call": "More", "line": p["proxy"],
@@ -1632,7 +1687,7 @@ def score_date(slate_date, backtest=False, force=False):
         "date": slate_date.isoformat(), "n": n, "dnp": dnp,
         "mae": round(_mean(err), 2), "bias": round(_mean(bias), 2), "min_mae": round(_mean(min_err), 2),
         "brier": round(_mean(brier), 4) if brier else None,
-        "more": more, "less": less, "tiers": tiers, "vs_dk": vs_dk,
+        "more": more, "less": less, "tiers": tiers, "vs_dk": vs_dk, "news": news,
         "partial": games_left > 0, "games_left": games_left,
         "top_more": sorted(best, key=lambda x: -(x["pra"] - x["line"]))[:8],
         "preseason": data.get("preseason", False),
@@ -1955,6 +2010,10 @@ def _news_box(p):
     if not p.get("check_news"):
         return ""
     gap = p["boost"]
+    if p.get("returner") and p["gp_cur"] < RET_FLAG_GAMES:
+        return ('<div class="news-box">&#9888; <b>Back from a missed season.</b> He sat out all of last season, so '
+                'this uses his 2024-25 numbers per minute and this preseason&#39;s minutes, a rough guess until he has '
+                f'played a few games ({p["gp_cur"]} so far). Trust DraftKings&#39; line here; the odds on this card use it alone.</div>')
     if p.get("pre_only"):
         side = "above" if gap > 0 else "below"
         return ('<div class="news-box">&#9888; <b>No recent NBA games.</b> Our ' + f'{p["pra"]:.0f}'
@@ -2034,6 +2093,8 @@ def _simple_card(p, lg_total):
         why.append("Could be a blowout, and starters often sit in the 4th quarter of those.")
     if p.get("pre_only"):
         why.append(f"No NBA games yet, so this is built from his {p['pre_gp']} preseason games. Treat it as a rough guess.")
+    elif p.get("returner") and p["gp_cur"] < RET_FADE_GAMES:
+        why.append("He missed all of last season, so his per-minute numbers lean on 2024-25 until he has played a few games.")
     elif p["gp_cur"] == 0:
         why.append("No games yet this season, so this is built from last season.")
 
@@ -2505,7 +2566,23 @@ def load_db(d, verbose=True):
     season = season_of(d)
     boxes = (load_boxes(season - 1, date(season - 1, 7, 31), verbose) + load_boxes(season, d, verbose)
              + load_boxes(season, d, verbose, preseason=True))
-    return DB(boxes), season
+    # The season before last feeds only players who missed all of last season.
+    # Committed tier only -- never pulled from ESPN on a live run.
+    older = _cached_boxes(season - 2)
+    return DB(boxes + older), season
+
+
+def _cached_boxes(season):
+    """Every box score of a finished season that is already on disk (nothing fetched)."""
+    folder = os.path.join(CACHE_FOLDER, "season", f"box_{season}")
+    out = []
+    if os.path.isdir(folder):
+        for f in os.listdir(folder):
+            if f.endswith(".json") and not f.startswith("_"):
+                b = _read_json(os.path.join(folder, f))
+                if b and b.get("type") in (2, 3):
+                    out.append(b)
+    return out
 
 
 def slate_from_boxes(boxes):
