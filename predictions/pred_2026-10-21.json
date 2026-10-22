@@ -8149,11 +8149,18 @@
    "n": 125,
    "model": 851.1999999999997,
    "dk": 733.5,
-   "over": 55
+   "over": 55,
+   "model_closer": 54,
+   "dk_closer": 71,
+   "ties": 0
   },
   "news": {
    "n": 28,
    "dk_closer": 21
+  },
+  "verdict": {
+   "n": 2,
+   "w": 1
   },
   "partial": false,
   "games_left": 0,
