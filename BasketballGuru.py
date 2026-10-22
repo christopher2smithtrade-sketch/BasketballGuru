@@ -1633,7 +1633,8 @@ def score_date(slate_date, backtest=False, force=False):
         return None
 
     tiers, err, bias, min_err, brier = {}, [], [], [], []
-    vs_dk = {"n": 0, "model": 0.0, "dk": 0.0, "over": 0}
+    vs_dk = {"n": 0, "model": 0.0, "dk": 0.0, "over": 0, "model_closer": 0, "dk_closer": 0, "ties": 0}
+    verdict = {"n": 0, "w": 0}
     news = {"n": 0, "dk_closer": 0}
     more = {"n": 0, "w": 0}
     less = {"n": 0, "w": 0}
@@ -1662,6 +1663,14 @@ def score_date(slate_date, backtest=False, force=False):
             vs_dk["model"] += abs(a["pra"] - p["pra"])
             vs_dk["dk"] += abs(a["pra"] - p["proxy"])
             vs_dk["over"] += over
+            # Head to head: whose number was closer to what he actually did
+            me, them = abs(a["pra"] - p["pra"]), abs(a["pra"] - p["proxy"])
+            key = "model_closer" if me < them else ("dk_closer" if them < me else "ties")
+            vs_dk[key] += 1
+            # The verdict badge: Slight lean or stronger is a call on a side
+            if max(p["p_over"], 1 - p["p_over"]) >= 0.55:
+                verdict["n"] += 1
+                verdict["w"] += 1 if (over == 1) == (p["p_over"] >= 0.5) else 0
             brier.append((p["p_over"] - over) ** 2)
             if p.get("news"):
                 # The card showed "Check the news", not a MORE / LESS tag.
@@ -1687,7 +1696,7 @@ def score_date(slate_date, backtest=False, force=False):
         "date": slate_date.isoformat(), "n": n, "dnp": dnp,
         "mae": round(_mean(err), 2), "bias": round(_mean(bias), 2), "min_mae": round(_mean(min_err), 2),
         "brier": round(_mean(brier), 4) if brier else None,
-        "more": more, "less": less, "tiers": tiers, "vs_dk": vs_dk, "news": news,
+        "more": more, "less": less, "tiers": tiers, "vs_dk": vs_dk, "news": news, "verdict": verdict,
         "partial": games_left > 0, "games_left": games_left,
         "top_more": sorted(best, key=lambda x: -(x["pra"] - x["line"]))[:8],
         "preseason": data.get("preseason", False),
@@ -1712,7 +1721,7 @@ def accuracy_history(slate_date, days=14):
         if r:
             recent.append(r)
     total = {"n": 0, "err": 0.0, "bias": 0.0, "days": 0, "more": {"n": 0, "w": 0}, "less": {"n": 0, "w": 0},
-             "tiers": {}, "vs_dk": {"n": 0, "model": 0.0, "dk": 0.0, "over": 0}}
+             "tiers": {}, "vs_dk": {}, "verdict": {"n": 0, "w": 0}, "news": {"n": 0, "dk_closer": 0}}
     files = []
     if os.path.isdir(PREDICTIONS_FOLDER):
         files = sorted(f for f in os.listdir(PREDICTIONS_FOLDER) if f.startswith("pred_") and f.endswith(".json"))
@@ -1731,7 +1740,10 @@ def accuracy_history(slate_date, days=14):
             total[k]["n"] += r[k]["n"]
             total[k]["w"] += r[k]["w"]
         for k, v in (r.get("vs_dk") or {}).items():
-            total["vs_dk"][k] += v
+            total["vs_dk"][k] = total["vs_dk"].get(k, 0) + v
+        for part in ("verdict", "news"):
+            for k, v in (r.get(part) or {}).items():
+                total[part][k] = total[part].get(k, 0) + v
         for g, t in r["tiers"].items():
             a = total["tiers"].setdefault(g, {"n": 0, "proj": 0.0, "act": 0.0})
             a["n"] += t["n"]
@@ -1804,6 +1816,7 @@ h2.section-title small { color:#8b949e; font-size:12px; font-weight:400; }
 .v-simple { display:block; padding:2px 4px; }
 body.detail .v-detail { display:flex; }
 body.detail .v-simple { display:none; }
+.v-detail-block { display:none; } body.detail .v-detail-block { display:block; }
 
 .nov-top { display:flex; justify-content:space-between; align-items:flex-start; gap:12px; }
 .nov-name { font-size:1.25rem; font-weight:800; }
@@ -1842,6 +1855,17 @@ body.detail .v-simple { display:none; }
 .tag.dtd { color:#f2cc60; border-color:#f2cc60; } .tag.out { color:#ff7b72; border-color:#ff7b72; }
 .tag.up { color:#3fb950; border-color:#3fb95088; } .tag.down { color:#ff7b72; border-color:#ff7b7288; }
 .tag.news { color:#f2cc60; border-color:#f2cc60; background:#f2cc6014; }
+.report-strip { display:block; background:#161b22; border:1px solid #30363d; border-radius:10px; padding:10px 14px; margin:0 0 16px; font-size:13px; color:#c9d1d9; text-decoration:none; }
+.report-strip:hover { border-color:#f0883e; }
+.report { background:#161b22; border:1px solid #30363d; border-radius:12px; padding:16px 18px; margin-bottom:14px; }
+.report-top { display:flex; gap:18px; align-items:center; margin-bottom:14px; }
+.report-grade { border:3px solid; border-radius:12px; min-width:74px; text-align:center; font-size:2.4rem; font-weight:900; line-height:1; padding:8px 6px; }
+.report-grade small { display:block; font-size:11px; font-weight:600; color:#8b949e; letter-spacing:1px; text-transform:uppercase; margin-top:4px; }
+.report-bar { height:12px; background:#ff7b7255; border-radius:6px; overflow:hidden; margin-top:6px; }
+.report-bar i { display:block; height:100%; background:#3fb950; }
+.report-lab { display:flex; justify-content:space-between; font-size:12px; color:#c9d1d9; margin-top:4px; }
+.report-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:12px 18px; margin-bottom:12px; }
+.report-v { font-size:1.15rem; font-weight:700; color:#e6edf3; }
 .news-box { background:#3d2e00; border:1px solid #9e6a03; color:#f2cc60; border-radius:8px; padding:8px 12px; font-size:13px; margin:4px 0 12px; }
 .news-box b { color:#ffd866; }
 .card-label { font-size:14px; font-weight:600; margin:4px 0 8px; }
@@ -2310,6 +2334,117 @@ def _player_card(p, lg_total=230.0):
     </div>"""
 
 
+REPORT_GRADES = [("A", 0.55), ("B", 0.50), ("C", 0.45), ("D", 0.40)]
+REPORT_COLORS = {"A": "#00e676", "B": "#b9f6ca", "C": "#fff176", "D": "#ffb74d", "F": "#ff5252"}
+
+
+def _closer_share(vd):
+    """Share of head-to-heads the model won (ties left out), or None."""
+    w, l = (vd or {}).get("model_closer", 0), (vd or {}).get("dk_closer", 0)
+    return w / (w + l) if (w + l) else None
+
+
+def _report_grade(share):
+    if share is None:
+        return "-"
+    for g, cut in REPORT_GRADES:
+        if share >= cut:
+            return g
+    return "F"
+
+
+def _rec(d):
+    return f"{d['w']}&ndash;{d['n'] - d['w']}" if d and d.get("n") else "none yet"
+
+
+def _pct(d):
+    return f" ({d['w'] / d['n'] * 100:.0f}%)" if d and d.get("n") else ""
+
+
+def _report_strip(history, total):
+    """The one-line report card near the top of the board."""
+    season = total.get("vs_dk") or {}
+    s_share = _closer_share(season)
+    last = next((h for h in history if not h.get("preseason") and (h.get("vs_dk") or {}).get("model_closer") is not None
+                 and not h.get("partial")), None)
+    if s_share is None and not last:
+        return ""
+    sg = _report_grade(s_share)
+    parts = []
+    if s_share is not None:
+        parts.append(f'Season: <b style="color:{REPORT_COLORS.get(sg, "#8b949e")}">{sg}</b> &mdash; model closer than '
+                     f'DraftKings on {s_share * 100:.0f}% of players')
+    if last:
+        ls = _closer_share(last["vs_dk"])
+        lg_ = _report_grade(ls)
+        tags = {"n": last["more"]["n"] + last["less"]["n"], "w": last["more"]["w"] + last["less"]["w"]}
+        parts.append(f'Last night ({date.fromisoformat(last["date"]).strftime("%b %d").replace(" 0", " ")}): '
+                     f'<b style="color:{REPORT_COLORS.get(lg_, "#8b949e")}">{lg_}</b>'
+                     + (f' ({ls * 100:.0f}%)' if ls is not None else '')
+                     + (f' &bull; tags {_rec(tags)}' if tags["n"] else ''))
+    return (f'<a class="report-strip" href="#report">&#128202; <b>Model report card</b> &nbsp; {" &nbsp;&bull;&nbsp; ".join(parts)}'
+            f' <span class="muted">&rarr; details</span></a>')
+
+
+def _report_card_html(history, total):
+    """
+    How the model is doing against DraftKings, in plain words: who was
+    closer to what really happened, the letter grade that gives, and the
+    record of the calls the board made.
+    """
+    season = total.get("vs_dk") or {}
+    nights = [h for h in history if not h.get("preseason") and (h.get("vs_dk") or {}).get("model_closer") is not None
+              and (h.get("vs_dk") or {}).get("n")]
+    if not season.get("model_closer") and not season.get("dk_closer") and not nights:
+        return ('<div class="empty">The report card starts after the first graded regular-season night: every board is '
+                'logged at tip-off and graded the next morning against the box scores.</div>')
+    share = _closer_share(season)
+    grade = _report_grade(share)
+    col = REPORT_COLORS.get(grade, "#8b949e")
+    w, l, t = season.get("model_closer", 0), season.get("dk_closer", 0), season.get("ties", 0)
+    n = season.get("n", 0)
+    tags = {"n": total["more"]["n"] + total["less"]["n"], "w": total["more"]["w"] + total["less"]["w"]}
+    news = total.get("news") or {}
+    verdict = total.get("verdict") or {}
+    bar = int((share or 0) * 100)
+    rows = ""
+    for h in nights:
+        vd = h["vs_dk"]
+        sh = _closer_share(vd)
+        g = _report_grade(sh)
+        tg = {"n": h["more"]["n"] + h["less"]["n"], "w": h["more"]["w"] + h["less"]["w"]}
+        flag = ' <span class="muted">(still grading)</span>' if h.get("partial") else ""
+        rows += (f'<tr><td>{date.fromisoformat(h["date"]).strftime("%a %b %d").replace(" 0", " ")}{flag}</td>'
+                 f'<td>{vd["n"]}</td><td>{vd["model_closer"]}&ndash;{vd["dk_closer"]}</td>'
+                 f'<td>{vd["model"] / vd["n"]:.1f} / {vd["dk"] / vd["n"]:.1f}</td>'
+                 f'<td>{_rec(tg) if tg["n"] else "-"}</td>'
+                 f'<td style="color:{REPORT_COLORS.get(g, "#8b949e")};font-weight:800">{g}</td></tr>')
+    return f"""
+    <div class="report">
+      <div class="report-top">
+        <div class="report-grade" style="color:{col};border-color:{col}">{grade}<small>season</small></div>
+        <div style="flex:1;min-width:0">
+          <div class="nov-k">Who was closer to what really happened?</div>
+          <div class="report-bar"><i style="width:{bar}%"></i></div>
+          <div class="report-lab"><span>Model {w}</span><span>{f"{share * 100:.0f}% model" if share is not None else ""}</span><span>DraftKings {l}</span></div>
+          <div class="nov-small">{n} players with a DraftKings line{f", {t} ties" if t else ""}. 50% means the model is exactly as good as DraftKings' line; above 50% means better.</div>
+        </div>
+      </div>
+      <div class="report-grid">
+        <div><div class="nov-k">Average miss</div><div class="report-v">{season.get("model", 0) / n if n else 0:.1f} <span class="muted">model</span> &nbsp; {season.get("dk", 0) / n if n else 0:.1f} <span class="muted">DK</span></div>
+          <div class="nov-small">How far each one's number was from his real PRA, on average. Lower wins.</div></div>
+        <div><div class="nov-k">MORE / LESS tags</div><div class="report-v">{_rec(tags)}{_pct(tags)}</div>
+          <div class="nov-small">The model 3+ points off DK's line. 50% is a coin flip.</div></div>
+        <div><div class="nov-k">Lean calls</div><div class="report-v">{_rec(verdict)}{_pct(verdict)}</div>
+          <div class="nov-small">Cards whose badge said Slight lean or stronger.</div></div>
+        <div><div class="nov-k">Check-the-news cards</div><div class="report-v">{f"DK closer {news['dk_closer']} of {news['n']}" if news.get("n") else "none yet"}</div>
+          <div class="nov-small">Big gaps where the board told you to trust DraftKings.</div></div>
+      </div>
+      <div class="scroll"><table class="score"><tr><th>Night</th><th>Players</th><th>Closer (model&ndash;DK)</th><th>Avg miss (model / DK)</th><th>Tags won&ndash;lost</th><th>Grade</th></tr>{rows}</table></div>
+      <div class="nov-small">Grade = how often the model was closer than DraftKings: A 55%+, B 50&ndash;55%, C 45&ndash;50%, D 40&ndash;45%, F under 40%. Beating DraftKings' line is hard; a B means the model is keeping up with the pros. Preseason nights are left out.</div>
+    </div>"""
+
+
 def _scorecard_html(history, total):
     if not history and not total.get("n"):
         return ('<div class="empty">No graded slates yet. Every board is logged at tip-off and scored the next '
@@ -2428,6 +2563,7 @@ def render_html(slate_date, games, lines, rows, timestamp, history, total,
       <p><b>Be careful with the tags.</b> Tested against 1,179 real DK lines from last season (mostly playoffs), DraftKings was more accurate than the model (off by 6.2 a player vs 6.5), and when the model disagreed by 3+ it was right only 49% of the time. So the percentages on this board lean on DK's line -- the model gets a 10% say -- and the tags are the model's opinion, graded every night on the scorecard. Trust them once the scorecard shows them winning well above 50%, not before. Players DK does not price fall back to their recent average as the line (marked "vs avg").</p>
       <p><b>&#9888; Check the news</b> appears when the model and DraftKings are 6+ points apart (4+ if he changed teams, missed time mid-season, or has no recent NBA games). Gaps that big usually mean DraftKings knows something the injury report doesn't -- a bench role, a minutes limit -- so look it up before trusting the model. On those cards the odds use DraftKings' line alone.</p>
       <p><b>Line checker:</b> each card is filled in with DK's line and shows the More / Less percentage. To check a different line, type it in. The ladder and the range use the same numbers.</p>
+      <p><b>The model report card</b> (strip at the top, full card at the bottom) grades the model every morning against DraftKings: on every player with a DK line, whose number was closer to what he really did? 50% means the model is as good as DraftKings; the letter grade runs A (55%+) to F (under 40%).</p>
       <p><b>The scorecard</b> at the bottom is the honesty check: every board is logged at tip-off and graded the next morning against the box scores -- PRA error, whether the grades sort players, the model vs DK's own line on the same players, and whether the MORE / LESS calls beat a coin flip.</p>
       <p style="color:#8b949e">Data: ESPN (schedule, box scores, rosters, injuries, DraftKings spreads, totals and PRA lines). No paid feeds.</p>
     </div>
@@ -2447,13 +2583,18 @@ def render_html(slate_date, games, lines, rows, timestamp, history, total,
     <span class="sep"></span>
     <button class="toggle" onclick="toggleMain(this)">Main slate (7 PM+)</button>
   </div>
+  {_report_strip(history, total)}
   <div class="games-row">{chips}</div>
   <div class="filter-banner" id="filter-banner"></div>
   <h2 class="section-title">The board <small>projected PRA if he plays; each card shows DK's line and the More / Less odds</small></h2>
   <div id="board">{board}</div>
   <button class="show-all" id="show-all" onclick="showAll(this)">Show all</button>
-  <h2 class="section-title">Scorecard <small>logged at tip-off, graded the next morning</small></h2>
+  <h2 class="section-title" id="report">Model report card <small>the model vs DraftKings' line, graded every morning</small></h2>
+  {_report_card_html(history, total)}
+  <div class="v-detail-block">
+  <h2 class="section-title">Scorecard details <small>the full numbers, for the Detailed view</small></h2>
   {scorecard}
+  </div>
 </div>
 <div class="footer">Basketball Guru &bull; paper picks only &bull; projections are not betting advice</div>
 <script>var TOP_SHOWN = {TOP_SHOWN};{JS}
@@ -3005,7 +3146,9 @@ def run(args):
                 y = history[0]
                 mo = y["more"]
                 vd = y.get("vs_dk") or {}
-                msg.append(f"Last night: PRA error {y['mae']:.1f}"
+                sh = _closer_share(vd)
+                msg.append(f"Last night: grade {_report_grade(sh)}" + (f" (model closer {sh * 100:.0f}%)" if sh is not None else "")
+                           + f", PRA error {y['mae']:.1f}"
                            + (f" (DK line {vd['dk'] / vd['n']:.1f})" if vd.get("n") else "")
                            + (f", More {mo['w']}/{mo['n']}" if mo["n"] else "")
                            + (f", Less {y['less']['w']}/{y['less']['n']}" if y["less"]["n"] else ""))
