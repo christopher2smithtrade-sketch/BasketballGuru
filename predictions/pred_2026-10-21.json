@@ -8096,5 +8096,137 @@
    "grade": "OUT",
    "main": true
   }
- ]
+ ],
+ "scored": {
+  "date": "2026-10-21",
+  "n": 190,
+  "dnp": 74,
+  "mae": 6.52,
+  "bias": -0.59,
+  "min_mae": 5.73,
+  "brier": 0.2467,
+  "more": {
+   "n": 16,
+   "w": 10
+  },
+  "less": {
+   "n": 42,
+   "w": 22
+  },
+  "tiers": {
+   "B+": {
+    "n": 16,
+    "proj": 32.78,
+    "act": 36.69,
+    "err": 6.67
+   },
+   "C": {
+    "n": 44,
+    "proj": 22.53,
+    "act": 22.48,
+    "err": 6.82
+   },
+   "D": {
+    "n": 111,
+    "proj": 14.03,
+    "act": 12.22,
+    "err": 6.21
+   },
+   "B": {
+    "n": 18,
+    "proj": 28.22,
+    "act": 29.94,
+    "err": 7.82
+   },
+   "A+": {
+    "n": 1,
+    "proj": 45.04,
+    "act": 43.0,
+    "err": 2.04
+   }
+  },
+  "vs_dk": {
+   "n": 125,
+   "model": 851.1999999999997,
+   "dk": 733.5,
+   "over": 55
+  },
+  "partial": false,
+  "games_left": 0,
+  "top_more": [
+   {
+    "name": "Isaiah Collier",
+    "team": "UTAH",
+    "call": "More",
+    "line": 12.5,
+    "pra": 23.98,
+    "act": 13,
+    "won": true
+   },
+   {
+    "name": "Saddiq Bey",
+    "team": "NO",
+    "call": "More",
+    "line": 15.5,
+    "pra": 25.06,
+    "act": 18,
+    "won": true
+   },
+   {
+    "name": "Reed Sheppard",
+    "team": "HOU",
+    "call": "More",
+    "line": 12.5,
+    "pra": 19.96,
+    "act": 9,
+    "won": false
+   },
+   {
+    "name": "Grayson Allen",
+    "team": "CHA",
+    "call": "More",
+    "line": 18.5,
+    "pra": 25.86,
+    "act": 28,
+    "won": true
+   },
+   {
+    "name": "Jarace Walker",
+    "team": "IND",
+    "call": "More",
+    "line": 15.5,
+    "pra": 22.78,
+    "act": 11,
+    "won": false
+   },
+   {
+    "name": "Tre Jones",
+    "team": "CHI",
+    "call": "More",
+    "line": 14.5,
+    "pra": 20.63,
+    "act": 16,
+    "won": true
+   },
+   {
+    "name": "Jrue Holiday",
+    "team": "POR",
+    "call": "More",
+    "line": 20.5,
+    "pra": 25.63,
+    "act": 13,
+    "won": false
+   },
+   {
+    "name": "Marcus Smart",
+    "team": "HOU",
+    "call": "More",
+    "line": 11.5,
+    "pra": 16.17,
+    "act": 14,
+    "won": true
+   }
+  ],
+  "preseason": false
+ }
 }
