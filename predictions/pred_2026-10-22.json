@@ -2,7 +2,7 @@
  "date": "2026-10-22",
  "preseason": false,
  "backtest": false,
- "logged_at": "2026-10-22T19:15:42",
+ "logged_at": "2026-10-22T20:05:24",
  "games": [
   {
    "game_id": "401909093",
@@ -537,12 +537,12 @@
    "fg3m": 2.99,
    "min": 33.2,
    "ref": 34.6,
-   "boost": -2.27,
-   "proxy": 36.5,
+   "boost": -1.27,
+   "proxy": 35.5,
    "line_src": "DK",
    "news": false,
-   "p_over": 0.4765,
-   "var": 90.52
+   "p_over": 0.4804,
+   "var": 89.19
   },
   {
    "pid": "4432158",
@@ -698,12 +698,12 @@
    "fg3m": 1.77,
    "min": 31.0,
    "ref": 24.25,
-   "boost": 1.74,
-   "proxy": 20.5,
+   "boost": 2.74,
+   "proxy": 19.5,
    "line_src": "DK",
    "news": false,
-   "p_over": 0.4868,
-   "var": 64.93
+   "p_over": 0.4911,
+   "var": 63.24
   },
   {
    "pid": "5106268",
@@ -961,12 +961,12 @@
    "fg3m": 1.49,
    "min": 21.6,
    "ref": 15.55,
-   "boost": -1.45,
-   "proxy": 13.5,
+   "boost": -2.45,
+   "proxy": 14.5,
    "line_src": "DK",
    "news": false,
-   "p_over": 0.4613,
-   "var": 50.15
+   "p_over": 0.4575,
+   "var": 52.12
   },
   {
    "pid": "4593803",
@@ -1280,12 +1280,12 @@
    "fg3m": 1.8,
    "min": 33.8,
    "ref": 49.73,
-   "boost": -4.0,
-   "proxy": 49.5,
+   "boost": -3.0,
+   "proxy": 48.5,
    "line_src": "DK",
    "news": false,
-   "p_over": 0.4738,
-   "var": 108.26
+   "p_over": 0.4774,
+   "var": 107.08
   },
   {
    "pid": "4592427",
@@ -1349,12 +1349,12 @@
    "fg3m": 3.9,
    "min": 34.4,
    "ref": 36.12,
-   "boost": 0.24,
-   "proxy": 32.5,
+   "boost": -0.76,
+   "proxy": 33.5,
    "line_src": "DK",
    "news": false,
-   "p_over": 0.4858,
-   "var": 84.87
+   "p_over": 0.4818,
+   "var": 86.25
   },
   {
    "pid": "4433629",
