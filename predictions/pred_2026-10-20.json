@@ -2181,7 +2181,18 @@
    "n": 33,
    "model": 190.25,
    "dk": 204.5,
-   "over": 16
+   "over": 16,
+   "model_closer": 17,
+   "dk_closer": 16,
+   "ties": 0
+  },
+  "news": {
+   "n": 0,
+   "dk_closer": 0
+  },
+  "verdict": {
+   "n": 2,
+   "w": 1
   },
   "partial": false,
   "games_left": 0,
