@@ -1553,5 +1553,100 @@
    "grade": "OUT",
    "main": true
   }
- ]
+ ],
+ "scored": {
+  "date": "2026-10-22",
+  "n": 32,
+  "dnp": 14,
+  "mae": 5.92,
+  "bias": -2.97,
+  "min_mae": 3.62,
+  "brier": 0.2422,
+  "more": {
+   "n": 2,
+   "w": 2
+  },
+  "less": {
+   "n": 4,
+   "w": 2
+  },
+  "tiers": {
+   "B+": {
+    "n": 7,
+    "proj": 33.89,
+    "act": 32.29,
+    "err": 6.71
+   },
+   "D": {
+    "n": 17,
+    "proj": 13.38,
+    "act": 10.82,
+    "err": 4.35
+   },
+   "C": {
+    "n": 5,
+    "proj": 22.89,
+    "act": 23.2,
+    "err": 5.34
+   },
+   "B": {
+    "n": 1,
+    "proj": 29.27,
+    "act": 28.0,
+    "err": 1.27
+   },
+   "A": {
+    "n": 1,
+    "proj": 39.91,
+    "act": 22.0,
+    "err": 17.91
+   },
+   "A+": {
+    "n": 1,
+    "proj": 47.84,
+    "act": 25.0,
+    "err": 22.84
+   }
+  },
+  "vs_dk": {
+   "n": 25,
+   "model": 161.7,
+   "dk": 166.5,
+   "over": 9,
+   "model_closer": 16,
+   "dk_closer": 9,
+   "ties": 0
+  },
+  "news": {
+   "n": 0,
+   "dk_closer": 0
+  },
+  "verdict": {
+   "n": 1,
+   "w": 1
+  },
+  "partial": false,
+  "games_left": 0,
+  "top_more": [
+   {
+    "name": "Jaylen Brown",
+    "team": "PHI",
+    "call": "More",
+    "line": 30.5,
+    "pra": 35.35,
+    "act": 33,
+    "won": true
+   },
+   {
+    "name": "VJ Edgecombe",
+    "team": "PHI",
+    "call": "More",
+    "line": 18.5,
+    "pra": 21.8,
+    "act": 24,
+    "won": true
+   }
+  ],
+  "preseason": false
+ }
 }
