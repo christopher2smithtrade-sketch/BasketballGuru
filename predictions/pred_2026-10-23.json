@@ -9748,5 +9748,154 @@
    "grade": "OUT",
    "main": true
   }
- ]
+ ],
+ "scored": {
+  "date": "2026-10-23",
+  "n": 206,
+  "dnp": 95,
+  "mae": 6.93,
+  "bias": -0.74,
+  "min_mae": 5.62,
+  "brier": 0.2478,
+  "more": {
+   "n": 13,
+   "w": 6
+  },
+  "less": {
+   "n": 23,
+   "w": 17
+  },
+  "tiers": {
+   "D": {
+    "n": 115,
+    "proj": 13.84,
+    "act": 12.85,
+    "err": 6.24
+   },
+   "B": {
+    "n": 23,
+    "proj": 28.46,
+    "act": 27.7,
+    "err": 7.22
+   },
+   "C": {
+    "n": 46,
+    "proj": 22.96,
+    "act": 24.2,
+    "err": 6.91
+   },
+   "B+": {
+    "n": 17,
+    "proj": 33.06,
+    "act": 30.41,
+    "err": 11.18
+   },
+   "A": {
+    "n": 4,
+    "proj": 37.64,
+    "act": 31.25,
+    "err": 7.31
+   },
+   "A+": {
+    "n": 1,
+    "proj": 43.21,
+    "act": 36.0,
+    "err": 7.21
+   }
+  },
+  "vs_dk": {
+   "n": 121,
+   "model": 917.0600000000002,
+   "dk": 821.5,
+   "over": 55,
+   "model_closer": 52,
+   "dk_closer": 69,
+   "ties": 0
+  },
+  "news": {
+   "n": 16,
+   "dk_closer": 12
+  },
+  "verdict": {
+   "n": 0,
+   "w": 0
+  },
+  "partial": false,
+  "games_left": 0,
+  "top_more": [
+   {
+    "name": "Amen Thompson",
+    "team": "HOU",
+    "call": "More",
+    "line": 26.5,
+    "pra": 31.02,
+    "act": 34,
+    "won": true
+   },
+   {
+    "name": "Andrew Nembhard",
+    "team": "IND",
+    "call": "More",
+    "line": 22.5,
+    "pra": 26.77,
+    "act": 23,
+    "won": true
+   },
+   {
+    "name": "Jabari Smith Jr.",
+    "team": "HOU",
+    "call": "More",
+    "line": 21.5,
+    "pra": 25.73,
+    "act": 13,
+    "won": false
+   },
+   {
+    "name": "Tre Jones",
+    "team": "CHI",
+    "call": "More",
+    "line": 16.5,
+    "pra": 20.59,
+    "act": 22,
+    "won": true
+   },
+   {
+    "name": "Kelly Oubre Jr.",
+    "team": "IND",
+    "call": "More",
+    "line": 13.5,
+    "pra": 17.42,
+    "act": 7,
+    "won": false
+   },
+   {
+    "name": "Jrue Holiday",
+    "team": "POR",
+    "call": "More",
+    "line": 19.5,
+    "pra": 23.37,
+    "act": 22,
+    "won": true
+   },
+   {
+    "name": "Brandin Podziemski",
+    "team": "GS",
+    "call": "More",
+    "line": 22.5,
+    "pra": 26.31,
+    "act": 23,
+    "won": true
+   },
+   {
+    "name": "Pelle Larsson",
+    "team": "MIA",
+    "call": "More",
+    "line": 14.5,
+    "pra": 18.08,
+    "act": 10,
+    "won": false
+   }
+  ],
+  "preseason": false
+ }
 }
