@@ -6289,5 +6289,91 @@
    "grade": "OUT",
    "main": true
   }
- ]
+ ],
+ "scored": {
+  "date": "2026-10-24",
+  "n": 137,
+  "dnp": 65,
+  "mae": 6.87,
+  "bias": 1.25,
+  "min_mae": 5.32,
+  "brier": 0.2549,
+  "more": {
+   "n": 1,
+   "w": 1
+  },
+  "less": {
+   "n": 14,
+   "w": 4
+  },
+  "tiers": {
+   "B": {
+    "n": 15,
+    "proj": 28.25,
+    "act": 30.73,
+    "err": 6.21
+   },
+   "D": {
+    "n": 79,
+    "proj": 13.83,
+    "act": 14.63,
+    "err": 6.95
+   },
+   "C": {
+    "n": 28,
+    "proj": 22.76,
+    "act": 23.64,
+    "err": 5.87
+   },
+   "A": {
+    "n": 4,
+    "proj": 37.67,
+    "act": 34.75,
+    "err": 9.14
+   },
+   "B+": {
+    "n": 10,
+    "proj": 33.61,
+    "act": 38.0,
+    "err": 8.39
+   },
+   "A+": {
+    "n": 1,
+    "proj": 46.37,
+    "act": 60.0,
+    "err": 13.63
+   }
+  },
+  "vs_dk": {
+   "n": 80,
+   "model": 571.36,
+   "dk": 545.0,
+   "over": 45,
+   "model_closer": 35,
+   "dk_closer": 45,
+   "ties": 0
+  },
+  "news": {
+   "n": 7,
+   "dk_closer": 3
+  },
+  "verdict": {
+   "n": 1,
+   "w": 1
+  },
+  "partial": false,
+  "games_left": 0,
+  "top_more": [
+   {
+    "name": "De'Aaron Fox",
+    "team": "SA",
+    "call": "More",
+    "line": 24.5,
+    "pra": 27.58,
+    "act": 31,
+    "won": true
+   }
+  ],
+  "preseason": false
+ }
 }
