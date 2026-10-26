@@ -5438,5 +5438,91 @@
    "grade": "OUT",
    "main": true
   }
- ]
+ ],
+ "scored": {
+  "date": "2026-10-25",
+  "n": 122,
+  "dnp": 48,
+  "mae": 6.65,
+  "bias": -0.37,
+  "min_mae": 5.01,
+  "brier": 0.2494,
+  "more": {
+   "n": 1,
+   "w": 0
+  },
+  "less": {
+   "n": 9,
+   "w": 4
+  },
+  "tiers": {
+   "D": {
+    "n": 75,
+    "proj": 13.46,
+    "act": 13.47,
+    "err": 6.03
+   },
+   "C": {
+    "n": 22,
+    "proj": 23.17,
+    "act": 21.68,
+    "err": 5.85
+   },
+   "B": {
+    "n": 9,
+    "proj": 28.92,
+    "act": 31.67,
+    "err": 9.91
+   },
+   "A+": {
+    "n": 1,
+    "proj": 44.73,
+    "act": 70.0,
+    "err": 25.27
+   },
+   "B+": {
+    "n": 11,
+    "proj": 33.09,
+    "act": 27.91,
+    "err": 7.63
+   },
+   "A": {
+    "n": 4,
+    "proj": 37.63,
+    "act": 36.0,
+    "err": 8.0
+   }
+  },
+  "vs_dk": {
+   "n": 63,
+   "model": 497.5800000000001,
+   "dk": 481.5,
+   "over": 29,
+   "model_closer": 30,
+   "dk_closer": 33,
+   "ties": 0
+  },
+  "news": {
+   "n": 5,
+   "dk_closer": 3
+  },
+  "verdict": {
+   "n": 1,
+   "w": 0
+  },
+  "partial": false,
+  "games_left": 0,
+  "top_more": [
+   {
+    "name": "Ayo Dosunmu",
+    "team": "MIN",
+    "call": "More",
+    "line": 19.5,
+    "pra": 22.62,
+    "act": 15,
+    "won": false
+   }
+  ],
+  "preseason": false
+ }
 }
