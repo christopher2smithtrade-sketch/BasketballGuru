@@ -7140,5 +7140,109 @@
    "grade": "OUT",
    "main": true
   }
- ]
+ ],
+ "scored": {
+  "date": "2026-10-26",
+  "n": 157,
+  "dnp": 58,
+  "mae": 6.39,
+  "bias": -0.26,
+  "min_mae": 5.43,
+  "brier": 0.252,
+  "more": {
+   "n": 3,
+   "w": 2
+  },
+  "less": {
+   "n": 10,
+   "w": 5
+  },
+  "tiers": {
+   "C": {
+    "n": 34,
+    "proj": 22.52,
+    "act": 22.38,
+    "err": 6.46
+   },
+   "D": {
+    "n": 90,
+    "proj": 13.9,
+    "act": 13.36,
+    "err": 5.32
+   },
+   "B+": {
+    "n": 13,
+    "proj": 33.2,
+    "act": 32.92,
+    "err": 12.04
+   },
+   "B": {
+    "n": 15,
+    "proj": 29.02,
+    "act": 31.0,
+    "err": 6.99
+   },
+   "A": {
+    "n": 4,
+    "proj": 39.27,
+    "act": 38.75,
+    "err": 8.18
+   },
+   "A+": {
+    "n": 1,
+    "proj": 48.06,
+    "act": 37.0,
+    "err": 11.06
+   }
+  },
+  "vs_dk": {
+   "n": 82,
+   "model": 600.4900000000001,
+   "dk": 579.0,
+   "over": 44,
+   "model_closer": 39,
+   "dk_closer": 43,
+   "ties": 0
+  },
+  "news": {
+   "n": 5,
+   "dk_closer": 3
+  },
+  "verdict": {
+   "n": 1,
+   "w": 1
+  },
+  "partial": false,
+  "games_left": 0,
+  "top_more": [
+   {
+    "name": "Yaxel Lendeborg",
+    "team": "GS",
+    "call": "More",
+    "line": 24.5,
+    "pra": 29.84,
+    "act": 49,
+    "won": true
+   },
+   {
+    "name": "Reed Sheppard",
+    "team": "HOU",
+    "call": "More",
+    "line": 14.5,
+    "pra": 18.27,
+    "act": 17,
+    "won": true
+   },
+   {
+    "name": "Pelle Larsson",
+    "team": "MIA",
+    "call": "More",
+    "line": 16.5,
+    "pra": 20.09,
+    "act": 16,
+    "won": false
+   }
+  ],
+  "preseason": false
+ }
 }
