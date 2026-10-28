@@ -3220,5 +3220,109 @@
    "grade": "OUT",
    "main": true
   }
- ]
+ ],
+ "scored": {
+  "date": "2026-10-27",
+  "n": 74,
+  "dnp": 29,
+  "mae": 6.54,
+  "bias": 1.03,
+  "min_mae": 5.8,
+  "brier": 0.248,
+  "more": {
+   "n": 3,
+   "w": 3
+  },
+  "less": {
+   "n": 5,
+   "w": 2
+  },
+  "tiers": {
+   "B": {
+    "n": 6,
+    "proj": 27.58,
+    "act": 30.83,
+    "err": 6.67
+   },
+   "D": {
+    "n": 46,
+    "proj": 12.8,
+    "act": 13.11,
+    "err": 6.29
+   },
+   "C": {
+    "n": 13,
+    "proj": 23.31,
+    "act": 21.92,
+    "err": 6.8
+   },
+   "A": {
+    "n": 2,
+    "proj": 37.17,
+    "act": 47.0,
+    "err": 9.82
+   },
+   "B+": {
+    "n": 6,
+    "proj": 33.25,
+    "act": 38.67,
+    "err": 6.39
+   },
+   "A+": {
+    "n": 1,
+    "proj": 46.54,
+    "act": 55.0,
+    "err": 8.46
+   }
+  },
+  "vs_dk": {
+   "n": 41,
+   "model": 252.08,
+   "dk": 235.5,
+   "over": 21,
+   "model_closer": 17,
+   "dk_closer": 24,
+   "ties": 0
+  },
+  "news": {
+   "n": 2,
+   "dk_closer": 2
+  },
+  "verdict": {
+   "n": 1,
+   "w": 1
+  },
+  "partial": false,
+  "games_left": 0,
+  "top_more": [
+   {
+    "name": "Jrue Holiday",
+    "team": "POR",
+    "call": "More",
+    "line": 17.5,
+    "pra": 22.35,
+    "act": 29,
+    "won": true
+   },
+   {
+    "name": "Daniss Jenkins",
+    "team": "DET",
+    "call": "More",
+    "line": 15.5,
+    "pra": 19.54,
+    "act": 16,
+    "won": true
+   },
+   {
+    "name": "Sam Hauser",
+    "team": "BOS",
+    "call": "More",
+    "line": 10.5,
+    "pra": 14.36,
+    "act": 15,
+    "won": true
+   }
+  ],
+  "preseason": false
+ }
 }
