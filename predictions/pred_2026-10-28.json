@@ -9223,5 +9223,127 @@
    "grade": "OUT",
    "main": true
   }
- ]
+ ],
+ "scored": {
+  "date": "2026-10-28",
+  "n": 210,
+  "dnp": 84,
+  "mae": 5.75,
+  "bias": -0.3,
+  "min_mae": 4.68,
+  "brier": 0.2493,
+  "more": {
+   "n": 5,
+   "w": 2
+  },
+  "less": {
+   "n": 16,
+   "w": 7
+  },
+  "tiers": {
+   "B": {
+    "n": 21,
+    "proj": 28.32,
+    "act": 29.57,
+    "err": 7.08
+   },
+   "C": {
+    "n": 44,
+    "proj": 22.68,
+    "act": 20.5,
+    "err": 6.47
+   },
+   "D": {
+    "n": 120,
+    "proj": 13.64,
+    "act": 14.0,
+    "err": 4.99
+   },
+   "A": {
+    "n": 7,
+    "proj": 37.28,
+    "act": 37.86,
+    "err": 7.63
+   },
+   "A+": {
+    "n": 3,
+    "proj": 45.1,
+    "act": 39.33,
+    "err": 7.56
+   },
+   "B+": {
+    "n": 15,
+    "proj": 33.25,
+    "act": 31.67,
+    "err": 6.5
+   }
+  },
+  "vs_dk": {
+   "n": 118,
+   "model": 730.5099999999998,
+   "dk": 725.0,
+   "over": 55,
+   "model_closer": 56,
+   "dk_closer": 62,
+   "ties": 0
+  },
+  "news": {
+   "n": 4,
+   "dk_closer": 1
+  },
+  "verdict": {
+   "n": 1,
+   "w": 1
+  },
+  "partial": false,
+  "games_left": 0,
+  "top_more": [
+   {
+    "name": "Yaxel Lendeborg",
+    "team": "GS",
+    "call": "More",
+    "line": 28.5,
+    "pra": 33.11,
+    "act": 36,
+    "won": true
+   },
+   {
+    "name": "Saddiq Bey",
+    "team": "NO",
+    "call": "More",
+    "line": 16.5,
+    "pra": 20.79,
+    "act": 12,
+    "won": false
+   },
+   {
+    "name": "Julian Champagnie",
+    "team": "SA",
+    "call": "More",
+    "line": 16.5,
+    "pra": 20.04,
+    "act": 12,
+    "won": false
+   },
+   {
+    "name": "Daniss Jenkins",
+    "team": "DET",
+    "call": "More",
+    "line": 15.5,
+    "pra": 18.62,
+    "act": 19,
+    "won": true
+   },
+   {
+    "name": "Jaylen Brown",
+    "team": "PHI",
+    "call": "More",
+    "line": 32.5,
+    "pra": 35.6,
+    "act": 32,
+    "won": false
+   }
+  ],
+  "preseason": false
+ }
 }
