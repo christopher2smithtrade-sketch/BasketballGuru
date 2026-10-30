@@ -2369,5 +2369,85 @@
    "p_over": 0.4018,
    "var": 56.6
   }
- ]
+ ],
+ "scored": {
+  "date": "2026-10-29",
+  "n": 52,
+  "dnp": 23,
+  "mae": 8.09,
+  "bias": 0.29,
+  "min_mae": 4.87,
+  "brier": 0.2505,
+  "more": {
+   "n": 1,
+   "w": 0
+  },
+  "less": {
+   "n": 3,
+   "w": 1
+  },
+  "tiers": {
+   "C": {
+    "n": 12,
+    "proj": 22.22,
+    "act": 20.17,
+    "err": 8.82
+   },
+   "D": {
+    "n": 26,
+    "proj": 13.47,
+    "act": 15.65,
+    "err": 7.61
+   },
+   "A": {
+    "n": 2,
+    "proj": 39.09,
+    "act": 31.5,
+    "err": 7.59
+   },
+   "B": {
+    "n": 10,
+    "proj": 28.56,
+    "act": 28.4,
+    "err": 8.77
+   },
+   "B+": {
+    "n": 2,
+    "proj": 34.26,
+    "act": 34.0,
+    "err": 7.0
+   }
+  },
+  "vs_dk": {
+   "n": 35,
+   "model": 286.02000000000004,
+   "dk": 279.5,
+   "over": 16,
+   "model_closer": 17,
+   "dk_closer": 18,
+   "ties": 0
+  },
+  "news": {
+   "n": 1,
+   "dk_closer": 0
+  },
+  "verdict": {
+   "n": 0,
+   "w": 0
+  },
+  "partial": false,
+  "games_left": 0,
+  "top_more": [
+   {
+    "name": "Jrue Holiday",
+    "team": "POR",
+    "call": "More",
+    "line": 20.5,
+    "pra": 23.99,
+    "act": 16,
+    "won": false
+   }
+  ],
+  "preseason": false
+ }
 }
