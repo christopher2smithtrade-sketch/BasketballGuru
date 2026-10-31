@@ -7846,5 +7846,109 @@
    "grade": "OUT",
    "main": true
   }
- ]
+ ],
+ "scored": {
+  "date": "2026-10-30",
+  "n": 178,
+  "dnp": 61,
+  "mae": 6.31,
+  "bias": -0.03,
+  "min_mae": 4.35,
+  "brier": 0.2499,
+  "more": {
+   "n": 3,
+   "w": 2
+  },
+  "less": {
+   "n": 13,
+   "w": 7
+  },
+  "tiers": {
+   "D": {
+    "n": 109,
+    "proj": 13.35,
+    "act": 13.03,
+    "err": 5.44
+   },
+   "B": {
+    "n": 12,
+    "proj": 29.4,
+    "act": 31.33,
+    "err": 6.33
+   },
+   "C": {
+    "n": 35,
+    "proj": 22.98,
+    "act": 23.89,
+    "err": 7.09
+   },
+   "B+": {
+    "n": 14,
+    "proj": 32.98,
+    "act": 33.79,
+    "err": 9.68
+   },
+   "A+": {
+    "n": 4,
+    "proj": 45.19,
+    "act": 45.75,
+    "err": 7.89
+   },
+   "A": {
+    "n": 4,
+    "proj": 37.55,
+    "act": 28.0,
+    "err": 9.81
+   }
+  },
+  "vs_dk": {
+   "n": 109,
+   "model": 774.7199999999999,
+   "dk": 735.5,
+   "over": 53,
+   "model_closer": 50,
+   "dk_closer": 59,
+   "ties": 0
+  },
+  "news": {
+   "n": 3,
+   "dk_closer": 2
+  },
+  "verdict": {
+   "n": 1,
+   "w": 1
+  },
+  "partial": false,
+  "games_left": 0,
+  "top_more": [
+   {
+    "name": "Keaton Wagler",
+    "team": "LAC",
+    "call": "More",
+    "line": 19.5,
+    "pra": 23.36,
+    "act": 21,
+    "won": true
+   },
+   {
+    "name": "Yaxel Lendeborg",
+    "team": "GS",
+    "call": "More",
+    "line": 30.5,
+    "pra": 33.84,
+    "act": 7,
+    "won": false
+   },
+   {
+    "name": "Jamal Murray",
+    "team": "DEN",
+    "call": "More",
+    "line": 32.5,
+    "pra": 35.55,
+    "act": 52,
+    "won": true
+   }
+  ],
+  "preseason": false
+ }
 }
