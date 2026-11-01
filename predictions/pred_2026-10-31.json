@@ -5329,5 +5329,85 @@
    "grade": "OUT",
    "main": true
   }
- ]
+ ],
+ "scored": {
+  "date": "2026-10-31",
+  "n": 129,
+  "dnp": 36,
+  "mae": 7.15,
+  "bias": -1.61,
+  "min_mae": 5.53,
+  "brier": 0.2419,
+  "more": {
+   "n": 1,
+   "w": 1
+  },
+  "less": {
+   "n": 11,
+   "w": 8
+  },
+  "tiers": {
+   "C": {
+    "n": 31,
+    "proj": 22.59,
+    "act": 21.61,
+    "err": 7.77
+   },
+   "D": {
+    "n": 71,
+    "proj": 13.29,
+    "act": 12.73,
+    "err": 5.77
+   },
+   "B+": {
+    "n": 11,
+    "proj": 33.54,
+    "act": 29.0,
+    "err": 10.36
+   },
+   "B": {
+    "n": 11,
+    "proj": 27.78,
+    "act": 22.09,
+    "err": 9.31
+   },
+   "A": {
+    "n": 5,
+    "proj": 38.77,
+    "act": 33.6,
+    "err": 11.27
+   }
+  },
+  "vs_dk": {
+   "n": 78,
+   "model": 584.9300000000001,
+   "dk": 595.0,
+   "over": 25,
+   "model_closer": 40,
+   "dk_closer": 38,
+   "ties": 0
+  },
+  "news": {
+   "n": 2,
+   "dk_closer": 2
+  },
+  "verdict": {
+   "n": 0,
+   "w": 0
+  },
+  "partial": false,
+  "games_left": 0,
+  "top_more": [
+   {
+    "name": "Grayson Allen",
+    "team": "CHA",
+    "call": "More",
+    "line": 18.5,
+    "pra": 21.64,
+    "act": 34,
+    "won": true
+   }
+  ],
+  "preseason": false
+ }
 }
