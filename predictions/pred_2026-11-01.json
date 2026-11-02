@@ -3100,5 +3100,81 @@
    "grade": "OUT",
    "main": true
   }
- ]
+ ],
+ "scored": {
+  "date": "2026-11-01",
+  "n": 70,
+  "dnp": 23,
+  "mae": 5.87,
+  "bias": 0.62,
+  "min_mae": 3.97,
+  "brier": 0.2485,
+  "more": {
+   "n": 0,
+   "w": 0
+  },
+  "less": {
+   "n": 4,
+   "w": 0
+  },
+  "tiers": {
+   "B": {
+    "n": 9,
+    "proj": 28.89,
+    "act": 31.44,
+    "err": 6.44
+   },
+   "C": {
+    "n": 7,
+    "proj": 22.62,
+    "act": 22.29,
+    "err": 6.98
+   },
+   "D": {
+    "n": 48,
+    "proj": 13.19,
+    "act": 13.25,
+    "err": 5.53
+   },
+   "B+": {
+    "n": 4,
+    "proj": 32.8,
+    "act": 32.5,
+    "err": 4.16
+   },
+   "A": {
+    "n": 1,
+    "proj": 40.35,
+    "act": 43.0,
+    "err": 2.65
+   },
+   "A+": {
+    "n": 1,
+    "proj": 47.03,
+    "act": 66.0,
+    "err": 18.97
+   }
+  },
+  "vs_dk": {
+   "n": 39,
+   "model": 238.7399999999999,
+   "dk": 223.5,
+   "over": 17,
+   "model_closer": 16,
+   "dk_closer": 22,
+   "ties": 1
+  },
+  "news": {
+   "n": 0,
+   "dk_closer": 0
+  },
+  "verdict": {
+   "n": 1,
+   "w": 0
+  },
+  "partial": false,
+  "games_left": 0,
+  "top_more": [],
+  "preseason": false
+ }
 }
