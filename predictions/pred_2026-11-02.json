@@ -11596,5 +11596,145 @@
    "p_over": 0.5874,
    "var": 62.53
   }
- ]
+ ],
+ "scored": {
+  "date": "2026-11-02",
+  "n": 259,
+  "dnp": 96,
+  "mae": 5.76,
+  "bias": 0.22,
+  "min_mae": 4.36,
+  "brier": 0.2486,
+  "more": {
+   "n": 7,
+   "w": 1
+  },
+  "less": {
+   "n": 17,
+   "w": 7
+  },
+  "tiers": {
+   "C": {
+    "n": 50,
+    "proj": 22.98,
+    "act": 22.44,
+    "err": 5.45
+   },
+   "B": {
+    "n": 28,
+    "proj": 28.23,
+    "act": 29.57,
+    "err": 6.27
+   },
+   "D": {
+    "n": 151,
+    "proj": 13.4,
+    "act": 13.73,
+    "err": 5.48
+   },
+   "B+": {
+    "n": 18,
+    "proj": 33.44,
+    "act": 34.72,
+    "err": 5.9
+   },
+   "A": {
+    "n": 9,
+    "proj": 38.37,
+    "act": 33.78,
+    "err": 9.85
+   },
+   "A+": {
+    "n": 3,
+    "proj": 46.37,
+    "act": 51.33,
+    "err": 6.71
+   }
+  },
+  "vs_dk": {
+   "n": 158,
+   "model": 949.04,
+   "dk": 916.0,
+   "over": 72,
+   "model_closer": 73,
+   "dk_closer": 85,
+   "ties": 0
+  },
+  "news": {
+   "n": 0,
+   "dk_closer": 0
+  },
+  "verdict": {
+   "n": 0,
+   "w": 0
+  },
+  "partial": false,
+  "games_left": 0,
+  "top_more": [
+   {
+    "name": "Domantas Sabonis",
+    "team": "SAC",
+    "call": "More",
+    "line": 35.5,
+    "pra": 39.81,
+    "act": 20,
+    "won": false
+   },
+   {
+    "name": "Julian Champagnie",
+    "team": "SA",
+    "call": "More",
+    "line": 15.5,
+    "pra": 19.34,
+    "act": 14,
+    "won": false
+   },
+   {
+    "name": "Quenton Jackson",
+    "team": "IND",
+    "call": "More",
+    "line": 28.5,
+    "pra": 32.09,
+    "act": 30,
+    "won": true
+   },
+   {
+    "name": "Wendell Carter Jr.",
+    "team": "ORL",
+    "call": "More",
+    "line": 22.5,
+    "pra": 25.97,
+    "act": 15,
+    "won": false
+   },
+   {
+    "name": "Naji Marshall",
+    "team": "DAL",
+    "call": "More",
+    "line": 22.5,
+    "pra": 25.67,
+    "act": 14,
+    "won": false
+   },
+   {
+    "name": "Isaiah Collier",
+    "team": "UTAH",
+    "call": "More",
+    "line": 14.5,
+    "pra": 17.61,
+    "act": 11,
+    "won": false
+   },
+   {
+    "name": "Jarrett Allen",
+    "team": "CLE",
+    "call": "More",
+    "line": 21.5,
+    "pra": 24.58,
+    "act": 21,
+    "won": false
+   }
+  ],
+  "preseason": false
+ }
 }
