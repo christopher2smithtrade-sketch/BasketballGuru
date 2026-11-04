@@ -2,7 +2,7 @@
  "date": "2026-11-04",
  "preseason": false,
  "backtest": false,
- "logged_at": "2026-11-04T21:51:12",
+ "logged_at": "2026-11-04T22:16:00",
  "games": [
   {
    "game_id": "401909922",
@@ -131,14 +131,14 @@
    "fg3m": 1.95,
    "min": 31.7,
    "ref": 36.29,
-   "boost": -4.29,
-   "proxy": 39.5,
+   "boost": -3.29,
+   "proxy": 38.5,
    "line_src": "DK",
    "news": false,
    "rookie": false,
    "returner": false,
-   "p_over": 0.4693,
-   "var": 94.58
+   "p_over": 0.4731,
+   "var": 93.29
   },
   {
    "pid": "2596112",
@@ -2176,14 +2176,14 @@
    "fg3m": 2.86,
    "min": 28.1,
    "ref": 30.86,
-   "boost": -2.5,
-   "proxy": 28.5,
+   "boost": -3.5,
+   "proxy": 29.5,
    "line_src": "DK",
    "news": false,
    "rookie": false,
    "returner": false,
-   "p_over": 0.4717,
-   "var": 78.09
+   "p_over": 0.4678,
+   "var": 79.55
   },
   {
    "pid": "5214640",
@@ -2701,14 +2701,14 @@
    "fg3m": 3.29,
    "min": 33.0,
    "ref": 29.14,
-   "boost": 0.7,
-   "proxy": 29.5,
+   "boost": 1.7,
+   "proxy": 28.5,
    "line_src": "DK",
    "news": false,
    "rookie": false,
    "returner": false,
-   "p_over": 0.4867,
-   "var": 80.22
+   "p_over": 0.4908,
+   "var": 78.77
   },
   {
    "pid": "5037873",
@@ -3356,14 +3356,14 @@
    "fg3m": 2.17,
    "min": 33.7,
    "ref": 24.57,
-   "boost": 1.47,
-   "proxy": 25.5,
+   "boost": 0.47,
+   "proxy": 26.5,
    "line_src": "DK",
    "news": false,
    "rookie": false,
    "returner": false,
-   "p_over": 0.4884,
-   "var": 73.75
+   "p_over": 0.4842,
+   "var": 75.27
   },
   {
    "pid": "3147657",
@@ -3381,14 +3381,14 @@
    "fg3m": 1.15,
    "min": 24.3,
    "ref": 10.57,
-   "boost": -1.99,
-   "proxy": 16.5,
+   "boost": -2.99,
+   "proxy": 17.5,
    "line_src": "DK",
    "news": false,
    "rookie": false,
    "returner": false,
-   "p_over": 0.4633,
-   "var": 56.42
+   "p_over": 0.4593,
+   "var": 58.24
   },
   {
    "pid": "3934672",
@@ -4016,14 +4016,14 @@
    "fg3m": 1.58,
    "min": 24.4,
    "ref": 22.71,
-   "boost": 1.04,
-   "proxy": 19.5,
+   "boost": 0.04,
+   "proxy": 20.5,
    "line_src": "DK",
    "news": false,
    "rookie": false,
    "returner": false,
-   "p_over": 0.4824,
-   "var": 62.92
+   "p_over": 0.4782,
+   "var": 64.61
   },
   {
    "pid": "4848625",
@@ -5196,14 +5196,14 @@
    "fg3m": 0.37,
    "min": 21.9,
    "ref": 22.71,
-   "boost": -0.9,
-   "proxy": 20.5,
+   "boost": 0.1,
+   "proxy": 19.5,
    "line_src": "DK",
    "news": false,
    "rookie": false,
    "returner": false,
-   "p_over": 0.4735,
-   "var": 64.44
+   "p_over": 0.4777,
+   "var": 62.74
   },
   {
    "pid": "4683742",
@@ -6161,14 +6161,14 @@
    "fg3m": 2.59,
    "min": 33.6,
    "ref": 27.29,
-   "boost": -0.53,
-   "proxy": 28.5,
+   "boost": 0.47,
+   "proxy": 27.5,
    "line_src": "DK",
    "news": false,
    "rookie": false,
    "returner": false,
-   "p_over": 0.4806,
-   "var": 78.41
+   "p_over": 0.4847,
+   "var": 76.93
   },
   {
    "pid": "2995706",
@@ -6261,14 +6261,14 @@
    "fg3m": 2.73,
    "min": 33.4,
    "ref": 32.57,
-   "boost": 0.58,
-   "proxy": 31.5,
+   "boost": -0.42,
+   "proxy": 32.5,
    "line_src": "DK",
    "news": false,
    "rookie": false,
    "returner": false,
-   "p_over": 0.4869,
-   "var": 83.37
+   "p_over": 0.4829,
+   "var": 84.77
   },
   {
    "pid": "4432158",
@@ -8111,14 +8111,14 @@
    "fg3m": 1.52,
    "min": 28.7,
    "ref": 18.2,
-   "boost": -2.04,
-   "proxy": 23.5,
+   "boost": -1.04,
+   "proxy": 22.5,
    "line_src": "DK",
    "news": false,
    "rookie": false,
    "returner": false,
-   "p_over": 0.4704,
-   "var": 69.68
+   "p_over": 0.4745,
+   "var": 68.07
   },
   {
    "pid": "4601023",
@@ -8431,14 +8431,14 @@
    "fg3m": 0.97,
    "min": 24.9,
    "ref": 22.0,
-   "boost": -1.91,
-   "proxy": 24.5,
+   "boost": -0.91,
+   "proxy": 23.5,
    "line_src": "DK",
    "news": false,
    "rookie": false,
    "returner": false,
-   "p_over": 0.4718,
-   "var": 71.45
+   "p_over": 0.4759,
+   "var": 69.88
   },
   {
    "pid": "5217746",
@@ -8901,14 +8901,14 @@
    "fg3m": 1.3,
    "min": 31.3,
    "ref": 29.29,
-   "boost": -0.1,
-   "proxy": 27.5,
+   "boost": 0.9,
+   "proxy": 26.5,
    "line_src": "DK",
    "news": false,
    "rookie": false,
    "returner": false,
-   "p_over": 0.4821,
-   "var": 76.84
+   "p_over": 0.4862,
+   "var": 75.34
   },
   {
    "pid": "4395723",
@@ -9236,14 +9236,14 @@
    "fg3m": 2.63,
    "min": 28.7,
    "ref": 29.6,
-   "boost": -1.79,
-   "proxy": 28.5,
+   "boost": -0.79,
+   "proxy": 27.5,
    "line_src": "DK",
    "news": false,
    "rookie": false,
    "returner": true,
-   "p_over": 0.4749,
-   "var": 78.2
+   "p_over": 0.479,
+   "var": 76.73
   },
   {
    "pid": "4873153",
@@ -9661,14 +9661,14 @@
    "fg3m": 2.34,
    "min": 30.1,
    "ref": 29.29,
-   "boost": -1.25,
-   "proxy": 25.5,
+   "boost": -2.25,
+   "proxy": 26.5,
    "line_src": "DK",
    "news": false,
    "rookie": false,
    "returner": false,
-   "p_over": 0.4756,
-   "var": 73.29
+   "p_over": 0.4716,
+   "var": 74.81
   },
   {
    "pid": "5107897",
@@ -9736,14 +9736,14 @@
    "fg3m": 0.25,
    "min": 34.6,
    "ref": 36.43,
-   "boost": 1.22,
-   "proxy": 32.5,
+   "boost": 0.22,
+   "proxy": 33.5,
    "line_src": "DK",
    "news": false,
    "rookie": false,
    "returner": false,
-   "p_over": 0.49,
-   "var": 85.02
+   "p_over": 0.486,
+   "var": 86.4
   },
   {
    "pid": "5106058",
