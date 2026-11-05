@@ -2,7 +2,7 @@
  "date": "2026-11-04",
  "preseason": false,
  "backtest": false,
- "logged_at": "2026-11-05T01:48:36",
+ "logged_at": "2026-11-05T02:23:55",
  "games": [
   {
    "game_id": "401909922",
@@ -7241,31 +7241,6 @@
    "var": 51.35
   },
   {
-   "pid": "3978",
-   "name": "DeMar DeRozan",
-   "pos": "G",
-   "team": "DEN",
-   "opp": "TOR",
-   "game_id": "401909931",
-   "grade": "D",
-   "main": true,
-   "pra": 16.08,
-   "pts": 11.71,
-   "reb": 1.89,
-   "ast": 2.48,
-   "fg3m": 0.46,
-   "min": 22.5,
-   "ref": 15.33,
-   "boost": 0.58,
-   "proxy": 15.5,
-   "line_src": "DK",
-   "news": false,
-   "rookie": false,
-   "returner": false,
-   "p_over": 0.4759,
-   "var": 54.89
-  },
-  {
    "pid": "4065813",
    "name": "Alpha Diallo",
    "pos": "F",
@@ -7539,6 +7514,31 @@
    "returner": false,
    "p_over": 0.1284,
    "var": 53.88
+  },
+  {
+   "pid": "3978",
+   "name": "DeMar DeRozan",
+   "pos": "G",
+   "team": "DEN",
+   "opp": "TOR",
+   "game_id": "401909931",
+   "grade": "D",
+   "main": true,
+   "pra": 16.08,
+   "pts": 11.71,
+   "reb": 1.89,
+   "ast": 2.48,
+   "fg3m": 0.46,
+   "min": 22.5,
+   "ref": 15.33,
+   "boost": 0.58,
+   "proxy": 15.5,
+   "line_src": "DK",
+   "news": false,
+   "rookie": false,
+   "returner": false,
+   "p_over": 0.4759,
+   "var": 54.89
   },
   {
    "pid": "4592427",
@@ -9061,14 +9061,14 @@
    "fg3m": 1.63,
    "min": 29.4,
    "ref": 39.71,
-   "boost": -3.46,
-   "proxy": 40.5,
+   "boost": -4.46,
+   "proxy": 41.5,
    "line_src": "DK",
    "news": false,
    "rookie": false,
    "returner": false,
-   "p_over": 0.4731,
-   "var": 96.12
+   "p_over": 0.4694,
+   "var": 97.39
   },
   {
    "pid": "6440",
@@ -9346,14 +9346,14 @@
    "fg3m": 1.29,
    "min": 25.6,
    "ref": 15.57,
-   "boost": 2.04,
-   "proxy": 12.5,
+   "boost": 0.04,
+   "proxy": 14.5,
    "line_src": "DK",
    "news": false,
    "rookie": false,
    "returner": false,
-   "p_over": 0.4797,
-   "var": 48.69
+   "p_over": 0.4714,
+   "var": 52.66
   },
   {
    "pid": "4432107",
@@ -9696,14 +9696,14 @@
    "fg3m": 1.26,
    "min": 16.8,
    "ref": 11.67,
-   "boost": -1.71,
-   "proxy": 14.5,
+   "boost": -0.71,
+   "proxy": 13.5,
    "line_src": "DK",
    "news": false,
    "rookie": false,
    "returner": false,
-   "p_over": 0.4616,
-   "var": 52.28
+   "p_over": 0.4655,
+   "var": 50.32
   },
   {
    "pid": "3155942",
@@ -10596,14 +10596,14 @@
    "fg3m": 1.18,
    "min": 21.9,
    "ref": 20.14,
-   "boost": -1.5,
-   "proxy": 20.5,
+   "boost": 0.5,
+   "proxy": 18.5,
    "line_src": "DK",
    "news": false,
    "rookie": false,
    "returner": false,
-   "p_over": 0.4705,
-   "var": 64.33
+   "p_over": 0.4788,
+   "var": 60.9
   },
   {
    "pid": "4683935",
@@ -10711,14 +10711,14 @@
    "fg3m": 0.61,
    "min": 32.1,
    "ref": 46.43,
-   "boost": -2.97,
-   "proxy": 48.5,
+   "boost": -1.97,
+   "proxy": 47.5,
    "line_src": "DK",
    "news": false,
    "rookie": false,
    "returner": false,
-   "p_over": 0.4775,
-   "var": 107.08
+   "p_over": 0.4811,
+   "var": 105.9
   },
   {
    "pid": "5107157",
