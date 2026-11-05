@@ -11095,5 +11095,118 @@
    "p_over": 0.4714,
    "var": 58.7
   }
- ]
+ ],
+ "scored": {
+  "date": "2026-11-04",
+  "n": 251,
+  "dnp": 101,
+  "mae": 5.94,
+  "bias": -0.03,
+  "min_mae": 4.91,
+  "brier": 0.2521,
+  "more": {
+   "n": 4,
+   "w": 0
+  },
+  "less": {
+   "n": 11,
+   "w": 3
+  },
+  "tiers": {
+   "D": {
+    "n": 155,
+    "proj": 13.6,
+    "act": 12.65,
+    "err": 5.35
+   },
+   "B+": {
+    "n": 17,
+    "proj": 33.2,
+    "act": 33.65,
+    "err": 4.12
+   },
+   "C": {
+    "n": 46,
+    "proj": 23.09,
+    "act": 23.89,
+    "err": 7.18
+   },
+   "B": {
+    "n": 24,
+    "proj": 28.68,
+    "act": 30.5,
+    "err": 6.91
+   },
+   "A": {
+    "n": 6,
+    "proj": 38.14,
+    "act": 44.33,
+    "err": 13.54
+   },
+   "A+": {
+    "n": 3,
+    "proj": 46.87,
+    "act": 52.0,
+    "err": 5.13
+   }
+  },
+  "vs_dk": {
+   "n": 132,
+   "model": 882.2500000000002,
+   "dk": 831.0,
+   "over": 69,
+   "model_closer": 48,
+   "dk_closer": 84,
+   "ties": 0
+  },
+  "news": {
+   "n": 2,
+   "dk_closer": 1
+  },
+  "verdict": {
+   "n": 1,
+   "w": 1
+  },
+  "partial": false,
+  "games_left": 0,
+  "top_more": [
+   {
+    "name": "Kon Knueppel",
+    "team": "CHA",
+    "call": "More",
+    "line": 19.5,
+    "pra": 24.51,
+    "act": 3,
+    "won": false
+   },
+   {
+    "name": "Dennis Schroder",
+    "team": "CHA",
+    "call": "More",
+    "line": 14.5,
+    "pra": 19.14,
+    "act": 14,
+    "won": false
+   },
+   {
+    "name": "Meleek Thomas",
+    "team": "CLE",
+    "call": "More",
+    "line": 14.5,
+    "pra": 18.9,
+    "act": 10,
+    "won": false
+   },
+   {
+    "name": "Jamal Murray",
+    "team": "DEN",
+    "call": "More",
+    "line": 34.5,
+    "pra": 37.8,
+    "act": 26,
+    "won": false
+   }
+  ],
+  "preseason": false
+ }
 }
