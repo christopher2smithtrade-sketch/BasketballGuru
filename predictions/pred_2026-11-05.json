@@ -2,7 +2,7 @@
  "date": "2026-11-05",
  "preseason": false,
  "backtest": false,
- "logged_at": "2026-11-05T21:58:15",
+ "logged_at": "2026-11-05T22:22:52",
  "games": [
   {
    "game_id": "401909936",
@@ -209,14 +209,14 @@
    "fg3m": 0.12,
    "min": 23.2,
    "ref": 17.52,
-   "boost": 0.37,
-   "proxy": 15.5,
+   "boost": 1.37,
+   "proxy": 14.5,
    "line_src": "DK",
    "news": false,
    "rookie": false,
    "returner": false,
-   "p_over": 0.4747,
-   "var": 54.84
+   "p_over": 0.4789,
+   "var": 52.94
   },
   {
    "pid": "3913174",
@@ -689,14 +689,14 @@
    "fg3m": 1.24,
    "min": 36.9,
    "ref": 34.0,
-   "boost": 0.6,
-   "proxy": 35.5,
+   "boost": -0.4,
+   "proxy": 36.5,
    "line_src": "DK",
    "news": false,
    "rookie": false,
    "returner": false,
-   "p_over": 0.4883,
-   "var": 89.46
+   "p_over": 0.4844,
+   "var": 90.79
   },
   {
    "pid": "4432573",
@@ -1144,14 +1144,14 @@
    "fg3m": 1.16,
    "min": 33.3,
    "ref": 30.38,
-   "boost": 0.4,
-   "proxy": 31.5,
+   "boost": 1.4,
+   "proxy": 30.5,
    "line_src": "DK",
    "news": false,
    "rookie": false,
    "returner": false,
-   "p_over": 0.4861,
-   "var": 83.34
+   "p_over": 0.4901,
+   "var": 81.93
   },
   {
    "pid": "3032977",
@@ -1544,14 +1544,14 @@
    "fg3m": 1.47,
    "min": 24.8,
    "ref": 13.5,
-   "boost": -2.48,
-   "proxy": 17.5,
+   "boost": -1.48,
+   "proxy": 16.5,
    "line_src": "DK",
    "news": false,
    "rookie": false,
    "returner": false,
-   "p_over": 0.462,
-   "var": 58.35
+   "p_over": 0.466,
+   "var": 56.53
   }
  ]
 }
