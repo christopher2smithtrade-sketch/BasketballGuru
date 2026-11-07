@@ -6955,5 +6955,100 @@
    "grade": "OUT",
    "main": true
   }
- ]
+ ],
+ "scored": {
+  "date": "2026-11-06",
+  "n": 158,
+  "dnp": 58,
+  "mae": 6.21,
+  "bias": 0.13,
+  "min_mae": 4.35,
+  "brier": 0.2491,
+  "more": {
+   "n": 2,
+   "w": 1
+  },
+  "less": {
+   "n": 11,
+   "w": 5
+  },
+  "tiers": {
+   "B": {
+    "n": 18,
+    "proj": 28.52,
+    "act": 25.5,
+    "err": 6.95
+   },
+   "C": {
+    "n": 29,
+    "proj": 23.13,
+    "act": 24.17,
+    "err": 7.14
+   },
+   "D": {
+    "n": 94,
+    "proj": 12.96,
+    "act": 13.4,
+    "err": 5.84
+   },
+   "B+": {
+    "n": 11,
+    "proj": 33.35,
+    "act": 31.0,
+    "err": 5.43
+   },
+   "A": {
+    "n": 5,
+    "proj": 38.47,
+    "act": 41.6,
+    "err": 5.51
+   },
+   "A+": {
+    "n": 1,
+    "proj": 49.59,
+    "act": 63.0,
+    "err": 13.41
+   }
+  },
+  "vs_dk": {
+   "n": 91,
+   "model": 601.3499999999999,
+   "dk": 585.5,
+   "over": 41,
+   "model_closer": 42,
+   "dk_closer": 49,
+   "ties": 0
+  },
+  "news": {
+   "n": 0,
+   "dk_closer": 0
+  },
+  "verdict": {
+   "n": 1,
+   "w": 1
+  },
+  "partial": false,
+  "games_left": 0,
+  "top_more": [
+   {
+    "name": "Jaylen Brown",
+    "team": "PHI",
+    "call": "More",
+    "line": 31.5,
+    "pra": 34.77,
+    "act": 30,
+    "won": false
+   },
+   {
+    "name": "Saddiq Bey",
+    "team": "NO",
+    "call": "More",
+    "line": 17.5,
+    "pra": 20.56,
+    "act": 26,
+    "won": true
+   }
+  ],
+  "preseason": false
+ }
 }
