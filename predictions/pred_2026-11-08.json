@@ -2,7 +2,7 @@
  "date": "2026-11-08",
  "preseason": false,
  "backtest": false,
- "logged_at": "2026-11-09T00:02:22",
+ "logged_at": "2026-11-09T00:55:20",
  "games": [
   {
    "game_id": "401909945",
@@ -3344,14 +3344,14 @@
    "fg3m": 0.84,
    "min": 20.5,
    "ref": 17.44,
-   "boost": -2.17,
-   "proxy": 18.5,
+   "boost": -3.17,
+   "proxy": 19.5,
    "line_src": "DK",
    "news": false,
    "rookie": false,
    "returner": false,
-   "p_over": 0.4649,
-   "var": 60.38
+   "p_over": 0.4609,
+   "var": 62.12
   },
   {
    "pid": "4997526",
@@ -3469,14 +3469,14 @@
    "fg3m": 1.31,
    "min": 25.7,
    "ref": 25.44,
-   "boost": -1.17,
-   "proxy": 22.5,
+   "boost": -0.17,
+   "proxy": 21.5,
    "line_src": "DK",
    "news": false,
    "rookie": false,
    "returner": false,
-   "p_over": 0.4738,
-   "var": 68.05
+   "p_over": 0.478,
+   "var": 66.42
   },
   {
    "pid": "4697268",
@@ -3519,14 +3519,14 @@
    "fg3m": 1.15,
    "min": 24.4,
    "ref": 18.89,
-   "boost": 0.04,
-   "proxy": 16.5,
-   "line_src": "DK",
+   "boost": -2.35,
+   "proxy": 18.5,
+   "line_src": "avg",
    "news": false,
    "rookie": false,
    "returner": false,
-   "p_over": 0.4742,
-   "var": 56.84
+   "p_over": 0.376,
+   "var": 59.67
   },
   {
    "pid": "5214989",
@@ -3804,14 +3804,14 @@
    "fg3m": 3.09,
    "min": 27.7,
    "ref": 29.62,
-   "boost": -1.47,
-   "proxy": 26.5,
+   "boost": -0.47,
+   "proxy": 25.5,
    "line_src": "DK",
    "news": false,
    "rookie": false,
    "returner": false,
-   "p_over": 0.4752,
-   "var": 74.94
+   "p_over": 0.4793,
+   "var": 73.42
   },
   {
    "pid": "5175647",
@@ -3954,14 +3954,14 @@
    "fg3m": 0.14,
    "min": 18.7,
    "ref": 16.33,
-   "boost": -4.65,
-   "proxy": 19.5,
+   "boost": -2.65,
+   "proxy": 17.5,
    "line_src": "DK",
    "news": false,
    "rookie": false,
    "returner": false,
-   "p_over": 0.4534,
-   "var": 61.84
+   "p_over": 0.4611,
+   "var": 58.31
   },
   {
    "pid": "4351852",
@@ -4079,14 +4079,14 @@
    "fg3m": 2.15,
    "min": 27.9,
    "ref": 21.78,
-   "boost": -2.02,
-   "proxy": 22.5,
+   "boost": -1.02,
+   "proxy": 21.5,
    "line_src": "DK",
    "news": false,
    "rookie": false,
    "returner": false,
-   "p_over": 0.4697,
-   "var": 67.9
+   "p_over": 0.4738,
+   "var": 66.26
   },
   {
    "pid": "4702745",
@@ -4204,14 +4204,14 @@
    "fg3m": 2.43,
    "min": 34.4,
    "ref": 29.12,
-   "boost": 1.12,
-   "proxy": 31.5,
-   "line_src": "DK",
+   "boost": 3.49,
+   "proxy": 29.5,
+   "line_src": "avg",
    "news": false,
    "rookie": false,
    "returner": false,
-   "p_over": 0.4893,
-   "var": 83.45
+   "p_over": 0.6143,
+   "var": 91.12
   },
   {
    "pid": "4066648",
@@ -4579,14 +4579,14 @@
    "fg3m": 1.33,
    "min": 31.1,
    "ref": 23.89,
-   "boost": 2.42,
-   "proxy": 22.5,
+   "boost": 3.42,
+   "proxy": 21.5,
    "line_src": "DK",
    "news": false,
    "rookie": false,
    "returner": false,
-   "p_over": 0.4914,
-   "var": 68.69
+   "p_over": 0.4957,
+   "var": 67.07
   },
   {
    "pid": "5170947",
@@ -4854,14 +4854,14 @@
    "fg3m": 0.27,
    "min": 18.2,
    "ref": 22.78,
-   "boost": -1.1,
-   "proxy": 17.5,
+   "boost": -0.1,
+   "proxy": 16.5,
    "line_src": "DK",
    "news": false,
    "rookie": false,
    "returner": false,
-   "p_over": 0.4693,
-   "var": 58.62
+   "p_over": 0.4734,
+   "var": 56.81
   },
   {
    "pid": "4683742",
@@ -4989,14 +4989,14 @@
    "fg3m": 2.87,
    "min": 35.6,
    "ref": 36.0,
-   "boost": -1.11,
-   "proxy": 36.5,
+   "boost": -0.11,
+   "proxy": 35.5,
    "line_src": "DK",
    "news": false,
    "rookie": false,
    "returner": false,
-   "p_over": 0.4814,
-   "var": 90.69
+   "p_over": 0.4853,
+   "var": 89.36
   },
   {
    "pid": "4395650",
@@ -5239,14 +5239,14 @@
    "fg3m": 0.33,
    "min": 33.3,
    "ref": 35.89,
-   "boost": 0.46,
-   "proxy": 33.5,
+   "boost": 1.46,
+   "proxy": 32.5,
    "line_src": "DK",
    "news": false,
    "rookie": false,
    "returner": false,
-   "p_over": 0.4871,
-   "var": 86.43
+   "p_over": 0.4911,
+   "var": 85.06
   },
   {
    "pid": "5106058",
