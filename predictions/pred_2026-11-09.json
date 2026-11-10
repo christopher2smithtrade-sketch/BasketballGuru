@@ -6239,5 +6239,100 @@
    "grade": "OUT",
    "main": true
   }
- ]
+ ],
+ "scored": {
+  "date": "2026-11-09",
+  "n": 139,
+  "dnp": 44,
+  "mae": 6.23,
+  "bias": 0.23,
+  "min_mae": 4.63,
+  "brier": 0.2472,
+  "more": {
+   "n": 2,
+   "w": 1
+  },
+  "less": {
+   "n": 5,
+   "w": 1
+  },
+  "tiers": {
+   "B": {
+    "n": 14,
+    "proj": 27.51,
+    "act": 28.93,
+    "err": 8.22
+   },
+   "C": {
+    "n": 26,
+    "proj": 22.76,
+    "act": 22.31,
+    "err": 6.57
+   },
+   "D": {
+    "n": 84,
+    "proj": 13.44,
+    "act": 13.29,
+    "err": 5.18
+   },
+   "B+": {
+    "n": 8,
+    "proj": 33.23,
+    "act": 38.25,
+    "err": 11.43
+   },
+   "A+": {
+    "n": 2,
+    "proj": 47.31,
+    "act": 50.0,
+    "err": 3.89
+   },
+   "A": {
+    "n": 5,
+    "proj": 37.25,
+    "act": 35.4,
+    "err": 9.07
+   }
+  },
+  "vs_dk": {
+   "n": 75,
+   "model": 541.9300000000002,
+   "dk": 541.5,
+   "over": 34,
+   "model_closer": 45,
+   "dk_closer": 30,
+   "ties": 0
+  },
+  "news": {
+   "n": 1,
+   "dk_closer": 1
+  },
+  "verdict": {
+   "n": 0,
+   "w": 0
+  },
+  "partial": false,
+  "games_left": 0,
+  "top_more": [
+   {
+    "name": "Daniss Jenkins",
+    "team": "DET",
+    "call": "More",
+    "line": 17.5,
+    "pra": 21.25,
+    "act": 36,
+    "won": true
+   },
+   {
+    "name": "Dillon Brooks",
+    "team": "PHX",
+    "call": "More",
+    "line": 20.5,
+    "pra": 24.06,
+    "act": 11,
+    "won": false
+   }
+  ],
+  "preseason": false
+ }
 }
