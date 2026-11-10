@@ -2,7 +2,7 @@
  "date": "2026-11-09",
  "preseason": false,
  "backtest": false,
- "logged_at": "2026-11-10T02:56:10",
+ "logged_at": "2026-11-10T03:34:45",
  "games": [
   {
    "game_id": "401909952",
@@ -970,6 +970,31 @@
    "var": 39.48
   },
   {
+   "pid": "4433249",
+   "name": "Moussa Diabate",
+   "pos": "F",
+   "team": "CHA",
+   "opp": "CLE",
+   "game_id": "401909953",
+   "grade": "C",
+   "main": true,
+   "pra": 21.0,
+   "pts": 9.69,
+   "reb": 8.81,
+   "ast": 2.49,
+   "fg3m": 0.11,
+   "min": 29.3,
+   "ref": 20.11,
+   "boost": 0.89,
+   "proxy": 20.5,
+   "line_src": "avg",
+   "news": false,
+   "rookie": false,
+   "returner": false,
+   "p_over": 0.5028,
+   "var": 65.92
+  },
+  {
    "pid": "4701225",
    "name": "PJ Hall",
    "pos": "C",
@@ -1068,6 +1093,16 @@
    "returner": false,
    "p_over": 0.5671,
    "var": 36.22
+  },
+  {
+   "pid": "4433287",
+   "name": "Brandon Miller",
+   "pos": "F",
+   "team": "CHA",
+   "opp": "CLE",
+   "game_id": "401909953",
+   "grade": "OUT",
+   "main": true
   },
   {
    "pid": "2583632",
@@ -1195,44 +1230,9 @@
    "var": 64.68
   },
   {
-   "pid": "4433249",
-   "name": "Moussa Diabate",
-   "pos": "F",
-   "team": "CHA",
-   "opp": "CLE",
-   "game_id": "401909953",
-   "grade": "C",
-   "main": true,
-   "pra": 21.0,
-   "pts": 9.69,
-   "reb": 8.81,
-   "ast": 2.49,
-   "fg3m": 0.11,
-   "min": 29.3,
-   "ref": 20.11,
-   "boost": 0.89,
-   "proxy": 20.5,
-   "line_src": "avg",
-   "news": false,
-   "rookie": false,
-   "returner": false,
-   "p_over": 0.5028,
-   "var": 65.92
-  },
-  {
    "pid": "5061575",
    "name": "Kon Knueppel",
    "pos": "G",
-   "team": "CHA",
-   "opp": "CLE",
-   "game_id": "401909953",
-   "grade": "OUT",
-   "main": true
-  },
-  {
-   "pid": "4433287",
-   "name": "Brandon Miller",
-   "pos": "F",
    "team": "CHA",
    "opp": "CLE",
    "game_id": "401909953",
@@ -1358,6 +1358,16 @@
    "returner": false,
    "p_over": 0.4419,
    "var": 55.73
+  },
+  {
+   "pid": "4066757",
+   "name": "Sam Merrill",
+   "pos": "G",
+   "team": "CLE",
+   "opp": "CHA",
+   "game_id": "401909953",
+   "grade": "OUT",
+   "main": true
   },
   {
    "pid": "5177362",
@@ -1583,16 +1593,6 @@
    "returner": false,
    "p_over": 0.4676,
    "var": 62.37
-  },
-  {
-   "pid": "4066757",
-   "name": "Sam Merrill",
-   "pos": "G",
-   "team": "CLE",
-   "opp": "CHA",
-   "game_id": "401909953",
-   "grade": "OUT",
-   "main": true
   },
   {
    "pid": "4683747",
