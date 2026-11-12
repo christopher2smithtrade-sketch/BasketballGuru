@@ -2,7 +2,7 @@
  "date": "2026-11-11",
  "preseason": false,
  "backtest": false,
- "logged_at": "2026-11-12T02:00:16",
+ "logged_at": "2026-11-12T02:31:45",
  "games": [
   {
    "game_id": "401909966",
@@ -6622,14 +6622,14 @@
    "fg3m": 2.44,
    "min": 36.0,
    "ref": 24.8,
-   "boost": 1.66,
-   "proxy": 23.5,
+   "boost": 2.66,
+   "proxy": 22.5,
    "line_src": "DK",
    "news": false,
    "rookie": false,
    "returner": false,
-   "p_over": 0.4882,
-   "var": 70.33
+   "p_over": 0.4925,
+   "var": 68.74
   },
   {
    "pid": "3136777",
@@ -6942,14 +6942,14 @@
    "fg3m": 2.02,
    "min": 31.0,
    "ref": 34.1,
-   "boost": 0.28,
-   "proxy": 28.5,
+   "boost": 1.28,
+   "proxy": 27.5,
    "line_src": "DK",
    "news": false,
    "rookie": false,
    "returner": false,
-   "p_over": 0.4843,
-   "var": 78.54
+   "p_over": 0.4884,
+   "var": 77.07
   },
   {
    "pid": "4897449",
@@ -6992,14 +6992,14 @@
    "fg3m": 1.55,
    "min": 21.9,
    "ref": 17.7,
-   "boost": -0.04,
-   "proxy": 14.5,
+   "boost": 0.96,
+   "proxy": 13.5,
    "line_src": "DK",
    "news": false,
    "rookie": false,
    "returner": false,
-   "p_over": 0.471,
-   "var": 52.64
+   "p_over": 0.4751,
+   "var": 50.68
   },
   {
    "pid": "2990969",
@@ -7017,14 +7017,14 @@
    "fg3m": 1.11,
    "min": 20.8,
    "ref": 13.0,
-   "boost": -0.19,
-   "proxy": 11.5,
+   "boost": 0.81,
+   "proxy": 10.5,
    "line_src": "DK",
    "news": false,
    "rookie": false,
    "returner": true,
-   "p_over": 0.4645,
-   "var": 45.86
+   "p_over": 0.4682,
+   "var": 43.7
   },
   {
    "pid": "4709138",
@@ -7092,14 +7092,14 @@
    "fg3m": 0.54,
    "min": 17.7,
    "ref": 11.62,
-   "boost": -2.16,
-   "proxy": 12.5,
+   "boost": 0.84,
+   "proxy": 9.5,
    "line_src": "DK",
    "news": false,
    "rookie": false,
    "returner": false,
-   "p_over": 0.455,
-   "var": 47.73
+   "p_over": 0.4657,
+   "var": 41.22
   },
   {
    "pid": "6430",
