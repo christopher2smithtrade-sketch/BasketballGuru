@@ -2,7 +2,7 @@
  "date": "2026-11-11",
  "preseason": false,
  "backtest": false,
- "logged_at": "2026-11-12T02:31:45",
+ "logged_at": "2026-11-12T02:56:53",
  "games": [
   {
    "game_id": "401909966",
@@ -7342,14 +7342,14 @@
    "fg3m": 2.49,
    "min": 26.3,
    "ref": 20.0,
-   "boost": 0.26,
-   "proxy": 20.5,
+   "boost": -0.74,
+   "proxy": 21.5,
    "line_src": "DK",
    "news": false,
    "rookie": false,
    "returner": false,
-   "p_over": 0.4793,
-   "var": 64.65
+   "p_over": 0.4751,
+   "var": 66.32
   },
   {
    "pid": "4703889",
@@ -7392,14 +7392,14 @@
    "fg3m": 3.01,
    "min": 28.3,
    "ref": 27.5,
-   "boost": -3.68,
-   "proxy": 29.5,
+   "boost": -2.68,
+   "proxy": 28.5,
    "line_src": "DK",
    "news": false,
    "rookie": false,
    "returner": true,
-   "p_over": 0.467,
-   "var": 79.52
+   "p_over": 0.4709,
+   "var": 78.06
   },
   {
    "pid": "4066399",
@@ -7467,14 +7467,14 @@
    "fg3m": 0.15,
    "min": 17.4,
    "ref": 14.75,
-   "boost": -0.0,
-   "proxy": 14.5,
-   "line_src": "avg",
+   "boost": 3.25,
+   "proxy": 11.5,
+   "line_src": "DK",
    "news": false,
    "rookie": false,
    "returner": false,
    "p_over": 0.4852,
-   "var": 53.18
+   "var": 46.67
   },
   {
    "pid": "4578893",
@@ -7557,14 +7557,14 @@
    "fg3m": 1.33,
    "min": 18.5,
    "ref": 14.0,
-   "boost": -0.32,
-   "proxy": 13.5,
+   "boost": -2.32,
+   "proxy": 15.5,
    "line_src": "DK",
    "news": false,
    "rookie": false,
    "returner": false,
-   "p_over": 0.4677,
-   "var": 50.4
+   "p_over": 0.4599,
+   "var": 54.28
   },
   {
    "pid": "4702384",
@@ -7682,14 +7682,14 @@
    "fg3m": 0.17,
    "min": 22.5,
    "ref": 16.5,
-   "boost": 1.88,
-   "proxy": 16.5,
-   "line_src": "avg",
+   "boost": -1.12,
+   "proxy": 19.5,
+   "line_src": "DK",
    "news": false,
    "rookie": false,
    "returner": false,
-   "p_over": 0.5711,
-   "var": 62.33
+   "p_over": 0.4714,
+   "var": 62.51
   },
   {
    "pid": "4683778",
@@ -7807,14 +7807,14 @@
    "fg3m": 1.53,
    "min": 21.5,
    "ref": 11.8,
-   "boost": -0.98,
-   "proxy": 15.5,
+   "boost": 2.02,
+   "proxy": 12.5,
    "line_src": "DK",
    "news": false,
    "rookie": false,
    "returner": false,
-   "p_over": 0.4673,
-   "var": 54.56
+   "p_over": 0.4796,
+   "var": 48.69
   },
   {
    "pid": "4433255",
