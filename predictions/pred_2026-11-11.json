@@ -7866,5 +7866,100 @@
    "grade": "OUT",
    "main": true
   }
- ]
+ ],
+ "scored": {
+  "date": "2026-11-11",
+  "n": 177,
+  "dnp": 70,
+  "mae": 5.6,
+  "bias": 0.29,
+  "min_mae": 4.59,
+  "brier": 0.25,
+  "more": {
+   "n": 2,
+   "w": 2
+  },
+  "less": {
+   "n": 12,
+   "w": 8
+  },
+  "tiers": {
+   "D": {
+    "n": 113,
+    "proj": 13.2,
+    "act": 13.5,
+    "err": 5.3
+   },
+   "B": {
+    "n": 14,
+    "proj": 27.84,
+    "act": 29.93,
+    "err": 6.19
+   },
+   "B+": {
+    "n": 13,
+    "proj": 32.88,
+    "act": 29.62,
+    "err": 6.07
+   },
+   "C": {
+    "n": 29,
+    "proj": 23.1,
+    "act": 23.79,
+    "err": 6.63
+   },
+   "A": {
+    "n": 6,
+    "proj": 37.86,
+    "act": 41.33,
+    "err": 4.15
+   },
+   "A+": {
+    "n": 2,
+    "proj": 48.95,
+    "act": 44.0,
+    "err": 4.95
+   }
+  },
+  "vs_dk": {
+   "n": 105,
+   "model": 613.5099999999998,
+   "dk": 623.5,
+   "over": 51,
+   "model_closer": 53,
+   "dk_closer": 52,
+   "ties": 0
+  },
+  "news": {
+   "n": 1,
+   "dk_closer": 1
+  },
+  "verdict": {
+   "n": 0,
+   "w": 0
+  },
+  "partial": false,
+  "games_left": 0,
+  "top_more": [
+   {
+    "name": "Meleek Thomas",
+    "team": "CLE",
+    "call": "More",
+    "line": 12.5,
+    "pra": 17.93,
+    "act": 19,
+    "won": true
+   },
+   {
+    "name": "Robert Williams III",
+    "team": "POR",
+    "call": "More",
+    "line": 11.5,
+    "pra": 14.75,
+    "act": 17,
+    "won": true
+   }
+  ],
+  "preseason": false
+ }
 }
