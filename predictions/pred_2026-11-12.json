@@ -2,7 +2,7 @@
  "date": "2026-11-12",
  "preseason": false,
  "backtest": false,
- "logged_at": "2026-11-12T22:44:46",
+ "logged_at": "2026-11-13T01:28:59",
  "games": [
   {
    "game_id": "401909976",
@@ -1636,6 +1636,32 @@
    "var": 75.43
   },
   {
+   "pid": "5061585",
+   "name": "Isaiah Evans",
+   "pos": "F",
+   "team": "MIN",
+   "opp": "DAL",
+   "game_id": "401909978",
+   "grade": "D",
+   "main": true,
+   "pra": 0.69,
+   "pts": 0.34,
+   "reb": 0.16,
+   "ast": 0.2,
+   "fg3m": 0.04,
+   "min": 1.5,
+   "ref": 0.6,
+   "boost": 0.09,
+   "proxy": 0.5,
+   "line_src": "avg",
+   "news": false,
+   "rookie": false,
+   "returner": false,
+   "p_over": 0.3329,
+   "var": 8.72,
+   "late": true
+  },
+  {
    "pid": "3032976",
    "name": "Rudy Gobert",
    "pos": "C",
@@ -2351,14 +2377,14 @@
    "fg3m": 1.78,
    "min": 27.3,
    "ref": 25.5,
-   "boost": -3.41,
-   "proxy": 25.5,
+   "boost": -2.41,
+   "proxy": 24.5,
    "line_src": "DK",
    "news": false,
    "rookie": false,
    "returner": false,
-   "p_over": 0.4655,
-   "var": 72.92
+   "p_over": 0.4694,
+   "var": 71.37
   },
   {
    "pid": "3155526",
@@ -2376,14 +2402,14 @@
    "fg3m": 2.05,
    "min": 28.2,
    "ref": 21.0,
-   "boost": -0.73,
-   "proxy": 21.5,
+   "boost": 0.27,
+   "proxy": 20.5,
    "line_src": "DK",
    "news": false,
    "rookie": false,
    "returner": false,
-   "p_over": 0.4752,
-   "var": 66.32
+   "p_over": 0.4794,
+   "var": 64.66
   },
   {
    "pid": "4888725",
@@ -2526,14 +2552,14 @@
    "fg3m": 0.08,
    "min": 19.7,
    "ref": 15.0,
-   "boost": -1.87,
-   "proxy": 14.5,
+   "boost": -0.87,
+   "proxy": 13.5,
    "line_src": "DK",
    "news": false,
    "rookie": false,
    "returner": false,
-   "p_over": 0.4607,
-   "var": 52.25
+   "p_over": 0.4646,
+   "var": 50.28
   },
   {
    "pid": "3913174",
@@ -2736,14 +2762,14 @@
    "fg3m": 3.3,
    "min": 26.7,
    "ref": 20.4,
-   "boost": -2.54,
-   "proxy": 25.5,
+   "boost": -3.54,
+   "proxy": 26.5,
    "line_src": "DK",
    "news": false,
    "rookie": false,
    "returner": false,
-   "p_over": 0.4695,
-   "var": 73.07
+   "p_over": 0.4656,
+   "var": 74.6
   },
   {
    "pid": "5060701",
@@ -2786,14 +2812,14 @@
    "fg3m": 0.11,
    "min": 28.3,
    "ref": 20.11,
-   "boost": -0.2,
-   "proxy": 20.5,
+   "boost": 0.8,
+   "proxy": 19.5,
    "line_src": "DK",
    "news": false,
    "rookie": false,
    "returner": false,
-   "p_over": 0.477,
-   "var": 64.57
+   "p_over": 0.4812,
+   "var": 62.88
   },
   {
    "pid": "4701225",
@@ -2936,14 +2962,14 @@
    "fg3m": 2.37,
    "min": 29.7,
    "ref": 27.0,
-   "boost": -3.26,
-   "proxy": 31.5,
+   "boost": -2.26,
+   "proxy": 30.5,
    "line_src": "DK",
    "news": false,
    "rookie": false,
    "returner": false,
-   "p_over": 0.47,
-   "var": 82.77
+   "p_over": 0.4739,
+   "var": 81.35
   },
   {
    "pid": "5211176",
