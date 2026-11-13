@@ -3101,5 +3101,94 @@
    "grade": "OUT",
    "main": true
   }
- ]
+ ],
+ "scored": {
+  "date": "2026-11-12",
+  "n": 74,
+  "dnp": 24,
+  "mae": 6.73,
+  "bias": 1.09,
+  "min_mae": 5.71,
+  "brier": 0.2486,
+  "more": {
+   "n": 2,
+   "w": 1
+  },
+  "less": {
+   "n": 2,
+   "w": 1
+  },
+  "tiers": {
+   "B+": {
+    "n": 7,
+    "proj": 32.34,
+    "act": 37.29,
+    "err": 8.51
+   },
+   "D": {
+    "n": 45,
+    "proj": 13.03,
+    "act": 13.11,
+    "err": 5.75
+   },
+   "C": {
+    "n": 14,
+    "proj": 22.25,
+    "act": 22.79,
+    "err": 5.37
+   },
+   "B": {
+    "n": 6,
+    "proj": 27.43,
+    "act": 30.33,
+    "err": 9.78
+   },
+   "A": {
+    "n": 2,
+    "proj": 36.26,
+    "act": 45.0,
+    "err": 22.98
+   }
+  },
+  "vs_dk": {
+   "n": 48,
+   "model": 355.64000000000004,
+   "dk": 354.0,
+   "over": 22,
+   "model_closer": 22,
+   "dk_closer": 26,
+   "ties": 0
+  },
+  "news": {
+   "n": 0,
+   "dk_closer": 0
+  },
+  "verdict": {
+   "n": 1,
+   "w": 0
+  },
+  "partial": false,
+  "games_left": 0,
+  "top_more": [
+   {
+    "name": "Paul Reed",
+    "team": "DET",
+    "call": "More",
+    "line": 18.5,
+    "pra": 24.18,
+    "act": 27,
+    "won": true
+   },
+   {
+    "name": "Santi Aldama",
+    "team": "DAL",
+    "call": "More",
+    "line": 12.5,
+    "pra": 16.57,
+    "act": 5,
+    "won": false
+   }
+  ],
+  "preseason": false
+ }
 }
