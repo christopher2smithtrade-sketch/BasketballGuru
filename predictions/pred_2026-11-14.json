@@ -3881,5 +3881,109 @@
    "grade": "OUT",
    "main": true
   }
- ]
+ ],
+ "scored": {
+  "date": "2026-11-14",
+  "n": 88,
+  "dnp": 35,
+  "mae": 5.85,
+  "bias": 0.91,
+  "min_mae": 5.11,
+  "brier": 0.2507,
+  "more": {
+   "n": 3,
+   "w": 2
+  },
+  "less": {
+   "n": 8,
+   "w": 5
+  },
+  "tiers": {
+   "C": {
+    "n": 18,
+    "proj": 23.48,
+    "act": 23.56,
+    "err": 5.2
+   },
+   "D": {
+    "n": 54,
+    "proj": 14.13,
+    "act": 14.65,
+    "err": 6.03
+   },
+   "B": {
+    "n": 8,
+    "proj": 27.97,
+    "act": 33.5,
+    "err": 7.47
+   },
+   "A+": {
+    "n": 2,
+    "proj": 45.64,
+    "act": 50.0,
+    "err": 8.4
+   },
+   "A": {
+    "n": 2,
+    "proj": 38.86,
+    "act": 42.5,
+    "err": 3.64
+   },
+   "B+": {
+    "n": 4,
+    "proj": 32.63,
+    "act": 30.25,
+    "err": 3.0
+   }
+  },
+  "vs_dk": {
+   "n": 51,
+   "model": 269.32,
+   "dk": 263.5,
+   "over": 28,
+   "model_closer": 24,
+   "dk_closer": 27,
+   "ties": 0
+  },
+  "news": {
+   "n": 0,
+   "dk_closer": 0
+  },
+  "verdict": {
+   "n": 0,
+   "w": 0
+  },
+  "partial": false,
+  "games_left": 0,
+  "top_more": [
+   {
+    "name": "Danny Wolf",
+    "team": "BKN",
+    "call": "More",
+    "line": 19.5,
+    "pra": 24.13,
+    "act": 21,
+    "won": true
+   },
+   {
+    "name": "Paul Reed",
+    "team": "DET",
+    "call": "More",
+    "line": 20.5,
+    "pra": 24.41,
+    "act": 19,
+    "won": false
+   },
+   {
+    "name": "Patrick Williams",
+    "team": "CHI",
+    "call": "More",
+    "line": 14.5,
+    "pra": 18.31,
+    "act": 20,
+    "won": true
+   }
+  ],
+  "preseason": false
+ }
 }
