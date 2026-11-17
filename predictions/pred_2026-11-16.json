@@ -2,7 +2,7 @@
  "date": "2026-11-16",
  "preseason": false,
  "backtest": false,
- "logged_at": "2026-11-17T00:50:09",
+ "logged_at": "2026-11-17T03:11:03",
  "games": [
   {
    "game_id": "401909994",
@@ -1565,6 +1565,16 @@
    "var": 27.29
   },
   {
+   "pid": "5105555",
+   "name": "Tobe Awaka",
+   "pos": "F",
+   "team": "CHI",
+   "opp": "CLE",
+   "game_id": "401909995",
+   "grade": "OUT",
+   "main": true
+  },
+  {
    "pid": "4431687",
    "name": "Patrick Williams",
    "pos": "F",
@@ -1588,16 +1598,6 @@
    "returner": false,
    "p_over": 0.6595,
    "var": 69.38
-  },
-  {
-   "pid": "5105555",
-   "name": "Tobe Awaka",
-   "pos": "F",
-   "team": "CHI",
-   "opp": "CLE",
-   "game_id": "401909995",
-   "grade": "OUT",
-   "main": true
   },
   {
    "pid": "5095151",
@@ -3165,31 +3165,6 @@
    "main": true
   },
   {
-   "pid": "4066261",
-   "name": "Bam Adebayo",
-   "pos": "C",
-   "team": "MIA",
-   "opp": "HOU",
-   "game_id": "401909998",
-   "grade": "B+",
-   "main": true,
-   "pra": 32.58,
-   "pts": 20.09,
-   "reb": 9.16,
-   "ast": 3.32,
-   "fg3m": 1.01,
-   "min": 35.5,
-   "ref": 33.6,
-   "boost": 1.08,
-   "proxy": 31.5,
-   "line_src": "DK",
-   "news": false,
-   "rookie": false,
-   "returner": false,
-   "p_over": 0.4891,
-   "var": 83.45
-  },
-  {
    "pid": "3032977",
    "name": "Giannis Antetokounmpo",
    "pos": "F",
@@ -3538,6 +3513,31 @@
    "returner": false,
    "p_over": 0.4719,
    "var": 52.67
+  },
+  {
+   "pid": "4066261",
+   "name": "Bam Adebayo",
+   "pos": "C",
+   "team": "MIA",
+   "opp": "HOU",
+   "game_id": "401909998",
+   "grade": "B+",
+   "main": true,
+   "pra": 32.58,
+   "pts": 20.09,
+   "reb": 9.16,
+   "ast": 3.32,
+   "fg3m": 1.01,
+   "min": 35.5,
+   "ref": 33.6,
+   "boost": 1.08,
+   "proxy": 31.5,
+   "line_src": "DK",
+   "news": false,
+   "rookie": false,
+   "returner": false,
+   "p_over": 0.4891,
+   "var": 83.45
   },
   {
    "pid": "4997528",
