@@ -6254,5 +6254,91 @@
    "grade": "OUT",
    "main": true
   }
- ]
+ ],
+ "scored": {
+  "date": "2026-11-16",
+  "n": 138,
+  "dnp": 48,
+  "mae": 6.09,
+  "bias": 0.36,
+  "min_mae": 4.3,
+  "brier": 0.2517,
+  "more": {
+   "n": 1,
+   "w": 1
+  },
+  "less": {
+   "n": 5,
+   "w": 2
+  },
+  "tiers": {
+   "C": {
+    "n": 22,
+    "proj": 23.2,
+    "act": 25.45,
+    "err": 5.37
+   },
+   "D": {
+    "n": 86,
+    "proj": 14.25,
+    "act": 14.41,
+    "err": 5.68
+   },
+   "A": {
+    "n": 5,
+    "proj": 36.87,
+    "act": 34.6,
+    "err": 4.31
+   },
+   "B": {
+    "n": 14,
+    "proj": 28.27,
+    "act": 26.14,
+    "err": 7.92
+   },
+   "B+": {
+    "n": 9,
+    "proj": 33.01,
+    "act": 36.33,
+    "err": 10.2
+   },
+   "A+": {
+    "n": 2,
+    "proj": 45.46,
+    "act": 44.5,
+    "err": 4.69
+   }
+  },
+  "vs_dk": {
+   "n": 80,
+   "model": 508.3299999999999,
+   "dk": 493.0,
+   "over": 42,
+   "model_closer": 37,
+   "dk_closer": 43,
+   "ties": 0
+  },
+  "news": {
+   "n": 0,
+   "dk_closer": 0
+  },
+  "verdict": {
+   "n": 0,
+   "w": 0
+  },
+  "partial": false,
+  "games_left": 0,
+  "top_more": [
+   {
+    "name": "Jalen Suggs",
+    "team": "ORL",
+    "call": "More",
+    "line": 15.5,
+    "pra": 19.23,
+    "act": 22,
+    "won": true
+   }
+  ],
+  "preseason": false
+ }
 }
