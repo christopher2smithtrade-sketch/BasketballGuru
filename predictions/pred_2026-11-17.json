@@ -3877,5 +3877,91 @@
    "grade": "OUT",
    "main": true
   }
- ]
+ ],
+ "scored": {
+  "date": "2026-11-17",
+  "n": 81,
+  "dnp": 41,
+  "mae": 6.46,
+  "bias": 0.99,
+  "min_mae": 4.72,
+  "brier": 0.2495,
+  "more": {
+   "n": 1,
+   "w": 1
+  },
+  "less": {
+   "n": 3,
+   "w": 0
+  },
+  "tiers": {
+   "B+": {
+    "n": 4,
+    "proj": 33.86,
+    "act": 35.0,
+    "err": 6.09
+   },
+   "B": {
+    "n": 5,
+    "proj": 28.53,
+    "act": 31.6,
+    "err": 6.66
+   },
+   "D": {
+    "n": 49,
+    "proj": 14.15,
+    "act": 15.02,
+    "err": 6.2
+   },
+   "C": {
+    "n": 19,
+    "proj": 23.03,
+    "act": 23.58,
+    "err": 7.8
+   },
+   "A": {
+    "n": 3,
+    "proj": 38.35,
+    "act": 41.67,
+    "err": 3.61
+   },
+   "A+": {
+    "n": 1,
+    "proj": 52.13,
+    "act": 49.0,
+    "err": 3.13
+   }
+  },
+  "vs_dk": {
+   "n": 55,
+   "model": 375.03999999999996,
+   "dk": 360.5,
+   "over": 27,
+   "model_closer": 27,
+   "dk_closer": 28,
+   "ties": 0
+  },
+  "news": {
+   "n": 1,
+   "dk_closer": 1
+  },
+  "verdict": {
+   "n": 0,
+   "w": 0
+  },
+  "partial": false,
+  "games_left": 0,
+  "top_more": [
+   {
+    "name": "Paul Reed",
+    "team": "DET",
+    "call": "More",
+    "line": 20.5,
+    "pra": 23.94,
+    "act": 21,
+    "won": true
+   }
+  ],
+  "preseason": false
+ }
 }
