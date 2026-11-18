@@ -113,7 +113,8 @@ the injury DNPs (coach's-decision DNPs stay in the pool — nobody knew those):
   Slight-lean-or-stronger badges (`verdict`). The share of head-to-heads the model won gives the grade
   (`REPORT_GRADES`: A 55%+, B 50-55, C 45-50, D 40-45, F). Strip under the toolbar (`_report_strip`), full
   card at the bottom (`_report_card_html`); the technical scorecard is in the Detailed view only. Preseason
-  nights are left out. Older scored files lack the head-to-head; re-score with `score_date(d, force=True)`
+  nights are left out. Older scored files lack the head-to-head; re-score with `score_date(d, force=True)`.
+  The card also shows how DK's own lines did ("Less hit 53.5%", `_dk_lean_box`)
 - `DK_MODEL_W` — the model's share of the say against a DK line in the odds
 - `PRE_MIN_F_ST` / `PRE_STARTER` — preseason starters' minutes scale; `RET_ENABLE` / `RET_W` / `RET_FADE_GAMES` /
   `RET_RATE_CUT` / `RET_OLD_MIN_F` / `RET_FLAG_GAMES` — the missed-season returner path; `THIN_GAMES` and
@@ -140,9 +141,14 @@ the injury DNPs (coach's-decision DNPs stay in the pool — nobody knew those):
   the news flag covers them; their current minutes take over by game 6
 - **Scorecard (Oct 22):** flagged cards showed "Check the news", so they are no longer graded as MORE / LESS
   calls; they get their own `news` tally (how often DK was closer)
-- **Re-fit `DK_MODEL_W` after ~3 weeks of regular season:** `--calibrate 2026-10-20 <date>` prints an
-  "Against DraftKings' real line" section from the archived lines (miss, hit rate of 2+/3+/4+ gaps, and
-  the miss at each weight). The 0.1 came from a playoff-heavy sample.
+- **DK re-check done Nov 18 (28 nights, 2,174 live DK-lined player-games):** season grade C (model closer
+  46.2%, miss 6.70 vs DK 6.45; unflagged 46.8%), flat week to week. MORE / LESS tags 160-160 (50%) -- no gap
+  size has an edge (1-2: 52%, 2-3: 53%, 3-4: 47%, 4-6: 54%). Re-fit of mean = DK - delta + w(model - DK):
+  w 0.0-0.2 indistinguishable, so `DK_MODEL_W` stays 0.1. DK's PRA lines run high: Less hit 53.5% (54% in
+  last season's test, separate 1,179 lines). delta = 0.5 fits best, but baking it in would turn ~40% of
+  cards into "Slight lean Less" (~56% said, 54.5% hit), so the user chose to REPORT it instead: the report
+  card's "DraftKings' lines" box (`_dk_lean_box`, shown from `DK_LEAN_MIN_LINES` = 200 graded lines).
+  Re-check again mid-season; the tags should go if they stay a coin flip
 
 - **Pick6 (Oct 17):** all Pick6 references were removed from the board at the user's request — revisit
   after going live with the group. The beginner-card mockup had an "If Pick6 shows…" strip (DK's line

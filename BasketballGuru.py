@@ -2386,6 +2386,27 @@ def _report_strip(history, total):
             f' <span class="muted">&rarr; details</span></a>')
 
 
+DK_LEAN_MIN_LINES = 200   # graded lines before the "DK lines run high/low" box appears
+
+
+def _dk_lean_box(season):
+    """
+    How DraftKings' own lines have done, model aside. Their PRA lines ran high
+    in last season's test (Less 54% of 1,179) and again this season, so it is
+    reported -- not baked into every card's odds: it is a league-wide tendency,
+    not a call on any one player (decided Nov 18).
+    """
+    n, over = season.get("n", 0), season.get("over", 0)
+    if n < DK_LEAN_MIN_LINES:
+        return ""
+    less = (n - over) / n
+    lean = "high" if less > 0.5 else "low"
+    side, rate, hits = ("Less", less, n - over) if less >= 0.5 else ("More", 1 - less, over)
+    return (f'<div><div class="nov-k">DraftKings&#39; lines</div><div class="report-v">{side} hit {rate * 100:.1f}%</div>'
+            f'<div class="nov-small">{hits:,} of {n:,} PRA lines this season, so DK&#39;s numbers have run a little {lean} '
+            f'(last season&#39;s test: Less 54%). A league-wide tendency, not a call on any one player.</div></div>')
+
+
 def _report_card_html(history, total):
     """
     How the model is doing against DraftKings, in plain words: who was
@@ -2439,6 +2460,7 @@ def _report_card_html(history, total):
           <div class="nov-small">Cards whose badge said Slight lean or stronger.</div></div>
         <div><div class="nov-k">Check-the-news cards</div><div class="report-v">{f"DK closer {news['dk_closer']} of {news['n']}" if news.get("n") else "none yet"}</div>
           <div class="nov-small">Big gaps where the board told you to trust DraftKings.</div></div>
+        {_dk_lean_box(season)}
       </div>
       <div class="scroll"><table class="score"><tr><th>Night</th><th>Players</th><th>Closer (model&ndash;DK)</th><th>Avg miss (model / DK)</th><th>Tags won&ndash;lost</th><th>Grade</th></tr>{rows}</table></div>
       <div class="nov-small">Grade = how often the model was closer than DraftKings: A 55%+, B 50&ndash;55%, C 45&ndash;50%, D 40&ndash;45%, F under 40%. Beating DraftKings' line is hard; a B means the model is keeping up with the pros. Preseason nights are left out.</div>
