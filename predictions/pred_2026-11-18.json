@@ -9423,5 +9423,100 @@
    "grade": "OUT",
    "main": true
   }
- ]
+ ],
+ "scored": {
+  "date": "2026-11-18",
+  "n": 215,
+  "dnp": 73,
+  "mae": 5.89,
+  "bias": 0.07,
+  "min_mae": 4.38,
+  "brier": 0.2493,
+  "more": {
+   "n": 2,
+   "w": 0
+  },
+  "less": {
+   "n": 12,
+   "w": 8
+  },
+  "tiers": {
+   "C": {
+    "n": 36,
+    "proj": 22.85,
+    "act": 23.67,
+    "err": 6.43
+   },
+   "D": {
+    "n": 137,
+    "proj": 13.62,
+    "act": 13.77,
+    "err": 5.61
+   },
+   "B": {
+    "n": 19,
+    "proj": 27.64,
+    "act": 27.0,
+    "err": 5.32
+   },
+   "B+": {
+    "n": 15,
+    "proj": 33.07,
+    "act": 33.07,
+    "err": 7.37
+   },
+   "A": {
+    "n": 5,
+    "proj": 38.18,
+    "act": 35.4,
+    "err": 6.79
+   },
+   "A+": {
+    "n": 3,
+    "proj": 47.37,
+    "act": 44.0,
+    "err": 6.81
+   }
+  },
+  "vs_dk": {
+   "n": 135,
+   "model": 836.4100000000001,
+   "dk": 818.5,
+   "over": 64,
+   "model_closer": 62,
+   "dk_closer": 73,
+   "ties": 0
+  },
+  "news": {
+   "n": 0,
+   "dk_closer": 0
+  },
+  "verdict": {
+   "n": 0,
+   "w": 0
+  },
+  "partial": false,
+  "games_left": 0,
+  "top_more": [
+   {
+    "name": "Tristan da Silva",
+    "team": "ORL",
+    "call": "More",
+    "line": 15.5,
+    "pra": 20.11,
+    "act": 14,
+    "won": false
+   },
+   {
+    "name": "Jamal Murray",
+    "team": "DEN",
+    "call": "More",
+    "line": 31.5,
+    "pra": 34.66,
+    "act": 30,
+    "won": false
+   }
+  ],
+  "preseason": false
+ }
 }
