@@ -7045,5 +7045,91 @@
    "grade": "OUT",
    "main": true
   }
- ]
+ ],
+ "scored": {
+  "date": "2026-11-20",
+  "n": 160,
+  "dnp": 79,
+  "mae": 6.48,
+  "bias": -0.0,
+  "min_mae": 4.33,
+  "brier": 0.2505,
+  "more": {
+   "n": 1,
+   "w": 0
+  },
+  "less": {
+   "n": 5,
+   "w": 1
+  },
+  "tiers": {
+   "B": {
+    "n": 20,
+    "proj": 28.11,
+    "act": 30.05,
+    "err": 7.85
+   },
+   "C": {
+    "n": 31,
+    "proj": 22.61,
+    "act": 23.19,
+    "err": 7.45
+   },
+   "D": {
+    "n": 95,
+    "proj": 13.2,
+    "act": 12.92,
+    "err": 5.76
+   },
+   "A": {
+    "n": 5,
+    "proj": 38.73,
+    "act": 44.6,
+    "err": 6.77
+   },
+   "B+": {
+    "n": 7,
+    "proj": 34.46,
+    "act": 28.43,
+    "err": 7.28
+   },
+   "A+": {
+    "n": 2,
+    "proj": 48.86,
+    "act": 40.5,
+    "err": 8.36
+   }
+  },
+  "vs_dk": {
+   "n": 99,
+   "model": 685.3199999999997,
+   "dk": 635.5,
+   "over": 45,
+   "model_closer": 34,
+   "dk_closer": 65,
+   "ties": 0
+  },
+  "news": {
+   "n": 0,
+   "dk_closer": 0
+  },
+  "verdict": {
+   "n": 0,
+   "w": 0
+  },
+  "partial": false,
+  "games_left": 0,
+  "top_more": [
+   {
+    "name": "Khris Middleton",
+    "team": "WSH",
+    "call": "More",
+    "line": 11.5,
+    "pra": 16.13,
+    "act": 10,
+    "won": false
+   }
+  ],
+  "preseason": false
+ }
 }
