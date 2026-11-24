@@ -7906,5 +7906,109 @@
    "grade": "OUT",
    "main": true
   }
- ]
+ ],
+ "scored": {
+  "date": "2026-11-23",
+  "n": 178,
+  "dnp": 68,
+  "mae": 5.6,
+  "bias": 0.52,
+  "min_mae": 4.0,
+  "brier": 0.251,
+  "more": {
+   "n": 3,
+   "w": 1
+  },
+  "less": {
+   "n": 4,
+   "w": 3
+  },
+  "tiers": {
+   "D": {
+    "n": 107,
+    "proj": 13.57,
+    "act": 13.75,
+    "err": 5.7
+   },
+   "C": {
+    "n": 37,
+    "proj": 23.05,
+    "act": 24.05,
+    "err": 4.21
+   },
+   "B": {
+    "n": 20,
+    "proj": 28.49,
+    "act": 31.3,
+    "err": 7.31
+   },
+   "B+": {
+    "n": 10,
+    "proj": 33.65,
+    "act": 31.0,
+    "err": 5.76
+   },
+   "A": {
+    "n": 2,
+    "proj": 37.35,
+    "act": 42.5,
+    "err": 5.15
+   },
+   "A+": {
+    "n": 2,
+    "proj": 46.69,
+    "act": 45.0,
+    "err": 8.56
+   }
+  },
+  "vs_dk": {
+   "n": 107,
+   "model": 589.2699999999999,
+   "dk": 611.5,
+   "over": 57,
+   "model_closer": 62,
+   "dk_closer": 44,
+   "ties": 1
+  },
+  "news": {
+   "n": 1,
+   "dk_closer": 0
+  },
+  "verdict": {
+   "n": 0,
+   "w": 0
+  },
+  "partial": false,
+  "games_left": 0,
+  "top_more": [
+   {
+    "name": "Brice Sensabaugh",
+    "team": "UTAH",
+    "call": "More",
+    "line": 16.5,
+    "pra": 20.89,
+    "act": 11,
+    "won": false
+   },
+   {
+    "name": "De'Andre Hunter",
+    "team": "SAC",
+    "call": "More",
+    "line": 19.5,
+    "pra": 23.23,
+    "act": 30,
+    "won": true
+   },
+   {
+    "name": "Jaylen Brown",
+    "team": "PHI",
+    "call": "More",
+    "line": 30.5,
+    "pra": 33.6,
+    "act": 26,
+    "won": false
+   }
+  ],
+  "preseason": false
+ }
 }
