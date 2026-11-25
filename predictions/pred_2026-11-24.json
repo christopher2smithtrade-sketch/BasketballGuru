@@ -2384,5 +2384,91 @@
    "grade": "OUT",
    "main": true
   }
- ]
+ ],
+ "scored": {
+  "date": "2026-11-24",
+  "n": 49,
+  "dnp": 18,
+  "mae": 6.27,
+  "bias": 0.9,
+  "min_mae": 3.73,
+  "brier": 0.2555,
+  "more": {
+   "n": 1,
+   "w": 0
+  },
+  "less": {
+   "n": 1,
+   "w": 0
+  },
+  "tiers": {
+   "C": {
+    "n": 14,
+    "proj": 22.75,
+    "act": 23.36,
+    "err": 6.0
+   },
+   "D": {
+    "n": 27,
+    "proj": 12.96,
+    "act": 13.85,
+    "err": 5.02
+   },
+   "A": {
+    "n": 3,
+    "proj": 38.34,
+    "act": 38.33,
+    "err": 9.97
+   },
+   "B+": {
+    "n": 2,
+    "proj": 34.14,
+    "act": 44.5,
+    "err": 10.36
+   },
+   "B": {
+    "n": 2,
+    "proj": 28.22,
+    "act": 31.5,
+    "err": 10.55
+   },
+   "A+": {
+    "n": 1,
+    "proj": 49.89,
+    "act": 34.0,
+    "err": 15.89
+   }
+  },
+  "vs_dk": {
+   "n": 29,
+   "model": 199.58999999999997,
+   "dk": 193.5,
+   "over": 17,
+   "model_closer": 14,
+   "dk_closer": 15,
+   "ties": 0
+  },
+  "news": {
+   "n": 0,
+   "dk_closer": 0
+  },
+  "verdict": {
+   "n": 0,
+   "w": 0
+  },
+  "partial": false,
+  "games_left": 0,
+  "top_more": [
+   {
+    "name": "Jamal Murray",
+    "team": "DEN",
+    "call": "More",
+    "line": 34.5,
+    "pra": 38.39,
+    "act": 25,
+    "won": false
+   }
+  ],
+  "preseason": false
+ }
 }
