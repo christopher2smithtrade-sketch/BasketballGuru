@@ -7175,5 +7175,91 @@
    "grade": "OUT",
    "main": true
   }
- ]
+ ],
+ "scored": {
+  "date": "2026-11-25",
+  "n": 165,
+  "dnp": 77,
+  "mae": 5.92,
+  "bias": 0.25,
+  "min_mae": 4.14,
+  "brier": 0.2509,
+  "more": {
+   "n": 1,
+   "w": 1
+  },
+  "less": {
+   "n": 3,
+   "w": 2
+  },
+  "tiers": {
+   "D": {
+    "n": 107,
+    "proj": 13.08,
+    "act": 12.75,
+    "err": 5.52
+   },
+   "B+": {
+    "n": 14,
+    "proj": 32.85,
+    "act": 35.79,
+    "err": 8.08
+   },
+   "B": {
+    "n": 14,
+    "proj": 28.36,
+    "act": 31.86,
+    "err": 6.31
+   },
+   "A+": {
+    "n": 3,
+    "proj": 43.83,
+    "act": 51.0,
+    "err": 8.62
+   },
+   "C": {
+    "n": 25,
+    "proj": 22.75,
+    "act": 22.2,
+    "err": 5.54
+   },
+   "A": {
+    "n": 2,
+    "proj": 38.45,
+    "act": 28.0,
+    "err": 10.45
+   }
+  },
+  "vs_dk": {
+   "n": 93,
+   "model": 601.2600000000001,
+   "dk": 596.5,
+   "over": 50,
+   "model_closer": 44,
+   "dk_closer": 48,
+   "ties": 1
+  },
+  "news": {
+   "n": 0,
+   "dk_closer": 0
+  },
+  "verdict": {
+   "n": 0,
+   "w": 0
+  },
+  "partial": false,
+  "games_left": 0,
+  "top_more": [
+   {
+    "name": "Cam Spencer",
+    "team": "MEM",
+    "call": "More",
+    "line": 17.5,
+    "pra": 22.01,
+    "act": 20,
+    "won": true
+   }
+  ],
+  "preseason": false
+ }
 }
