@@ -2,7 +2,7 @@
  "date": "2026-11-27",
  "preseason": false,
  "backtest": false,
- "logged_at": "2026-11-28T02:57:43",
+ "logged_at": "2026-11-28T03:18:59",
  "games": [
   {
    "game_id": "401909326",
@@ -4486,6 +4486,32 @@
    "returner": false,
    "p_over": 0.4418,
    "var": 20.75
+  },
+  {
+   "pid": "4596528",
+   "name": "Lawson Lovering",
+   "pos": "C",
+   "team": "MEM",
+   "opp": "MIN",
+   "game_id": "401909331",
+   "grade": "D",
+   "main": true,
+   "pra": 2.39,
+   "pts": 1.04,
+   "reb": 1.15,
+   "ast": 0.2,
+   "fg3m": 0.04,
+   "min": 3.9,
+   "ref": 8.25,
+   "boost": -5.86,
+   "proxy": 8.5,
+   "line_src": "avg",
+   "news": false,
+   "rookie": false,
+   "returner": false,
+   "p_over": 0.1191,
+   "var": 35.31,
+   "late": true
   },
   {
    "pid": "4683934",
