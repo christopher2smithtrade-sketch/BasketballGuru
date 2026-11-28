@@ -2,7 +2,7 @@
  "date": "2026-11-27",
  "preseason": false,
  "backtest": false,
- "logged_at": "2026-11-28T00:32:55",
+ "logged_at": "2026-11-28T02:57:43",
  "games": [
   {
    "game_id": "401909326",
@@ -2758,6 +2758,26 @@
    "var": 56.64
   },
   {
+   "pid": "4395625",
+   "name": "RJ Barrett",
+   "pos": "F",
+   "team": "TOR",
+   "opp": "BKN",
+   "game_id": "401909329",
+   "grade": "OUT",
+   "main": true
+  },
+  {
+   "pid": "6450",
+   "name": "Kawhi Leonard",
+   "pos": "F",
+   "team": "TOR",
+   "opp": "BKN",
+   "game_id": "401909329",
+   "grade": "OUT",
+   "main": true
+  },
+  {
    "pid": "4684272",
    "name": "Ja'Kobe Walter",
    "pos": "G",
@@ -2781,26 +2801,6 @@
    "returner": false,
    "p_over": 0.4801,
    "var": 62.83
-  },
-  {
-   "pid": "4395625",
-   "name": "RJ Barrett",
-   "pos": "F",
-   "team": "TOR",
-   "opp": "BKN",
-   "game_id": "401909329",
-   "grade": "OUT",
-   "main": true
-  },
-  {
-   "pid": "6450",
-   "name": "Kawhi Leonard",
-   "pos": "F",
-   "team": "TOR",
-   "opp": "BKN",
-   "game_id": "401909329",
-   "grade": "OUT",
-   "main": true
   },
   {
    "pid": "5105626",
@@ -5298,31 +5298,6 @@
    "var": 10.91
   },
   {
-   "pid": "6442",
-   "name": "Kyrie Irving",
-   "pos": "G",
-   "team": "DAL",
-   "opp": "PHX",
-   "game_id": "401909332",
-   "grade": "B",
-   "main": true,
-   "pra": 29.07,
-   "pts": 20.58,
-   "reb": 3.85,
-   "ast": 4.64,
-   "fg3m": 3.04,
-   "min": 31.4,
-   "ref": 29.8,
-   "boost": -0.73,
-   "proxy": 29.5,
-   "line_src": "avg",
-   "news": false,
-   "rookie": false,
-   "returner": true,
-   "p_over": 0.4643,
-   "var": 79.69
-  },
-  {
    "pid": "4873153",
    "name": "Morez Johnson Jr.",
    "pos": "F",
@@ -5491,6 +5466,31 @@
    "game_id": "401909332",
    "grade": "OUT",
    "main": true
+  },
+  {
+   "pid": "6442",
+   "name": "Kyrie Irving",
+   "pos": "G",
+   "team": "DAL",
+   "opp": "PHX",
+   "game_id": "401909332",
+   "grade": "B",
+   "main": true,
+   "pra": 29.07,
+   "pts": 20.58,
+   "reb": 3.85,
+   "ast": 4.64,
+   "fg3m": 3.04,
+   "min": 31.4,
+   "ref": 29.8,
+   "boost": -0.73,
+   "proxy": 29.5,
+   "line_src": "avg",
+   "news": false,
+   "rookie": false,
+   "returner": true,
+   "p_over": 0.4643,
+   "var": 79.69
   },
   {
    "pid": "5106040",
@@ -5688,6 +5688,16 @@
    "var": 23.26
   },
   {
+   "pid": "5037871",
+   "name": "Dylan Harper",
+   "pos": "G",
+   "team": "SA",
+   "opp": "LAL",
+   "game_id": "401909333",
+   "grade": "OUT",
+   "main": true
+  },
+  {
    "pid": "4395723",
    "name": "Keldon Johnson",
    "pos": "F",
@@ -5861,16 +5871,6 @@
    "returner": false,
    "p_over": 0.4874,
    "var": 103.46
-  },
-  {
-   "pid": "5037871",
-   "name": "Dylan Harper",
-   "pos": "G",
-   "team": "SA",
-   "opp": "LAL",
-   "game_id": "401909333",
-   "grade": "OUT",
-   "main": true
   },
   {
    "pid": "6440",
@@ -6408,31 +6408,6 @@
    "var": 69.76
   },
   {
-   "pid": "4277919",
-   "name": "Mo Bamba",
-   "pos": "C",
-   "team": "UTAH",
-   "opp": "DEN",
-   "game_id": "401909334",
-   "grade": "D",
-   "main": true,
-   "pra": 17.2,
-   "pts": 8.81,
-   "reb": 7.18,
-   "ast": 1.22,
-   "fg3m": 0.5,
-   "min": 22.0,
-   "ref": 16.8,
-   "boost": 0.4,
-   "proxy": 16.5,
-   "line_src": "avg",
-   "news": false,
-   "rookie": false,
-   "returner": false,
-   "p_over": 0.5115,
-   "var": 58.33
-  },
-  {
    "pid": "4065673",
    "name": "Tony Bradley",
    "pos": "C",
@@ -6658,6 +6633,16 @@
    "var": 52.79
   },
   {
+   "pid": "3102530",
+   "name": "Jusuf Nurkic",
+   "pos": "C",
+   "team": "UTAH",
+   "opp": "DEN",
+   "game_id": "401909334",
+   "grade": "OUT",
+   "main": true
+  },
+  {
    "pid": "4065663",
    "name": "Josh Okogie",
    "pos": "G",
@@ -6733,6 +6718,31 @@
    "var": 55.33
   },
   {
+   "pid": "4277919",
+   "name": "Mo Bamba",
+   "pos": "C",
+   "team": "UTAH",
+   "opp": "DEN",
+   "game_id": "401909334",
+   "grade": "D",
+   "main": true,
+   "pra": 17.2,
+   "pts": 8.81,
+   "reb": 7.18,
+   "ast": 1.22,
+   "fg3m": 0.5,
+   "min": 22.0,
+   "ref": 16.8,
+   "boost": 0.4,
+   "proxy": 16.5,
+   "line_src": "avg",
+   "news": false,
+   "rookie": false,
+   "returner": false,
+   "p_over": 0.5115,
+   "var": 58.33
+  },
+  {
    "pid": "4277961",
    "name": "Jaren Jackson Jr.",
    "pos": "F",
@@ -6746,16 +6756,6 @@
    "pid": "4066336",
    "name": "Lauri Markkanen",
    "pos": "F",
-   "team": "UTAH",
-   "opp": "DEN",
-   "game_id": "401909334",
-   "grade": "OUT",
-   "main": true
-  },
-  {
-   "pid": "3102530",
-   "name": "Jusuf Nurkic",
-   "pos": "C",
    "team": "UTAH",
    "opp": "DEN",
    "game_id": "401909334",
@@ -7983,6 +7983,16 @@
    "var": 5.74
   },
   {
+   "pid": "4431675",
+   "name": "Trendon Watford",
+   "pos": "F",
+   "team": "NO",
+   "opp": "LAC",
+   "game_id": "401909335",
+   "grade": "OUT",
+   "main": true
+  },
+  {
    "pid": "4395628",
    "name": "Zion Williamson",
    "pos": "F",
@@ -8021,16 +8031,6 @@
    "pid": "3907497",
    "name": "Dejounte Murray",
    "pos": "G",
-   "team": "NO",
-   "opp": "LAC",
-   "game_id": "401909335",
-   "grade": "OUT",
-   "main": true
-  },
-  {
-   "pid": "4431675",
-   "name": "Trendon Watford",
-   "pos": "F",
    "team": "NO",
    "opp": "LAC",
    "game_id": "401909335",
